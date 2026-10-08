@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Sobrevivência na Nuvem | FinOps Estudantil</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    },
+                    colors: {
+                        aws: '#FF9900',
+                        gcp: '#4285F4',
+                        azure: '#0089D6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .animate-pulse-slow { animation: pulse-slow 3s infinite; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
+        }
+        .animate-shake { animation: shake 0.35s ease-in-out infinite; }
+        .diagram-node {
+            transition: all 0.25s ease-in-out;
+        }
+        .diagram-node:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Top Glow Backdrop -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-48 bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-transparent blur-3xl pointer-events-none -z-10"></div>
+
+    <!-- Navigation Header -->
+    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <!-- Logo & Easter Egg Trigger -->
+            <div class="flex items-center gap-3">
+                <button id="cloud-egg-btn" onclick="handleCloudClick()" class="relative p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group" title="Clique 5 vezes para um teste de estresse de faturamento!">
+                    <span class="text-2xl group-hover:scale-110 transition-transform inline-block">☁️</span>
+                    <span id="click-feedback-badge" class="hidden absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-lg animate-bounce">0</span>
+                </button>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+                            Calculadora de Sobrevivência na Nuvem
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FinOps v3.8</span>
+                        </h1>
+                    </div>
+                    <p class="text-xs text-slate-400">Proteção contra faturas fantasmas, simulador de risco e modelagem visual para estudantes & devs</p>
+                </div>
+            </div>
+
+            <!-- Currency Rate Badge & Settings -->
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDollarModal(true)" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-xs font-mono transition cursor-pointer" title="Cotação comercial ao vivo com simulador de spread bancário">
+                    <span id="usd-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span class="text-slate-400 font-sans">USD:</span>
+                    <span id="header-usd-val" class="font-bold text-emerald-400">R$ 5,65</span>
+                    <span class="text-[11px] text-slate-500 hover:text-cyan-400 ml-1">⚙️ Câmbio</span>
+                </button>
+
+                <button onclick="toggleApiKeyModal(true)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs text-slate-300 hover:text-white transition cursor-pointer">
+                    <span id="header-key-icon">🔑</span>
+                    <span id="header-key-label" class="font-medium">Chave Gemini</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Navigation Tabs -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
+            <button onclick="switchMainView('calc-view')" id="tab-btn-calc-view" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                <span>🧪</span> Simulador de Custos & Topologia
+            </button>
+            <button onclick="switchMainView('compare-view')" id="tab-btn-compare-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
+                <span>⚖️</span> Matriz Comparativa
+            </button>
+            <button onclick="switchMainView('blueprints-view')" id="tab-btn-blueprints-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
+                <span>🚀</span> Projetos Prontos ($0.00)
+            </button>
+            <button onclick="switchMainView('career-view')" id="tab-btn-career-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
+                <span>🎓</span> Trilha de Carreira & Certificações
+            </button>
+            <button onclick="switchMainView('ai-view')" id="tab-btn-ai-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
+                <span>✨</span> Sentinela Gemini IA
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: SIMULADOR DE CUSTOS & TOPOLOGIA    -->
+        <!-- ========================================== -->
+        <section id="calc-view" class="space-y-6">
+            
+            <!-- Quick Intro & Cloud Filter -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl">
+                <div>
+                    <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <span>🛡️</span> Monte seu Laboratório Acadêmico
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Selecione componentes para projetar a infraestrutura e diagnosticar cobranças ocultas em tempo real.</p>
+                </div>
+                
+                <!-- Cloud Selector Tabs -->
+                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button onclick="filterCloud('all')" id="cloud-filter-all" class="cloud-pill active px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-white transition">Todas</button>
+                    <button onclick="filterCloud('gcp')" id="cloud-filter-gcp" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">GCP 🔵</button>
+                    <button onclick="filterCloud('aws')" id="cloud-filter-aws" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">AWS 🟠</button>
+                    <button onclick="filterCloud('azure')" id="cloud-filter-azure" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Azure 🔷</button>
+                </div>
+            </div>
+
+            <!-- LIVE ARCHITECTURE TOPOLOGY CANVAS -->
+            <div class="bg-slate-900/70 border border-cyan-500/20 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
+                    <div class="flex items-center gap-2.5">
+                        <span class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-base">📐</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                                    Arquitetura da Solução — Visão CCOE & Topologia
+                                </h3>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">TechTeam Standard</span>
+                            </div>
+                            <p class="text-xs text-slate-400">Diagrama de engenharia com fluxos de leitura, ingestão de dados e isolamento perimetral.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Controls: Mode Selector & Legend -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <!-- Mode Selector -->
+                        <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
+                            <button onclick="setTopologyMode('reactive')" id="topo-btn-reactive" class="px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300">
+                                ⚡ Cesta Atual
+                            </button>
+                            <button onclick="setTopologyMode('reference')" id="topo-btn-reference" class="px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white">
+                                🏛️ Labs CCOE
+                            </button>
+                        </div>
+
+                        <!-- Reference Lab Selector -->
+                        <select id="ccoe-lab-selector" onchange="renderCcoeSelectedLab()" class="hidden bg-slate-950 border border-slate-800 text-slate-200 text-[11px] rounded-xl px-2.5 py-1 focus:ring-1 focus:ring-cyan-500 outline-none">
+                            <option value="data_streaming">Pipeline: Streaming & Data Lake</option>
+                            <option value="serverless_analytics">Pipeline: BigQuery Serverless</option>
+                            <option value="jamstack_cdn">Web: Global Jamstack CDN</option>
+                            <option value="bot_always_free">DevOps: Bot 24/7 Always Free</option>
+                        </select>
+
+                        <!-- Export Button -->
+                        <button onclick="exportTopologyDiagram()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-mono transition flex items-center gap-1 cursor-pointer" title="Exportar diagrama em formato visual">
+                            <span>📥</span> Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CCOE Technical Legend Bar -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-3 pb-1 text-[11px] font-mono border-b border-slate-800/40">
+                    <div class="flex items-center gap-4">
+                        <span class="flex items-center gap-1.5 text-blue-400">
+                            <span class="w-4 h-0.5 border-t-2 border-dashed border-blue-400"></span> Escrita / Ingestão
+                        </span>
+                        <span class="flex items-center gap-1.5 text-emerald-400">
+                            <span class="w-4 h-0.5 border-t-2 border-dashed border-emerald-400"></span> Leitura / Consulta
+                        </span>
+                        <span class="flex items-center gap-1.5 text-rose-400">
+                            <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Alerta de Custo Fixo
+                        </span>
+                    </div>
+                    <span id="diagram-scope-badge" class="text-slate-500 text-[10px]">Perímetro: Multi-Cloud VPC</span>
+                </div>
+
+                <!-- Dynamic Diagram Layout -->
+                <div id="architecture-diagram-container" class="mt-4 min-h-[220px] flex items-center justify-center overflow-x-auto"></div>
+            </div>
+
+            <!-- Two Column Layout: Services Catalog + Live Risk Summary -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                
+                <!-- Left 2 Cols: Services -->
+                <div class="lg:col-span-2 space-y-6">
+                    
+                    <!-- Free Tier Safe Resources -->
+                    <div class="bg-slate-900/50 border border-emerald-500/20 rounded-2xl p-5">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">Custo Zero</span>
+                                <h3 class="text-sm font-bold text-white">Camada Segura (Always Free & Free Tier)</h3>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-mono font-semibold">$0.00 / mês</span>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" id="safe-services-container">
+                            
+                            <!-- GCP e2-micro -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                                <input type="checkbox" data-service="gcp_e2_micro" data-name="GCP: VM e2-micro" data-layer="compute" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">GCP: VM e2-micro</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">1 vCPU, 1 GB RAM, 30 GB disco. 100% grátis perpétuo nas regiões us-central1, us-east1 ou us-west1.</p>
+                                </div>
+                            </label>
+
+                            <!-- AWS EC2 t2.micro -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="aws">
+                                <input type="checkbox" data-service="aws_t2_micro" data-name="AWS: EC2 t2.micro" data-layer="compute" data-cloud="AWS" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">AWS: EC2 t2.micro / t3.micro</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-semibold">AWS</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">750 horas/mês gratuitas nos primeiros 12 meses. Ótimo para testes de Linux e Docker inicial.</p>
+                                </div>
+                            </label>
+
+                            <!-- Azure B1s -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="azure">
+                                <input type="checkbox" data-service="azure_b1s" data-name="Azure: VM B1s" data-layer="compute" data-cloud="Azure" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">Azure: VM Série B1s</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-400 font-semibold">Azure</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">750 horas/mês gratuitas por 1 ano. 1 vCPU, 1 GB de RAM com discos gerenciados.</p>
+                                </div>
+                            </label>
+
+                            <!-- GCP BigQuery -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                                <input type="checkbox" data-service="gcp_bigquery" data-name="GCP: BigQuery Sandbox" data-layer="data" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">GCP: BigQuery Sandbox</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">10 GB de armazenamento e 1 TB/mês de consultas SQL sem pedir cartão de crédito.</p>
+                                </div>
+                            </label>
+
+                            <!-- AWS S3 + CloudFront -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="aws">
+                                <input type="checkbox" data-service="aws_s3_jamstack" data-name="AWS: S3 + CloudFront" data-layer="storage" data-cloud="AWS" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">AWS: S3 + CloudFront CDN</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-semibold">AWS</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">5 GB de S3 + 1 TB de transferência gratuita mensal via CDN CloudFront com SSL.</p>
+                                </div>
+                            </label>
+
+                            <!-- GCP Cloud Run -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                                <input type="checkbox" data-service="gcp_cloud_run" data-name="GCP: Cloud Run" data-layer="compute" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-bold text-white">GCP: Cloud Run (Serverless)</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                    </div>
+                                    <p class="text-slate-400 mt-1">2 milhões de requisições grátis todo mês. Escala até zero instâncias quando sem uso.</p>
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+
+                    <!-- Trap Zone / Paid Pitfalls -->
+                    <div class="bg-slate-900/50 border border-rose-500/30 rounded-2xl p-5">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-xs font-bold uppercase">🚨 Zona de Risco</span>
+                                <h3 class="text-sm font-bold text-white">As Armadilhas Clássicas (Cobrança Horária Contínua)</h3>
+                            </div>
+                            <span class="text-xs text-rose-400 font-mono font-semibold">Cuidado Redobrado!</span>
+                        </div>
+
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" id="trap-services-container">
+                            
+                            <!-- AWS NAT Gateway -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
+                                <input type="checkbox" data-service="aws_nat" data-name="AWS: NAT Gateway" data-layer="network" data-cloud="AWS" data-price="32.40" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">AWS: NAT Gateway</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$32.40/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">O maior vilão dos estudantes. Cobra ~$0.045/hora mesmo sem trafegar nenhum dado!</p>
+                                </div>
+                            </label>
+
+                            <!-- GCP NAT Gateway -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
+                                <input type="checkbox" data-service="gcp_nat" data-name="GCP: Cloud NAT" data-layer="network" data-cloud="GCP" data-price="32.80" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">GCP: Cloud NAT Gateway</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$32.80/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">Não possui cota Always Free. Cobra taxa mínima por porta e roteador provisionado.</p>
+                                </div>
+                            </label>
+
+                            <!-- Azure Bastion -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="azure">
+                                <input type="checkbox" data-service="azure_bastion" data-name="Azure: Bastion Host" data-layer="ingress" data-cloud="Azure" data-price="28.80" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">Azure: Bastion Host</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$28.80/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">Acesso SSH/RDP via browser. Custo fixo contínuo enquanto estiver ativo no Resource Group.</p>
+                                </div>
+                            </label>
+
+                            <!-- Unattached Static IPv4 -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="all">
+                                <input type="checkbox" data-service="unattached_ip" data-name="Multi-Cloud: IPv4 Órfão" data-layer="ingress" data-cloud="Multi" data-price="3.60" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">Multi-Cloud: IPv4 Desvinculado</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$3.60/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">IP público reservado sem estar associado a uma máquina ativa paga multa de ociosidade.</p>
+                                </div>
+                            </label>
+
+                            <!-- GCP Cloud SQL -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
+                                <input type="checkbox" data-service="gcp_sql" data-name="GCP: Cloud SQL" data-layer="data" data-cloud="GCP" data-price="12.50" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">GCP: Cloud SQL (db-f1-micro)</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$12.50/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">O Cloud SQL NÃO possui camada Always Free após o fim dos créditos iniciais.</p>
+                                </div>
+                            </label>
+
+                            <!-- AWS ALB -->
+                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
+                                <input type="checkbox" data-service="aws_alb" data-name="AWS: Load Balancer (ALB)" data-layer="network" data-cloud="AWS" data-price="16.20" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
+                                <div class="text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-white">AWS: Application Load Balancer</span>
+                                        <span class="text-rose-400 font-mono font-bold">+$16.20/mês</span>
+                                    </div>
+                                    <p class="text-slate-300 mt-1">Cobrança por hora de balanceador provisionado mais métricas de conexões ativas (LCU).</p>
+                                </div>
+                            </label>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 1 Col: Summary & Financial Diagnosis -->
+                <div class="space-y-4 lg:sticky lg:top-24">
+                    
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Diagnóstico Financeiro</span>
+                            <span id="risk-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Risco Zero 🟢</span>
+                        </div>
+
+                        <!-- Price Counter -->
+                        <div>
+                            <span class="text-xs text-slate-400">Total Mensal Estimado:</span>
+                            <div class="flex items-baseline gap-2 mt-1">
+                                <span class="text-3xl font-extrabold text-white font-mono" id="total-usd">$0.00</span>
+                                <span class="text-xs font-bold text-slate-400 uppercase">USD</span>
+                            </div>
+                            <div class="text-sm font-semibold text-emerald-400 font-mono mt-0.5" id="total-brl">
+                                ≈ R$ 0,00 <span class="text-[11px] font-normal text-slate-400">(cotação comercial)</span>
+                            </div>
+                        </div>
+
+                        <!-- Weekend Multiplier Option -->
+                        <div class="pt-3 border-t border-slate-800/80">
+                            <label class="flex items-start gap-2.5 cursor-pointer">
+                                <input type="checkbox" id="weekend-multiplier" class="mt-0.5 accent-rose-500 rounded">
+                                <span class="text-xs text-slate-300">
+                                    <strong class="text-white block">Esqueci ligado na sexta-feira (+72h)</strong>
+                                    Simula recursos ociosos faturando durante todo o fim de semana.
+                                </span>
+                            </label>
+                        </div>
+
+                        <!-- Risk Message Box -->
+                        <div id="risk-box" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                            Nenhum serviço pago marcado. Seu cartão está 100% protegido nas cotas gratuitas!
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-2 pt-2">
+                            <button onclick="executeFullAiAudit()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
+                                <span>✨</span> Auditar Cesta Atual com Gemini IA
+                            </button>
+                            <button onclick="resetCalculator()" class="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition cursor-pointer">
+                                Limpar Seleção
+                            </button>
+                        </div>
+
+                        <!-- Hidden Easter Egg Trigger Link -->
+                        <div class="text-center pt-2">
+                            <button onclick="triggerEasterEgg()" class="text-[10px] text-slate-600 hover:text-rose-400 transition cursor-pointer">
+                                ⚠️ Simular pesadelo de fatura manualmente
+                            </button>
+                        </div>
+
+                    </div>
+
+                    <!-- Kill Switch Card -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-4 text-xs text-slate-400">
+                        <span class="text-white font-bold block mb-1">💡 Dica de Ouro de Sobrevivência:</span>
+                        Terminou o laboratório? Nunca deixe para desligar amanhã. Use o comando de destruição no terminal ou configure um <strong>Budget Alert de $1.00</strong> logo no primeiro dia.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: MATRIZ COMPARATIVA LADO A LADO     -->
+        <!-- ========================================== -->
+        <section id="compare-view" class="hidden space-y-6">
+            
+            <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>⚖️</span> Matriz Comparativa: Google Cloud vs. AWS vs. Microsoft Azure
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">Entenda os pontos fortes, as cotas perpétuas e onde cada provedor cobra de surpresa.</p>
+            </div>
+
+            <!-- Profile Recommender -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-slate-900 border border-blue-500/30 rounded-2xl p-4 space-y-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-400">Perfil: Servidor 24/7 Perpétuo</span>
+                    <h3 class="text-sm font-bold text-white">Google Cloud (GCP)</h3>
+                    <p class="text-xs text-slate-300">A melhor nuvem para manter um bot ou API no ar sem expirar. A cota da <strong>e2-micro é Always Free</strong> e não acaba após o 1º ano letivo.</p>
+                </div>
+                <div class="bg-slate-900 border border-sky-500/30 rounded-2xl p-4 space-y-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-sky-400">Perfil: Sem Cartão de Crédito</span>
+                    <h3 class="text-sm font-bold text-white">Microsoft Azure</h3>
+                    <p class="text-xs text-slate-300">O <strong>Azure for Students</strong> oferece $100 de crédito anual usando apenas seu e-mail universitário (.edu) e possui <strong>trava nativa de $0</strong> de gastos.</p>
+                </div>
+                <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 space-y-2">
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Perfil: Empregabilidade & Vagas</span>
+                    <h3 class="text-sm font-bold text-white">Amazon Web Services (AWS)</h3>
+                    <p class="text-xs text-slate-300">Líder em volume de vagas corporativas. Exige muita atenção com orçamentos (*AWS Budgets*) e desprovisionamento rigoroso de NATs e ALBs.</p>
+                </div>
+            </div>
+
+            <!-- Comparative Table -->
+            <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-950/80 text-slate-300 uppercase font-bold border-b border-slate-800">
+                        <tr>
+                            <th class="p-3.5">Recurso / Critério</th>
+                            <th class="p-3.5 text-blue-400">Google Cloud (GCP)</th>
+                            <th class="p-3.5 text-amber-400">AWS</th>
+                            <th class="p-3.5 text-sky-400">Microsoft Azure</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Computação Perpétua (Always Free)</td>
+                            <td class="p-3.5 text-emerald-400">✅ e2-micro permanente (EUA)</td>
+                            <td class="p-3.5 text-slate-400">❌ Expira em 12 meses (t2/t3.micro)</td>
+                            <td class="p-3.5 text-slate-400">❌ Expira em 12 meses (B1s)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Acesso Sem Cartão de Crédito</td>
+                            <td class="p-3.5 text-emerald-400">✅ BigQuery Sandbox (sem cartão)</td>
+                            <td class="p-3.5 text-rose-400">❌ Cartão obrigatório na criação</td>
+                            <td class="p-3.5 text-emerald-400">✅ Azure for Students (e-mail .edu)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Vilão Financeiro Principal</td>
+                            <td class="p-3.5 text-rose-300">Cloud NAT & Cloud SQL</td>
+                            <td class="p-3.5 text-rose-300">NAT Gateway (~$32/mês) & ALBs</td>
+                            <td class="p-3.5 text-rose-300">Azure Bastion (~$28/mês)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3.5 font-bold text-white">Trava Automática de Fatura</td>
+                            <td class="p-3.5 text-slate-400">Alertas por e-mail + Cloud Functions</td>
+                            <td class="p-3.5 text-slate-400">AWS Budgets (apenas envia e-mail)</td>
+                            <td class="p-3.5 text-emerald-400">✅ Spending Limit nativo de $0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 3: PROJETOS PRONTOS ($0.00)           -->
+        <!-- ========================================== -->
+        <section id="blueprints-view" class="hidden space-y-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+                <div>
+                    <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <span>🚀</span> Blueprints de Projetos Seguros
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-1">Arquiteturas validadas para você praticar no portfólio sem estourar limites.</p>
+                </div>
+                
+                <!-- Filter by Level -->
+                <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                    <button onclick="filterBlueprints('all')" id="bp-filter-all" class="bp-pill active px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-white transition">Todos</button>
+                    <button onclick="filterBlueprints('junior')" id="bp-filter-junior" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🟢 Júnior ($0.00)</button>
+                    <button onclick="filterBlueprints('mid')" id="bp-filter-mid" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🟡 Pleno (FinOps)</button>
+                    <button onclick="filterBlueprints('senior')" id="bp-filter-senior" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🔴 Sênior</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="blueprints-grid">
+                
+                <!-- Blueprint 1: Bot 24/7 GCP -->
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
+                        <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Garantido</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Bot Telegram / Discord 24/7 com Docker</h3>
+                    <p class="text-xs text-slate-300">Execute containers leves sem custos usando a VM `e2-micro` perpétua em regiões dos EUA com 30 GB de disco persistente.</p>
+                    <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                        <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Não ative Cloud NAT nem suba Cloud SQL. Instale o Postgres via Docker na própria VM.
+                    </div>
+                    <button onclick="loadBlueprint('gcp_bot')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                        Simular no Calculador 🧪
+                    </button>
+                </div>
+
+                <!-- Blueprint 2: Jamstack AWS -->
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Júnior</span>
+                        <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Garantido</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Site Portfólio Jamstack Global com CDN</h3>
+                    <p class="text-xs text-slate-300">Hospedagem estática de React/Vue no S3 distribuída mundialmente com CloudFront CDN e certificado SSL gratuito via ACM.</p>
+                    <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                        <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Nunca coloque um Application Load Balancer (ALB) na frente de arquivos estáticos.
+                    </div>
+                    <button onclick="loadBlueprint('aws_jamstack')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                        Simular no Calculador 🧪
+                    </button>
+                </div>
+
+                <!-- Blueprint 3: BigQuery GCP -->
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
+                        <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Sem Cartão</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Pipeline de Dados & Análise com BigQuery</h3>
+                    <p class="text-xs text-slate-300">Crie dashboards no Looker Studio consumindo queries SQL no BigQuery Sandbox sem precisar cadastrar cartão de crédito.</p>
+                    <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                        <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Limite as consultas com partições para não estourar a cota de 1 TB/mês.
+                    </div>
+                    <button onclick="loadBlueprint('gcp_bigquery')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                        Simular no Calculador 🧪
+                    </button>
+                </div>
+
+                <!-- Blueprint 4: EKS Spot (Pleno) -->
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-5 space-y-3 transition" data-level="mid">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Pleno / FinOps</span>
+                        <span class="text-xs font-mono font-bold text-amber-400">&lt; $15.00 / mês</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Kubernetes EKS com Karpenter & Instâncias Spot</h3>
+                    <p class="text-xs text-slate-300">Cluster corporativo com escalonamento automático agressivo em nós Spot, reduzindo até 80% do custo computacional.</p>
+                    <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                        <strong class="text-rose-400">⚠️ Erro clássico de Plenos:</strong> Subir 3 NAT Gateways em Multi-AZ para ambiente de testes. Use 1 único gateway ou NAT instance.
+                    </div>
+                    <button onclick="loadBlueprint('aws_eks_spot')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                        Simular no Calculador 🧪
+                    </button>
+                </div>
+
+                <!-- Blueprint 5: Multi-Cloud Zero-Egress (Sênior) -->
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-5 space-y-3 transition" data-level="senior">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Multi-Cloud • Sênior</span>
+                        <span class="text-xs font-mono font-bold text-purple-400">Alta Resiliência</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Disaster Recovery Ativo-Ativo com Zero Egress</h3>
+                    <p class="text-xs text-slate-300">Orquestração combinando AWS e Google Cloud usando Cloudflare na borda e Cloudflare R2 para neutralizar as taxas de tráfego de saída.</p>
+                    <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
+                        <strong class="text-rose-400">⚠️ Ponto Crítico FinOps:</strong> Monitorar replicação cross-cloud para evitar cobranças de transferências intercontinentais.
+                    </div>
+                    <button onclick="loadBlueprint('multi_cloud_senior')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                        Simular no Calculador 🧪
+                    </button>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: TRILHA DE CARREIRA & CERTIFICAÇÃO  -->
+        <!-- ========================================== -->
+        <section id="career-view" class="hidden space-y-6">
+            
+            <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+                <h2 class="text-base font-bold text-white flex items-center gap-2">
+                    <span>🎓</span> Trilha de Entrada em Nuvem & Certificações
+                </h2>
+                <p class="text-xs text-slate-400 mt-1">O roteiro em 4 etapas para conquistar o primeiro emprego em Cloud sem cair em pegadinhas.</p>
+            </div>
+
+            <!-- Certifications Comparison Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                
+                <!-- AWS CLF-C02 -->
+                <div class="bg-slate-900 border border-amber-500/30 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-400">AWS</span>
+                        <span class="text-xs font-bold text-white">CLF-C02</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">AWS Cloud Practitioner</h3>
+                    <p class="text-xs text-slate-300">A certificação fundamental com maior volume de vagas no mercado brasileiro. Exige domínio do Well-Architected e Billing.</p>
+                    <button onclick="generateAiStudyPlan('AWS Cloud Practitioner (CLF-C02)')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold transition cursor-pointer">
+                        Gerar Cronograma IA 🤖
+                    </button>
+                </div>
+
+                <!-- GCP Digital Leader -->
+                <div class="bg-slate-900 border border-blue-500/30 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">Google Cloud</span>
+                        <span class="text-xs font-bold text-white">Digital Leader</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Cloud Digital Leader</h3>
+                    <p class="text-xs text-slate-300">Forte ênfase em dados, modernização de aplicações e IA generativa com Vertex AI e BigQuery.</p>
+                    <button onclick="generateAiStudyPlan('Google Cloud Digital Leader')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-400 text-xs font-semibold transition cursor-pointer">
+                        Gerar Cronograma IA 🤖
+                    </button>
+                </div>
+
+                <!-- Azure AZ-900 -->
+                <div class="bg-slate-900 border border-sky-500/30 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-sky-500/20 text-sky-400">Microsoft Azure</span>
+                        <span class="text-xs font-bold text-white">AZ-900</span>
+                    </div>
+                    <h3 class="text-sm font-bold text-white">Azure Fundamentals</h3>
+                    <p class="text-xs text-slate-300">Foco em governança corporativa, segurança e integração com Microsoft 365 e Entra ID.</p>
+                    <button onclick="generateAiStudyPlan('Microsoft Azure Fundamentals (AZ-900)')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-400 text-xs font-semibold transition cursor-pointer">
+                        Gerar Cronograma IA 🤖
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- 4 Step Career Roadmap -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl space-y-1.5">
+                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center justify-center">1</span>
+                    <h4 class="text-xs font-bold text-white">Vocabulário de Nuvem</h4>
+                    <p class="text-[11px] text-slate-400">IaaS, PaaS, SaaS, Regiões vs Zonas e o Modelo de Responsabilidade Compartilhada.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl space-y-1.5">
+                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center justify-center">2</span>
+                    <h4 class="text-xs font-bold text-white">Redes & Linux Essencial</h4>
+                    <p class="text-[11px] text-slate-400">Sub-redes públicas/privadas, CIDR, portas SSH (22), HTTP (80) e comandos de terminal.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl space-y-1.5">
+                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center justify-center">3</span>
+                    <h4 class="text-xs font-bold text-white">Labs Risco Zero</h4>
+                    <p class="text-[11px] text-slate-400">Pratique em camadas Always Free ou sandboxes com trava de gastos ativa.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-2xl space-y-1.5">
+                    <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold flex items-center justify-center">4</span>
+                    <h4 class="text-xs font-bold text-white">Portfólio com Teardown</h4>
+                    <p class="text-[11px] text-slate-400">Publique repositórios no GitHub com documentação e scripts de destruição de recursos.</p>
+                </div>
+            </div>
+
+            <!-- Interactive Study Checklist -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
+                    <div>
+                        <h3 class="text-sm font-bold text-white">Checklist de Competências para Entrevistas</h3>
+                        <p class="text-xs text-slate-400">Marque o que você já domina para calcular sua prontidão técnica.</p>
+                    </div>
+                    <span id="track-progress-badge" class="px-2.5 py-1 rounded-full text-xs font-bold font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">0% Concluído</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                    <div id="track-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300" style="width: 0%"></div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" id="career-checklist-container">
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Diferença entre Região e Zona de Disponibilidade</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Configuração de Alerta de Orçamento (Budget Alert)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Criar uma VM e conectar via SSH com par de chaves</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Subir container Docker e expor porta com Security Group</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Hospedar site estático em bucket (S3 / Cloud Storage)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800/80 hover:border-slate-700 cursor-pointer text-xs">
+                        <input type="checkbox" onchange="updateTrackProgress()" class="track-check accent-cyan-500 w-4 h-4 rounded">
+                        <span>Princípio do Menor Privilégio no IAM (Identity & Access)</span>
+                    </label>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW 5: SENTINELA GEMINI IA                -->
+        <!-- ========================================== -->
+        <section id="ai-view" class="hidden space-y-6">
+            
+            <div class="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-slate-900 p-6 relative overflow-hidden">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
+                            <span>✨</span> Motor FinOps Inteligente
+                        </span>
+                        <h2 class="text-xl font-extrabold text-white">Sentinela FinOps Inteligente</h2>
+                        <p class="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+                            Consulte a inteligência integrada para auditar seus recursos, tirar dúvidas técnicas ou planejar sua carreira sem risco de fatura.
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="toggleApiKeyModal(true)" class="px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 hover:border-cyan-500/50 text-slate-200 text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+                            <span>🔑</span> Configurar Chave
+                        </button>
+                        <button onclick="executeFullAiAudit()" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-cyan-500/20">
+                            <span>🔍</span> Analisar Cesta Agora
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Questions Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <button onclick="askSentinel('Como hospedar Docker de graça para projetos da faculdade?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                    <span class="font-bold text-white block">🐳 Docker sem Custo</span>
+                    <span class="text-slate-400 text-[11px] block">Como rodar APIs e bots 24/7 sem pagar nada.</span>
+                </button>
+                <button onclick="askSentinel('Posso usar GPU na nuvem para treinar modelo de IA do TCC sem risco no cartão?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                    <span class="font-bold text-white block">🧠 GPUs & TCC de IA</span>
+                    <span class="text-slate-400 text-[11px] block">Alternativas gratuitas seguras para Deep Learning.</span>
+                </button>
+                <button onclick="askSentinel('Por que o Amazon RDS e Cloud SQL são perigosos para estudantes?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                    <span class="font-bold text-white block">🗄️ O perigo do RDS / SQL</span>
+                    <span class="text-slate-400 text-[11px] block">A armadilha da computação contínua de bancos.</span>
+                </button>
+                <button onclick="askSentinel('Como funciona a nova cobrança de IPv4 público na AWS e GCP?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                    <span class="font-bold text-white block">🌐 Multas de IPv4</span>
+                    <span class="text-slate-400 text-[11px] block">Taxas por endereços estáticos desvinculados.</span>
+                </button>
+            </div>
+
+            <!-- Query Input Box -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div class="flex gap-2">
+                    <input type="text" id="ai-query-input" placeholder="Pergunte sobre serviços, certificações ou armadilhas de faturamento..." class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-sans" onkeydown="if(event.key === 'Enter') submitAiQuery()">
+                    <button onclick="submitAiQuery()" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5">
+                        <span>Enviar</span> ➔
+                    </button>
+                </div>
+            </div>
+
+            <!-- AI Response Box -->
+            <div id="ai-response-wrapper" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base" id="ai-status-icon">🤖</span>
+                        <h3 class="text-xs font-bold text-white uppercase tracking-wider" id="ai-response-title">Diagnóstico do Sentinela</h3>
+                    </div>
+                    <span id="ai-mode-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Motor FinOps Local</span>
+                </div>
+
+                <!-- Markdown Content Target -->
+                <div id="ai-response-content" class="text-xs text-slate-300 leading-relaxed space-y-3"></div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: CHAVE GEMINI API COM TESTADOR     -->
+    <!-- ========================================== -->
+    <div id="api-key-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span>🔑</span>
+                    <h3 class="text-sm font-bold text-white">Chave Gemini API (Google AI Studio)</h3>
+                </div>
+                <button onclick="toggleApiKeyModal(false)" class="text-slate-400 hover:text-white font-bold">&times;</button>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Insira sua chave gratuita gerada no Google AI Studio. A chave fica salva <strong>exclusivamente no seu navegador (localStorage)</strong> com sistema inteligente de redundância automática contra picos de demanda.
+            </p>
+
+            <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-300">Chave de API (começa com AIzaSy...):</label>
+                <div class="flex gap-2">
+                    <input type="password" id="input-gemini-key" placeholder="AIzaSy..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    <button onclick="testCurrentApiKey()" id="btn-test-key" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer">
+                        🧪 Testar
+                    </button>
+                </div>
+                <div id="key-test-feedback" class="hidden text-[11px] p-2 rounded-lg font-mono"></div>
+                <div class="flex justify-between items-center text-[11px] text-slate-400 pt-1">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">
+                        Obter chave gratuita no Google AI Studio ↗
+                    </a>
+                    <button onclick="clearApiKey()" class="text-rose-400 hover:underline cursor-pointer">Remover chave</button>
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button onclick="toggleApiKeyModal(false)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer">
+                    Fechar
+                </button>
+                <button onclick="saveApiKey()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition cursor-pointer">
+                    Salvar e Ativar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: AJUSTE DE CÂMBIO & DÓLAR CARTÃO   -->
+    <!-- ========================================== -->
+    <div id="dollar-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span>💵</span>
+                    <h3 class="text-sm font-bold text-white">Configuração da Cotação do Dólar</h3>
+                </div>
+                <button onclick="toggleDollarModal(false)" class="text-slate-400 hover:text-white font-bold">&times;</button>
+            </div>
+
+            <div class="text-xs text-slate-300 space-y-2">
+                <p>Nuvens internacionais faturam em USD. Ao pagar com cartão de crédito brasileiro, os bancos aplicam margem de câmbio (spread) mais o IOF de transações internacionais.</p>
+            </div>
+
+            <div class="space-y-3 pt-2">
+                <label class="flex items-start gap-2.5 p-3 rounded-xl bg-slate-950 border border-slate-800 cursor-pointer">
+                    <input type="checkbox" id="card-rate-toggle" class="mt-0.5 accent-cyan-500 rounded">
+                    <div class="text-xs">
+                        <strong class="text-white block">Simular Dólar Cartão (+6,5% IOF/Spread)</strong>
+                        <span class="text-slate-400 text-[11px]">Calcula o impacto aproximado que você realmente verá na fatura bancária.</span>
+                    </div>
+                </label>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Cotação Comercial Base (R$):</label>
+                    <input type="number" step="0.01" id="custom-usd-input" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                </div>
+            </div>
+
+            <div class="pt-2 flex justify-end gap-2">
+                <button onclick="toggleDollarModal(false)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer">
+                    Cancelar
+                </button>
+                <button onclick="applyDollarSettings()" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition cursor-pointer">
+                    Aplicar Câmbio
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- EASTER EGG: DEFCON 1 PANIC OVERLAY         -->
+    <!-- ========================================== -->
+    <div id="panic-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-rose-950/90 backdrop-blur-md animate-shake">
+        <div class="w-full max-w-lg bg-slate-950 border-2 border-rose-500 rounded-3xl p-6 sm:p-8 text-center space-y-6 shadow-2xl shadow-rose-500/50">
+            <div class="inline-flex p-4 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/40 text-4xl animate-bounce">
+                🚨
+            </div>
+            
+            <div class="space-y-2">
+                <span class="px-3 py-1 rounded-full bg-rose-500 text-slate-950 text-xs font-black uppercase tracking-widest">DEFCON 1 • COLAPSO FINANCEIRO</span>
+                <h2 class="text-2xl sm:text-3xl font-black text-white">FATURA MULTI-CLOUD EXPLODINDO!</h2>
+                <p class="text-xs sm:text-sm text-rose-200">
+                    Seu NAT Gateway órfão e seus clusters de teste foram esquecidos rodando no fim de semana! Jeff Bezos, Sundar Pichai e Satya Nadella acabam de agradecer pelo novo iate!
+                </p>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-rose-900/30 border border-rose-500/40">
+                <span class="text-xs text-rose-300 uppercase font-bold tracking-wider">Fatura Acumulada em Tempo Real:</span>
+                <div class="text-4xl sm:text-5xl font-black text-rose-400 font-mono mt-1" id="panic-counter">$38,940.00</div>
+                <span class="text-xs text-rose-300 font-mono">≈ R$ 220.011,00 no seu cartão de crédito</span>
+            </div>
+
+            <button onclick="executeEmergencyTeardown()" class="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-sm uppercase tracking-wider transition shadow-xl shadow-emerald-500/30 cursor-pointer transform active:scale-95">
+                🧯 EXECUTAR TEARDOWN DE EMERGÊNCIA
+            </button>
+        </div>
+    </div>
+
+    <!-- VICTORY OVERLAY -->
+    <div id="victory-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+        <div class="w-full max-w-md bg-slate-900 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 text-center space-y-5 shadow-2xl">
+            <div class="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 text-3xl">
+                🎉
+            </div>
+            <div class="space-y-1">
+                <h3 class="text-xl font-bold text-white">Ufa! O Teardown Salvou Seu Bolso!</h3>
+                <p class="text-xs text-slate-300">
+                    Todos os recursos ociosos foram desprovisionados com sucesso e a fatura retornou para <strong>$0.00</strong>. Lembre-se sempre de conferir o console após as aulas!
+                </p>
+            </div>
+            <button onclick="closeVictoryModal()" class="w-full py-3 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                Voltar à Segurança do Simulador
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT LOGIC & RESILIENT AUDIO ENGINE  -->
+    <!-- ========================================== -->
+    <script>
+        // Core State
+        let currentBaseDollarRate = 5.65;
+        let isCardRateActive = false;
+        let easterEggClickCount = 0;
+        let easterEggClickTimer = null;
+        let audioCtx = null;
+        let alarmOscillator = null;
+        let geminiApiKey = localStorage.getItem('gemini_user_api_key') || "";
+        let activeGeminiModel = localStorage.getItem('gemini_active_model') || "gemini-3.8-flash";
+
+        // Fallback priority cascade for models to handle high demand / capacity spikes
+        const FALLBACK_MODEL_POOL = [
+            "gemini-3.8-flash",
+            "gemini-2.5-flash",
+            "gemini-2.0-flash",
+            "gemini-1.5-flash",
+            "gemini-3.5-flash"
+        ];
+
+        // Sound Synthesizer via Web Audio API
+        function playTone(freq = 440, type = 'sine', duration = 0.15) {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function startAlarmSound() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                if (alarmOscillator) return;
+                alarmOscillator = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                alarmOscillator.type = 'sawtooth';
+                alarmOscillator.frequency.setValueAtTime(450, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                alarmOscillator.connect(gain);
+                gain.connect(audioCtx.destination);
+                alarmOscillator.start();
+            } catch (e) {}
+        }
+
+        function stopAlarmSound() {
+            try {
+                if (alarmOscillator) {
+                    alarmOscillator.stop();
+                    alarmOscillator.disconnect();
+                    alarmOscillator = null;
+                }
+            } catch (e) {}
+        }
+
+        // View Switcher
+        function switchMainView(viewId) {
+            const views = ['calc-view', 'compare-view', 'blueprints-view', 'career-view', 'ai-view'];
+            views.forEach(v => {
+                const el = document.getElementById(v);
+                const btn = document.getElementById('tab-btn-' + v);
+                if (el) el.classList.add('hidden');
+                if (btn) {
+                    btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
+                    btn.classList.add('text-slate-400', 'border-transparent');
+                }
+            });
+
+            const activeView = document.getElementById(viewId);
+            const activeBtn = document.getElementById('tab-btn-' + viewId);
+            if (activeView) activeView.classList.remove('hidden');
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400', 'border-transparent');
+                activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
+            }
+            playTone(480, 'sine', 0.08);
+        }
+
+        // Live Dollar Rate Fetch
+        async function fetchLiveDollarRate() {
+            try {
+                const res = await fetch('https://economia.awesomeapi.com.br/last/USD-BRL');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.USDBRL && data.USDBRL.bid) {
+                        currentBaseDollarRate = parseFloat(data.USDBRL.bid);
+                        updateDollarUI();
+                    }
+                }
+            } catch (e) {
+                updateDollarUI();
+            }
+        }
+
+        function updateDollarUI() {
+            const effectiveRate = isCardRateActive ? (currentBaseDollarRate * 1.065) : currentBaseDollarRate;
+            const label = document.getElementById('header-usd-val');
+            const customInput = document.getElementById('custom-usd-input');
+            if (label) label.innerText = `R$ ${effectiveRate.toFixed(2)}`;
+            if (customInput) customInput.value = currentBaseDollarRate.toFixed(2);
+            calculateTotal();
+        }
+
+        function toggleDollarModal(show) {
+            const modal = document.getElementById('dollar-modal');
+            if (!modal) return;
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function applyDollarSettings() {
+            const customInput = document.getElementById('custom-usd-input');
+            const cardToggle = document.getElementById('card-rate-toggle');
+            if (customInput && !isNaN(parseFloat(customInput.value))) {
+                currentBaseDollarRate = parseFloat(customInput.value);
+            }
+            if (cardToggle) {
+                isCardRateActive = cardToggle.checked;
+            }
+            updateDollarUI();
+            toggleDollarModal(false);
+            playTone(600, 'triangle', 0.1);
+        }
+
+        // Cloud Filtering in Simulator
+        function filterCloud(cloud) {
+            const pills = ['all', 'gcp', 'aws', 'azure'];
+            pills.forEach(p => {
+                const btn = document.getElementById('cloud-filter-' + p);
+                if (btn) {
+                    btn.classList.remove('bg-slate-800', 'text-white');
+                    btn.classList.add('text-slate-400');
+                }
+            });
+            const activeBtn = document.getElementById('cloud-filter-' + cloud);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('bg-slate-800', 'text-white');
+            }
+
+            document.querySelectorAll('.service-card').forEach(card => {
+                const cardCloud = card.getAttribute('data-cloud');
+                if (cloud === 'all' || cardCloud === 'all' || cardCloud === cloud) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+            playTone(520, 'sine', 0.05);
+        }
+
+        // Blueprint Filter
+        function filterBlueprints(level) {
+            const pills = ['all', 'junior', 'mid', 'senior'];
+            pills.forEach(p => {
+                const b = document.getElementById('bp-filter-' + p);
+                if (b) {
+                    b.classList.remove('bg-slate-800', 'text-white');
+                    b.classList.add('text-slate-400');
+                }
+            });
+            const activeBtn = document.getElementById('bp-filter-' + level);
+            if (activeBtn) {
+                activeBtn.classList.remove('text-slate-400');
+                activeBtn.classList.add('bg-slate-800', 'text-white');
+            }
+
+            document.querySelectorAll('.bp-card').forEach(card => {
+                const cardLevel = card.getAttribute('data-level');
+                if (level === 'all' || cardLevel === level) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // CCOE Architecture Diagram Engine State
+        let currentTopologyMode = 'reactive'; // 'reactive' | 'reference'
+
+        function setTopologyMode(mode) {
+            currentTopologyMode = mode;
+            const btnReactive = document.getElementById('topo-btn-reactive');
+            const btnReference = document.getElementById('topo-btn-reference');
+            const labSelect = document.getElementById('ccoe-lab-selector');
+            const scopeBadge = document.getElementById('diagram-scope-badge');
+
+            if (mode === 'reactive') {
+                if (btnReactive) {
+                    btnReactive.className = "px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300";
+                }
+                if (btnReference) {
+                    btnReference.className = "px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white";
+                }
+                if (labSelect) labSelect.classList.add('hidden');
+                if (scopeBadge) scopeBadge.innerText = "Perímetro: Cesta Dinâmica Selecionada";
+                renderArchitectureTopology();
+            } else {
+                if (btnReference) {
+                    btnReference.className = "px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300";
+                }
+                if (btnReactive) {
+                    btnReactive.className = "px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white";
+                }
+                if (labSelect) labSelect.classList.remove('hidden');
+                renderCcoeSelectedLab();
+            }
+            playTone(490, 'sine', 0.08);
+        }
+
+        // Dynamic Architecture Topology Visualizer
+        function renderArchitectureTopology() {
+            if (currentTopologyMode === 'reference') {
+                renderCcoeSelectedLab();
+                return;
+            }
+
+            const container = document.getElementById('architecture-diagram-container');
+            if (!container) return;
+
+            const checkedBoxes = Array.from(document.querySelectorAll('.service-checkbox:checked'));
+
+            if (checkedBoxes.length === 0) {
+                container.innerHTML = `
+                    <div class="w-full py-10 px-4 rounded-2xl border-2 border-dashed border-slate-800 bg-slate-950/40 text-center flex flex-col items-center justify-center space-y-2">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-400 text-xl border border-slate-800">
+                            📐
+                        </div>
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Aguardando Componentes da Arquitetura</span>
+                        <p class="text-[11px] text-slate-500 max-w-lg leading-relaxed">
+                            Marque os serviços no catálogo abaixo para montar a topologia visual perimetral com fluxos de dados, sub-redes e avaliação de custos em tempo real.
+                        </p>
+                    </div>
+                `;
+                return;
+            }
+
+            const tiers = { ingress: [], network: [], compute: [], storage: [], data: [] };
+
+            checkedBoxes.forEach(cb => {
+                const layer = cb.getAttribute('data-layer') || 'compute';
+                const name = cb.getAttribute('data-name') || cb.getAttribute('data-service');
+                const cloud = cb.getAttribute('data-cloud') || 'Cloud';
+                const isDanger = cb.getAttribute('data-danger') === 'true';
+                const price = cb.getAttribute('data-price') || '0.00';
+
+                const nodeData = { name, cloud, isDanger, price };
+                if (tiers[layer]) tiers[layer].push(nodeData);
+                else tiers.compute.push(nodeData);
+            });
+
+            const renderNodeCard = (node) => {
+                const borderColor = node.isDanger ? 'border-rose-500/50 bg-rose-950/20' : 'border-emerald-500/40 bg-slate-900/90';
+                const badgeColor = node.isDanger ? 'text-rose-400 bg-rose-500/10' : 'text-emerald-400 bg-emerald-500/10';
+                const priceLabel = node.isDanger ? `+$${node.price}/m` : '$0.00';
+
+                return `
+                    <div class="p-2.5 rounded-xl border ${borderColor} shadow-lg transition-transform hover:-translate-y-0.5 space-y-1.5 min-w-[150px]">
+                        <div class="flex items-center justify-between gap-1 text-[10px]">
+                            <span class="font-mono uppercase font-bold px-1.5 py-0.2 rounded ${badgeColor}">${node.cloud}</span>
+                            <span class="font-mono font-bold ${node.isDanger ? 'text-rose-400' : 'text-emerald-400'}">${priceLabel}</span>
+                        </div>
+                        <div class="text-xs font-bold text-white truncate" title="${node.name}">${node.name}</div>
+                    </div>
+                `;
+            };
+
+            container.innerHTML = `
+                <div class="w-full space-y-4">
+                    <!-- Main Cloud Boundary (CCOE Style) -->
+                    <div class="rounded-2xl border-2 border-slate-800 bg-slate-950/80 p-4 relative shadow-2xl">
+                        <!-- Cloud Badge Header -->
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 text-[11px]">
+                            <div class="flex items-center gap-2">
+                                <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-mono font-bold uppercase">Cloud VPC Boundary</span>
+                                <span class="text-slate-400 text-[10px]">Ambiente Acadêmico Isolado</span>
+                            </div>
+                            <span class="text-[10px] font-mono text-slate-500">10.0.0.0/16</span>
+                        </div>
+
+                        <!-- Architecture Grid with Data Flow -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 items-stretch">
+                            
+                            <!-- Subnet 1: External & Ingress -->
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between text-[11px] font-bold text-cyan-400 pb-2 border-b border-slate-800">
+                                        <span>Sub-rede Pública</span>
+                                        <span>🌐</span>
+                                    </div>
+                                    <div class="mt-2.5 space-y-2">
+                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 flex items-center gap-2">
+                                            <span>👤</span>
+                                            <div>
+                                                <div class="font-bold text-white">Usuário / Aluno</div>
+                                                <div class="text-[9px] text-slate-500">Tráfego HTTPS</div>
+                                            </div>
+                                        </div>
+                                        ${tiers.ingress.map(renderNodeCard).join('')}
+                                        ${tiers.storage.map(renderNodeCard).join('')}
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-mono text-cyan-400/80 text-center pt-2 border-t border-slate-900">
+                                    -- Ingress (Porta 443/80) ➔
+                                </div>
+                            </div>
+
+                            <!-- Subnet 2: Routing & Gateways -->
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between text-[11px] font-bold text-amber-400 pb-2 border-b border-slate-800">
+                                        <span>Perímetro de Roteamento</span>
+                                        <span>🔀</span>
+                                    </div>
+                                    <div class="mt-2.5 space-y-2">
+                                        ${tiers.network.length > 0 
+                                            ? tiers.network.map(renderNodeCard).join('') 
+                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Roteamento nativo direto sem gateways pagos (Custo $0.00)</div>'
+                                        }
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-mono text-amber-400/80 text-center pt-2 border-t border-slate-900">
+                                    -- Roteamento Interno ➔
+                                </div>
+                            </div>
+
+                            <!-- Subnet 3: Compute -->
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between text-[11px] font-bold text-blue-400 pb-2 border-b border-slate-800">
+                                        <span>Sub-rede Privada (App)</span>
+                                        <span>⚡</span>
+                                    </div>
+                                    <div class="mt-2.5 space-y-2">
+                                        ${tiers.compute.length > 0 
+                                            ? tiers.compute.map(renderNodeCard).join('') 
+                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Nenhuma instância computacional ativa</div>'
+                                        }
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-mono text-blue-400/80 text-center pt-2 border-t border-slate-900">
+                                    -- Chamadas SQL / RPC ➔
+                                </div>
+                            </div>
+
+                            <!-- Subnet 4: Data & Storage -->
+                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center justify-between text-[11px] font-bold text-purple-400 pb-2 border-b border-slate-800">
+                                        <span>Dados & Persistência</span>
+                                        <span>🗄️</span>
+                                    </div>
+                                    <div class="mt-2.5 space-y-2">
+                                        ${tiers.data.length > 0 
+                                            ? tiers.data.map(renderNodeCard).join('') 
+                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Armazenamento local efêmero na VM</div>'
+                                        }
+                                    </div>
+                                </div>
+                                <div class="text-[10px] font-mono text-emerald-400/80 text-center pt-2 border-t border-slate-900">
+                                    ✓ Camada de Dados Isolada
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // CCOE Reference Architecture Diagram Renderer
+        function renderCcoeSelectedLab() {
+            const container = document.getElementById('architecture-diagram-container');
+            const labKey = document.getElementById('ccoe-lab-selector')?.value || 'data_streaming';
+            const scopeBadge = document.getElementById('diagram-scope-badge');
+            if (!container) return;
+
+            if (labKey === 'data_streaming') {
+                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Data Streaming & Analytics CCOE";
+                container.innerHTML = `
+                    <div class="w-full space-y-3 font-sans">
+                        <div class="rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 relative shadow-2xl space-y-5">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                                <div class="flex items-center gap-2">
+                                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS CLOUD</span>
+                                    <span class="text-xs font-bold text-white">Arquitetura de Solução CCOE: Pipeline Streaming & Lakehouse</span>
+                                </div>
+                                <div class="flex items-center gap-3 text-[10px] font-mono">
+                                    <span class="text-blue-400">--- Escrita/Ingestão</span>
+                                    <span class="text-emerald-400">--- Leitura/BI</span>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
+                                <div class="space-y-2">
+                                    <div class="text-[10px] font-mono uppercase text-slate-400">1. Produtor</div>
+                                    <div class="p-3 rounded-xl border border-amber-500/40 bg-slate-900 space-y-1">
+                                        <div class="text-lg">🐇</div>
+                                        <div class="text-xs font-bold text-white">RabbitMQ</div>
+                                        <div class="text-[10px] text-slate-400">Fila de Mensagens</div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="text-[10px] font-mono uppercase text-blue-400">2. Ingestão Real-Time</div>
+                                    <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-white">Kinesis DataStream</span>
+                                            <span class="text-[9px] font-mono text-cyan-300">Shards</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400">Buffer contínuo de eventos</div>
+                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-blue-300 font-mono">
+                                            ➔ Kinesis Firehose
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="text-[10px] font-mono uppercase text-purple-400">3. Armazenamento S3</div>
+                                    <div class="p-3 rounded-xl border border-purple-500/40 bg-slate-900 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-white">Bucket S3 Parquet</span>
+                                            <span class="text-[9px] font-mono text-emerald-400">$0.00 Free</span>
+                                        </div>
+                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-slate-400">
+                                            Particionamento YYYY/MM/DD
+                                        </div>
+                                        <div class="text-[10px] text-cyan-400 font-mono">Glue Crawler + Catalog</div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="text-[10px] font-mono uppercase text-emerald-400">4. Processamento Serverless</div>
+                                    <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-2">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-xs font-bold text-white">AWS Athena</span>
+                                            <span class="text-[9px] font-mono text-emerald-400">Pay-per-Query</span>
+                                        </div>
+                                        <div class="text-[10px] text-slate-400">Consultas SQL direto no S3</div>
+                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-amber-300 font-mono">
+                                            ⚡ AWS Lambda (ETL)
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="text-[10px] font-mono uppercase text-slate-400">5. Consumidores</div>
+                                    <div class="p-3 rounded-xl border border-slate-700 bg-slate-900 space-y-2">
+                                        <div class="flex items-center gap-2 text-xs font-bold text-white">
+                                            <span>👤</span> Dev Team / Debug
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs font-bold text-white">
+                                            <span>👥</span> Operador / SAC
+                                        </div>
+                                        <div class="p-1.5 rounded-lg bg-blue-500/10 text-blue-300 text-[10px] text-center font-mono">
+                                            OpenSearch / Dashboard
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-emerald-400 font-bold">💡 Diretriz FinOps CCOE:</span>
+                                    <span class="text-slate-300 text-[11px]">Sem NAT Gateway provisionado. Todo o pipeline utiliza endpoints VPC de Gateway (S3) com tráfego 100% gratuito.</span>
+                                </div>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">Arquitetura Zero-NAT</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (labKey === 'serverless_analytics') {
+                if (scopeBadge) scopeBadge.innerText = "Referência: GCP BigQuery Sandbox CCOE";
+                container.innerHTML = `
+                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
+                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Pipeline de Analytics Sem Cartão de Crédito</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-white">1. Origem de Dados</div>
+                                <div class="text-[11px] text-slate-400">Upload CSV / JSON no Cloud Storage ou Webhook API.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-blue-300">2. Ingestão BigQuery</div>
+                                <div class="text-[11px] text-slate-400">Sandbox gratuito (1 TB/mês) com tabelas particionadas.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-emerald-300">3. Modelagem SQL</div>
+                                <div class="text-[11px] text-slate-400">Views e agregações analíticas sem provisionar VMs 24/7.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-purple-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-purple-300">4. Looker Studio</div>
+                                <div class="text-[11px] text-slate-400">Dashboards interativos executivos com custo $0.00.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (labKey === 'jamstack_cdn') {
+                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Jamstack S3 + CloudFront CCOE";
+                container.innerHTML = `
+                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS & CLOUDFRONT</span>
+                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Portfólio Jamstack com Borda Global</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-white">1. Usuários Globais</div>
+                                <div class="text-[11px] text-slate-400">Resolução via Route 53 e terminação SSL/TLS com AWS ACM gratuito.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-cyan-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-cyan-300">2. CloudFront CDN</div>
+                                <div class="text-[11px] text-slate-400">1 TB de tráfego grátis mensal via cashing de borda (Edge Locations).</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-emerald-300">3. S3 Bucket Privado</div>
+                                <div class="text-[11px] text-slate-400">Acesso via Origin Access Control (OAC). Sem ALB e sem IP público.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                if (scopeBadge) scopeBadge.innerText = "Referência: GCP Compute Engine Always Free CCOE";
+                container.innerHTML = `
+                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                            <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
+                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Bot 24/7 com Docker na e2-micro Perpétua</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-white">1. Internet & Webhooks</div>
+                                <div class="text-[11px] text-slate-400">Telegram / Discord enviando eventos HTTP para a porta da aplicação.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-blue-300">2. VM e2-micro (us-central1)</div>
+                                <div class="text-[11px] text-slate-400">1 vCPU, 1 GB RAM e 30 GB de disco persistente padrão 100% grátis.</div>
+                            </div>
+                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                                <div class="text-xs font-bold text-emerald-300">3. Docker Compose</div>
+                                <div class="text-[11px] text-slate-400">Container de API + Postgres local sem contratar instâncias de Cloud SQL.</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Export Topology as Visual File
+        function exportTopologyDiagram() {
+            const container = document.getElementById('architecture-diagram-container');
+            if (!container) return;
+
+            const htmlContent = container.innerHTML;
+            const fullDoc = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Arquitetura da Solucao - CCOE Export</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-slate-950 text-slate-100 p-8 font-sans">
+    <h2 class="text-lg font-bold text-white mb-4">Diagrama de Arquitetura de Solução — FinOps & CCOE</h2>
+    ${htmlContent}
+</body>
+</html>`;
+
+            const blob = new Blob([fullDoc], { type: 'text/html;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `arquitetura-solucao-ccoe-${Date.now()}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            playTone(650, 'triangle', 0.15);
+        }
+
+        // Calculate Totals & Risk Engine
+        function calculateTotal() {
+            let totalUsd = 0;
+            let hasDanger = false;
+            let checkedDangerCount = 0;
+
+            document.querySelectorAll('.service-checkbox:checked').forEach(cb => {
+                const price = parseFloat(cb.getAttribute('data-price') || 0);
+                const isDanger = cb.getAttribute('data-danger') === 'true';
+                totalUsd += price;
+                if (isDanger) {
+                    hasDanger = true;
+                    checkedDangerCount++;
+                }
+            });
+
+            const isWeekend = document.getElementById('weekend-multiplier')?.checked;
+            if (isWeekend && totalUsd > 0) {
+                totalUsd = totalUsd * 1.35;
+            }
+
+            const effectiveRate = isCardRateActive ? (currentBaseDollarRate * 1.065) : currentBaseDollarRate;
+            const totalBrl = totalUsd * effectiveRate;
+
+            const totalUsdEl = document.getElementById('total-usd');
+            const totalBrlEl = document.getElementById('total-brl');
+            const riskBadge = document.getElementById('risk-badge');
+            const riskBox = document.getElementById('risk-box');
+
+            if (totalUsdEl) totalUsdEl.innerText = `$${totalUsd.toFixed(2)}`;
+            if (totalBrlEl) totalBrlEl.innerHTML = `≈ R$ ${totalBrl.toFixed(2)} <span class="text-[11px] font-normal text-slate-400">(${isCardRateActive ? 'Dólar Cartão c/ IOF' : 'cotação comercial'})</span>`;
+
+            if (checkedDangerCount >= 2) {
+                if (riskBadge) {
+                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                    riskBadge.innerText = "CRÍTICO / ALTO RISCO 🔴";
+                }
+                if (riskBox) riskBox.innerHTML = "<strong class='text-rose-400'>Atenção Imediata:</strong> Múltiplos serviços com cobrança horária fixa selecionados. Se esquecidos ativos no fim de semana, a cobrança no cartão de crédito é garantida!";
+            } else if (hasDanger || totalUsd > 0) {
+                if (riskBadge) {
+                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    riskBadge.innerText = "Atenção Moderada 🟡";
+                }
+                if (riskBox) riskBox.innerHTML = "<strong class='text-amber-400'>Aviso FinOps:</strong> Você marcou recursos pagos. Certifique-se de configurar Budget Alerts e desligar o laboratório assim que terminar.";
+            } else {
+                if (riskBadge) {
+                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    riskBadge.innerText = "Risco Zero 🟢";
+                }
+                if (riskBox) riskBox.innerHTML = "Nenhum serviço pago marcado. Todos os itens selecionados contam com cota Always Free ou franquia de boas-vindas.";
+            }
+
+            renderArchitectureTopology();
+        }
+
+        function resetCalculator() {
+            document.querySelectorAll('.service-checkbox').forEach(cb => cb.checked = false);
+            const weekend = document.getElementById('weekend-multiplier');
+            if (weekend) weekend.checked = false;
+            calculateTotal();
+            playTone(380, 'sine', 0.1);
+        }
+
+        // Blueprint Loader
+        function loadBlueprint(bp) {
+            resetCalculator();
+            switchMainView('calc-view');
+            filterCloud('all');
+
+            if (bp === 'gcp_bot') {
+                const el = document.querySelector('input[data-service="gcp_e2_micro"]');
+                if (el) el.checked = true;
+            } else if (bp === 'aws_jamstack') {
+                const el = document.querySelector('input[data-service="aws_s3_jamstack"]');
+                if (el) el.checked = true;
+            } else if (bp === 'gcp_bigquery') {
+                const el = document.querySelector('input[data-service="gcp_bigquery"]');
+                if (el) el.checked = true;
+            } else if (bp === 'aws_eks_spot') {
+                const el = document.querySelector('input[data-service="aws_alb"]');
+                if (el) el.checked = true;
+            } else if (bp === 'multi_cloud_senior') {
+                const el1 = document.querySelector('input[data-service="gcp_cloud_run"]');
+                const el2 = document.querySelector('input[data-service="aws_s3_jamstack"]');
+                if (el1) el1.checked = true;
+                if (el2) el2.checked = true;
+            }
+            calculateTotal();
+            playTone(650, 'triangle', 0.15);
+        }
+
+        // Career Checklist Progress
+        function updateTrackProgress() {
+            const checks = document.querySelectorAll('.track-check');
+            const checked = document.querySelectorAll('.track-check:checked');
+            const total = checks.length;
+            const pct = Math.round((checked.length / total) * 100);
+
+            const bar = document.getElementById('track-progress-bar');
+            const badge = document.getElementById('track-progress-badge');
+
+            if (bar) bar.style.width = pct + '%';
+            if (badge) badge.innerText = pct + '% Concluído';
+
+            if (pct === 100 && typeof confetti === 'function') {
+                confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+                playTone(800, 'triangle', 0.2);
+            } else {
+                playTone(440 + (pct * 2), 'sine', 0.08);
+            }
+        }
+
+        // Easter Egg Logic (5 Clicks)
+        function handleCloudClick() {
+            easterEggClickCount++;
+            const badge = document.getElementById('click-feedback-badge');
+            if (badge) {
+                badge.classList.remove('hidden');
+                badge.innerText = easterEggClickCount;
+            }
+            playTone(300 + (easterEggClickCount * 80), 'triangle', 0.08);
+
+            clearTimeout(easterEggClickTimer);
+            easterEggClickTimer = setTimeout(() => {
+                easterEggClickCount = 0;
+                if (badge) badge.classList.add('hidden');
+            }, 2500);
+
+            if (easterEggClickCount >= 5) {
+                easterEggClickCount = 0;
+                if (badge) badge.classList.add('hidden');
+                triggerEasterEgg();
+            }
+        }
+
+        function triggerEasterEgg() {
+            const overlay = document.getElementById('panic-overlay');
+            if (overlay) overlay.classList.remove('hidden');
+            startAlarmSound();
+        }
+
+        function executeEmergencyTeardown() {
+            stopAlarmSound();
+            const panic = document.getElementById('panic-overlay');
+            const victory = document.getElementById('victory-overlay');
+            if (panic) panic.classList.add('hidden');
+            if (victory) victory.classList.remove('hidden');
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 150, spread: 90, origin: { y: 0.6 } });
+            }
+            playTone(600, 'triangle', 0.2);
+            setTimeout(() => playTone(900, 'triangle', 0.3), 150);
+        }
+
+        function closeVictoryModal() {
+            const victory = document.getElementById('victory-overlay');
+            if (victory) victory.classList.add('hidden');
+            resetCalculator();
+        }
+
+        // ==========================================
+        // GEMINI API & RESILIENT FINOPS ENGINE
+        // ==========================================
+        function toggleApiKeyModal(show) {
+            const modal = document.getElementById('api-key-modal');
+            const input = document.getElementById('input-gemini-key');
+            const feedback = document.getElementById('key-test-feedback');
+            if (!modal) return;
+            if (show) {
+                if (input) input.value = geminiApiKey;
+                if (feedback) feedback.classList.add('hidden');
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function updateApiKeyUI() {
+            const keyLabel = document.getElementById('header-key-label');
+            const keyIcon = document.getElementById('header-key-icon');
+            if (keyLabel) {
+                keyLabel.innerText = geminiApiKey ? "Gemini Conectado" : "Chave Gemini";
+            }
+            if (keyIcon) {
+                keyIcon.innerText = geminiApiKey ? "🟢" : "🔑";
+            }
+        }
+
+        function saveApiKey() {
+            const input = document.getElementById('input-gemini-key');
+            geminiApiKey = input ? input.value.trim() : "";
+            if (geminiApiKey) {
+                localStorage.setItem('gemini_user_api_key', geminiApiKey);
+            } else {
+                localStorage.removeItem('gemini_user_api_key');
+            }
+            updateApiKeyUI();
+            toggleApiKeyModal(false);
+            playTone(550, 'triangle', 0.1);
+        }
+
+        function clearApiKey() {
+            geminiApiKey = "";
+            localStorage.removeItem('gemini_user_api_key');
+            localStorage.removeItem('gemini_active_model');
+            const input = document.getElementById('input-gemini-key');
+            if (input) input.value = "";
+            const feedback = document.getElementById('key-test-feedback');
+            if (feedback) {
+                feedback.className = "text-[11px] p-2 rounded-lg font-mono bg-slate-950 text-slate-400 border border-slate-800";
+                feedback.innerText = "Chave removida. O sistema usará o Motor FinOps Integrado.";
+                feedback.classList.remove('hidden');
+            }
+            updateApiKeyUI();
+            playTone(400, 'sine', 0.1);
+        }
+
+        function extractSuggestedModelFromError(errorMessage) {
+            if (!errorMessage) return null;
+            const match = errorMessage.match(/models\/([a-zA-Z0-9\.\-_]+)/);
+            if (match && match[1]) {
+                return match[1];
+            }
+            return null;
+        }
+
+        // Resilient Engine: Dispatches call with model cascade & auto-healing
+        async function dispatchGeminiCall(apiKey, prompt, systemPrompt, preferredModel) {
+            const candidateList = [
+                preferredModel,
+                activeGeminiModel,
+                ...FALLBACK_MODEL_POOL
+            ].filter((v, i, a) => v && a.indexOf(v) === i);
+
+            let lastErrorMessage = "";
+            let highDemandEncountered = false;
+
+            for (let i = 0; i < candidateList.length; i++) {
+                let model = candidateList[i];
+                let endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+                
+                try {
+                    let response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{
+                                role: "user",
+                                parts: [{ text: `${systemPrompt}\n\nConsulta do usuário:\n${prompt}` }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.7,
+                                maxOutputTokens: 1200
+                            }
+                        })
+                    });
+
+                    let data = await response.json();
+
+                    if (!response.ok) {
+                        const errMsg = data?.error?.message || `HTTP ${response.status}`;
+                        lastErrorMessage = errMsg;
+
+                        // Check if Google suggested another model
+                        const suggested = extractSuggestedModelFromError(errMsg);
+                        if (suggested && !candidateList.includes(suggested)) {
+                            candidateList.splice(i + 1, 0, suggested);
+                        }
+
+                        // High demand or temporary spike on this model
+                        if (errMsg.toLowerCase().includes('high demand') || errMsg.toLowerCase().includes('spikes in demand') || response.status === 503 || response.status === 429) {
+                            highDemandEncountered = true;
+                            console.warn(`[Sentinela FinOps] Modelo ${model} sob alta demanda momentânea. Tentando modelo alternativo...`);
+                            await new Promise(r => setTimeout(r, 600)); // Brief respite
+                            continue;
+                        }
+
+                        // Model deprecated or not found
+                        if (response.status === 404 || errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('no longer available')) {
+                            console.warn(`[Sentinela FinOps] Modelo ${model} indisponível. Tentando próximo da fila...`);
+                            continue;
+                        }
+
+                        throw new Error(errMsg);
+                    }
+
+                    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+                    if (!text) throw new Error("A API respondeu com sucesso, mas o texto retornado veio vazio.");
+
+                    activeGeminiModel = model;
+                    localStorage.setItem('gemini_active_model', model);
+                    return { text, modelUsed: model };
+
+                } catch (err) {
+                    lastErrorMessage = err.message;
+                    // If network completely failed or not capacity error, try next candidate
+                }
+            }
+
+            if (highDemandEncountered) {
+                throw new Error("Alta demanda global temporária no Free Tier do Google Gemini. O Sentinela tentou os modelos disponíveis e ativou o Motor FinOps Integrado de segurança.");
+            }
+
+            throw new Error(lastErrorMessage || "Falha na comunicação com a API.");
+        }
+
+        // Live Key Tester directly against Google's API with Auto-Healing & Cascading
+        async function testCurrentApiKey() {
+            const input = document.getElementById('input-gemini-key');
+            const feedback = document.getElementById('key-test-feedback');
+            const testKey = input ? input.value.trim() : "";
+
+            if (!testKey) {
+                if (feedback) {
+                    feedback.className = "text-[11px] p-2 rounded-lg font-mono bg-rose-950/60 text-rose-300 border border-rose-500/40";
+                    feedback.innerText = "❌ Por favor, digite ou cole a sua chave antes de testar.";
+                    feedback.classList.remove('hidden');
+                }
+                return;
+            }
+
+            if (feedback) {
+                feedback.className = "text-[11px] p-2 rounded-lg font-mono bg-cyan-950/60 text-cyan-300 border border-cyan-500/40 animate-pulse";
+                feedback.innerText = "⏳ Testando conexão e descobrindo rotas ativas no Google AI Studio...";
+                feedback.classList.remove('hidden');
+            }
+
+            try {
+                const res = await dispatchGeminiCall(
+                    testKey,
+                    "Diga 'Chave conectada com sucesso!' em 5 palavras.",
+                    "Você é um validador de chave.",
+                    activeGeminiModel
+                );
+
+                if (feedback) {
+                    feedback.className = "text-[11px] p-2 rounded-lg font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-500/40";
+                    feedback.innerText = `✅ Conexão estabelecida com sucesso! Rota ativa: ${res.modelUsed}`;
+                }
+                playTone(600, 'triangle', 0.15);
+
+            } catch (err) {
+                if (feedback) {
+                    feedback.className = "text-[11px] p-2 rounded-lg font-mono bg-rose-950/60 text-rose-300 border border-rose-500/40";
+                    feedback.innerText = `⚠️ ${err.message}`;
+                }
+                playTone(300, 'sawtooth', 0.2);
+            }
+        }
+
+        function executeFullAiAudit() {
+            switchMainView('ai-view');
+            const checkedBoxes = Array.from(document.querySelectorAll('.service-checkbox:checked'));
+            const totalUsd = document.getElementById('total-usd')?.innerText || "$0.00";
+            const isWeekend = document.getElementById('weekend-multiplier')?.checked;
+
+            const servicesList = checkedBoxes.map(cb => cb.getAttribute('data-name') || cb.getAttribute('data-service')).join(', ');
+            const prompt = `Analise a seguinte cesta de recursos de nuvem selecionada por um estudante: [${servicesList || 'Nenhum serviço selecionado'}]. O custo total estimado mensal atual é de ${totalUsd}. O fim de semana ocioso está marcado como ${isWeekend ? 'SIM' : 'NÃO'}. Forneça um relatório FinOps com nível de risco real, armadilhas identificadas e plano de teardown.`;
+
+            runSentinel(prompt, "Auditoria Completa da Cesta");
+        }
+
+        function askSentinel(query) {
+            const input = document.getElementById('ai-query-input');
+            if (input) input.value = query;
+            runSentinel(query, "Consulta Técnica FinOps");
+        }
+
+        function submitAiQuery() {
+            const input = document.getElementById('ai-query-input');
+            const query = input ? input.value.trim() : "";
+            if (!query) return;
+            runSentinel(query, "Resposta Personalizada");
+        }
+
+        function generateAiStudyPlan(cert) {
+            switchMainView('ai-view');
+            const query = `Crie um cronograma de estudos prático de 4 semanas para a certificação ${cert}, com links para portais oficiais gratuitos e simulados.`;
+            askSentinel(query);
+        }
+
+        async function runSentinel(prompt, title) {
+            const wrapper = document.getElementById('ai-response-wrapper');
+            const titleEl = document.getElementById('ai-response-title');
+            const contentEl = document.getElementById('ai-response-content');
+            const badgeEl = document.getElementById('ai-mode-badge');
+            const iconEl = document.getElementById('ai-status-icon');
+
+            if (wrapper) wrapper.classList.remove('hidden');
+            if (titleEl) titleEl.innerText = title;
+            if (contentEl) contentEl.innerHTML = '<div class="py-4 text-cyan-400 font-mono animate-pulse">Consultando Sentinela FinOps...</div>';
+
+            let outputMarkdown = "";
+
+            if (geminiApiKey) {
+                if (badgeEl) badgeEl.innerText = "Consultando Google Gemini...";
+                try {
+                    const systemPrompt = `Você é o Sentinela FinOps, assistente especializado em computação em nuvem (AWS, Google Cloud e Azure) para estudantes universitários e desenvolvedores. Responda em português com tom didático, objetivo e formatação em Markdown com subtópicos claros e alertas de faturamento.`;
+
+                    const result = await dispatchGeminiCall(geminiApiKey.trim(), prompt, systemPrompt, activeGeminiModel);
+                    outputMarkdown = result.text;
+
+                    if (badgeEl) {
+                        badgeEl.className = "px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                        badgeEl.innerText = `Google Gemini (${result.modelUsed}) 🟢`;
+                    }
+                    if (iconEl) iconEl.innerText = "✨";
+
+                } catch (apiError) {
+                    console.error("Erro na chamada da API Gemini:", apiError);
+                    const isHighDemand = apiError.message.toLowerCase().includes('alta demanda') || apiError.message.toLowerCase().includes('demand');
+                    
+                    outputMarkdown = `### ⚠️ Alerta de Capacidade dos Servidores Google (Free Tier)\n\n${apiError.message}\n\n* **Status Técnico:** Sua chave é válida, mas os servidores públicos do Google estão temporariamente saturados para requisições externas.\n* **Medida Automática:** O **Motor FinOps Integrado** assumiu o diagnóstico para você não ficar sem resposta.\n\n---\n\n#### 🤖 Diagnóstico FinOps Local:\n\n${getLocalKnowledgeResponse(prompt)}`;
+                    
+                    if (badgeEl) {
+                        badgeEl.className = isHighDemand 
+                            ? "px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                        badgeEl.innerText = isHighDemand ? "Alta Demanda no Google 🟡" : "Falha na Chave / API 🔴";
+                    }
+                }
+            } else {
+                if (badgeEl) {
+                    badgeEl.className = "px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+                    badgeEl.innerText = "Motor FinOps Integrado (Offline)";
+                }
+                if (iconEl) iconEl.innerText = "🤖";
+                await new Promise(r => setTimeout(r, 250));
+                outputMarkdown = getLocalKnowledgeResponse(prompt);
+            }
+
+            renderMarkdown(outputMarkdown, contentEl);
+        }
+
+        function getLocalKnowledgeResponse(query) {
+            const q = query.toLowerCase();
+
+            if (q.includes('docker') || q.includes('container')) {
+                return `### Como Hospedar Docker sem Custo para Projetos Universitários\n\n* **Google Cloud Always Free:** A VM \`e2-micro\` (1 vCPU, 1 GB RAM) é gratuita para sempre nas regiões americanas. Nela você roda Docker Compose 24/7 sem pagar nada.\n* **Google Cloud Run:** Oferece 2 milhões de requisições gratuitas todo mês e escala para zero quando não há acessos.\n* **⚠️ O que evitar:** Jamais use Amazon EKS ou Azure AKS para testes simples; o plano de controle gerenciado custa mais de $70/mês só para ficar ligado.`;
+            }
+
+            if (q.includes('gpu') || q.includes('tcc') || q.includes('deep learning')) {
+                return `### Alternativas Seguras de GPU para TCC e Machine Learning\n\n* **Google Colaboratory (Colab):** GPUs Nvidia T4 gratuitas diretamente no navegador sem exigir cartão de crédito.\n* **Kaggle Notebooks:** Disponibiliza até 30 horas semanais de GPU P100/T4 patrocinadas pelo Google.\n* **Hugging Face Spaces:** Excelente para hospedar demonstrações interativas de modelos com Streamlit e Gradio.\n* **⚠️ Risco Crítico:** Alugar instâncias com GPU na AWS (\`g4dn\`) ou GCP (\`a2\`) com cartão pessoal pode gerar centenas de dólares de prejuízo caso fiquem ligadas por distração.`;
+            }
+
+            if (q.includes('rds') || q.includes('sql') || q.includes('banco')) {
+                return `### O Perigo dos Bancos Gerenciados (RDS e Cloud SQL)\n\n* **Cobrança Horária Contínua:** Ao contrário de um arquivo no S3 que cobra pelo tamanho, RDS e Cloud SQL reservam máquinas dedicadas que faturam 24/7 mesmo com zero consultas.\n* **Fim dos Créditos GCP:** O Cloud SQL não possui cota Always Free permanente após o término do período promocional.\n* **Solução Custo Zero:** Use bancos serverless com modo repouso (como Neon.tech ou Supabase) ou instale o PostgreSQL diretamente via Docker dentro da sua VM gratuita \`e2-micro\`.`;
+            }
+
+            if (q.includes('ipv4') || q.includes('ip público')) {
+                return `### Regras e Multas de Endereços IPv4 Públicos\n\n* **AWS:** Desde 2024, cobra ~$0.005/hora por qualquer IPv4 público, mesmo em instâncias EC2 da camada gratuita.\n* **GCP e Azure:** Cobram multas por endereços IP externos reservados que não estejam associados a uma máquina virtual ativa.\n* **Ação Preventiva:** Sempre que destruir uma VM de laboratório, acesse a aba de Elastic IPs / Endereços Estáticos e clique expressamente em **Release / Liberar Endereço**.`;
+            }
+
+            return `### Relatório de Auditoria do Sentinela FinOps\n\n* **Diagnóstico da Cesta:** Sua seleção foi avaliada com foco na prevenção de surpresas na fatura de nuvem.\n* **Regra de Ouro nº 1:** Todo laboratório de estudo deve ser destruído após o término da aula prática. Se precisar da infraestrutura novamente, utilize código de Terraform para recriá-la em 2 minutos.\n* **Trava de Segurança:** No Google Cloud e na AWS, configure alertas de orçamento para **$1.00, $5.00 e $10.00**. No Azure, aproveite a conta estudantil com trava de gastos nativa de **$0.00**.\n\n*Dica:* Para consultas com respostas generativas livres em tempo real, conecte sua chave gratuita do Google AI Studio no botão de chave acima.`;
+        }
+
+        function renderMarkdown(md, target) {
+            let html = md
+                .replace(/^#### (.*$)/gim, '<h5 class="text-xs font-bold text-slate-300 mt-2 mb-1">$1</h5>')
+                .replace(/^### (.*$)/gim, '<h4 class="text-sm font-bold text-white mt-2 mb-1">$1</h4>')
+                .replace(/^## (.*$)/gim, '<h3 class="text-base font-bold text-cyan-300 mt-3 mb-1">$1</h3>')
+                .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-white font-semibold">$1</strong>')
+                .replace(/\*(.*?)\*/gim, '<em class="text-slate-200">$1</em>')
+                .replace(/`([^`]+)`/gim, '<code class="px-1.5 py-0.5 rounded bg-slate-950 text-cyan-400 font-mono text-[11px] border border-slate-800">$1</code>')
+                .replace(/^\* (.*$)/gim, '<div class="flex items-start gap-2 my-1"><span class="text-cyan-400">•</span><span>$1</span></div>')
+                .replace(/^> (.*$)/gim, '<blockquote class="p-2.5 rounded-lg bg-rose-950/40 border-l-2 border-rose-500 text-rose-300 my-2">$1</blockquote>')
+                .replace(/\n\n/gim, '<div class="h-2"></div>');
+
+            target.innerHTML = html;
+        }
+
+        // Window Init
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.service-checkbox').forEach(cb => {
+                cb.addEventListener('change', calculateTotal);
+            });
+            const weekend = document.getElementById('weekend-multiplier');
+            if (weekend) weekend.addEventListener('change', calculateTotal);
+
+            fetchLiveDollarRate();
+            updateTrackProgress();
+            updateApiKeyUI();
+            renderArchitectureTopology();
+        });
+    </script>
+</body>
+</html>
