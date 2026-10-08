@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Sobrevivência na Nuvem | FinOps Estudantil</title>
+    <title>Calculadora de Sobrevivência na Nuvem | FinOps Estudantil & Comparador Multi-Cloud</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti CDN -->
@@ -115,16 +115,16 @@
                     <div class="flex items-center gap-2">
                         <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                             Calculadora de Sobrevivência na Nuvem
-                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">FinOps v4.5</span>
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">FinOps v5.0</span>
                         </h1>
                     </div>
-                    <p class="text-xs text-slate-400">Proteção contra faturas fantasmas, simulador de risco e modelagem visual para estudantes & devs</p>
+                    <p class="text-xs text-slate-400">Proteção contra faturas fantasmas, simulador de risco, comparador de preços e modelagem visual</p>
                 </div>
             </div>
 
             <!-- Currency Rate Badge, Audio Toggle & Settings -->
             <div class="flex items-center flex-wrap gap-2">
-                <!-- AUDIO MUTE TOGGLE (Melhoria 4) -->
+                <!-- AUDIO MUTE TOGGLE -->
                 <button id="audio-toggle-btn" onclick="toggleAudioMute()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition cursor-pointer" title="Silenciar / Ativar efeitos sonoros">
                     <span id="audio-toggle-icon">🔊</span>
                     <span id="audio-toggle-label" class="font-medium">Som</span>
@@ -152,7 +152,7 @@
                 <span>🧪</span> Simulador & Topologia
             </button>
             <button onclick="switchMainView('compare-view')" id="tab-btn-compare-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
-                <span>⚖️</span> Matriz Comparativa
+                <span>⚖️</span> Comparador de Preços Multi-Cloud
             </button>
             <button onclick="switchMainView('blueprints-view')" id="tab-btn-blueprints-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
                 <span>🚀</span> Projetos Prontos ($0.00)
@@ -299,7 +299,7 @@
                             <option value="bot_always_free">DevOps: Bot 24/7 Always Free (GCP)</option>
                         </select>
 
-                        <!-- Deep Link Share Button (Melhoria 3) -->
+                        <!-- Deep Link Share Button -->
                         <button onclick="copyShareableLink()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-[11px] font-mono font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Gerar link com esta simulação exata para compartilhar">
                             <span>🔗</span> Compartilhar Lab
                         </button>
@@ -532,7 +532,7 @@
                                 ≈ R$ 0,00 <span class="text-[11px] font-normal text-slate-400">(cotação comercial)</span>
                             </div>
 
-                            <!-- MOEDA DE ESTUDANTE (Melhoria 1) -->
+                            <!-- MOEDA DE ESTUDANTE -->
                             <div id="student-currency-container" class="mt-3 p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs transition-all flex items-start gap-2.5">
                                 <span id="student-currency-icon" class="text-lg">🥗</span>
                                 <div>
@@ -560,7 +560,7 @@
 
                         <!-- Action Buttons -->
                         <div class="space-y-2 pt-2">
-                            <!-- SCRIPT DE TEARDOWN (Melhoria 2) -->
+                            <!-- SCRIPT DE TEARDOWN -->
                             <button onclick="openTeardownModal()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer">
                                 <span>🧹</span> Gerar Script de Teardown / Destruição
                             </button>
@@ -601,15 +601,264 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- VIEW 2: MATRIZ COMPARATIVA LADO A LADO     -->
+        <!-- VIEW 2: COMPARADOR DE PREÇOS MULTI-CLOUD  -->
         <!-- ========================================== -->
         <section id="compare-view" class="hidden space-y-6">
             
-            <div class="bg-slate-900/70 border border-slate-800 p-5 rounded-3xl">
-                <h2 class="text-base font-bold text-white flex items-center gap-2">
-                    <span>⚖️</span> Matriz Comparativa: Google Cloud vs. AWS vs. Microsoft Azure
-                </h2>
-                <p class="text-xs text-slate-400 mt-1">Entenda os pontos fortes, as cotas perpétuas e onde cada provedor cobra de surpresa.</p>
+            <div class="bg-slate-900/70 border border-slate-800 p-5 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-[10px] font-mono font-bold uppercase">Arbitragem de Nuvem</span>
+                    <h2 class="text-base font-extrabold text-white mt-1 flex items-center gap-2">
+                        <span>⚖️</span> Simulador de Cargas & Comparador de Preços (AWS vs GCP vs Azure)
+                    </h2>
+                    <p class="text-xs text-slate-400 mt-0.5">Elimine a confusão das calculadoras oficiais: compare o custo total real (computação, disco, tráfego de saída e IPv4 público) de uma carga de trabalho equivalente.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="loadComparisonPreset('micro')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
+                        API Leve
+                    </button>
+                    <button onclick="loadComparisonPreset('monolith')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
+                        E-commerce / App
+                    </button>
+                    <button onclick="loadComparisonPreset('data')" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 transition cursor-pointer">
+                        Pipeline Dados
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Workload Sizing Controls -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-xl space-y-5">
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <span class="text-xs font-bold uppercase text-white flex items-center gap-2">
+                        <span>🎛️</span> Dimensionamento da Carga de Trabalho (Workload Sizing)
+                    </span>
+                    <span class="text-[11px] font-mono text-cyan-400">Tempo de Execução: 730 horas/mês (24/7)</span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- CPU Slider -->
+                    <div class="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-300">Processamento (vCPU):</span>
+                            <span id="slider-vcpu-val" class="font-mono font-bold text-cyan-400">2 vCPU</span>
+                        </div>
+                        <input type="range" id="slider-vcpu" min="1" max="16" step="1" value="2" oninput="updateWorkloadComparison()" class="w-full accent-cyan-500 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>1 vCPU</span>
+                            <span>16 vCPU</span>
+                        </div>
+                    </div>
+
+                    <!-- RAM Slider -->
+                    <div class="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-300">Memória RAM (GB):</span>
+                            <span id="slider-ram-val" class="font-mono font-bold text-cyan-400">4 GB</span>
+                        </div>
+                        <input type="range" id="slider-ram" min="1" max="64" step="1" value="4" oninput="updateWorkloadComparison()" class="w-full accent-cyan-500 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>1 GB</span>
+                            <span>64 GB</span>
+                        </div>
+                    </div>
+
+                    <!-- Storage Slider -->
+                    <div class="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-300">Disco SSD (GB):</span>
+                            <span id="slider-disk-val" class="font-mono font-bold text-cyan-400">50 GB</span>
+                        </div>
+                        <input type="range" id="slider-disk" min="20" max="1000" step="10" value="50" oninput="updateWorkloadComparison()" class="w-full accent-cyan-500 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>20 GB</span>
+                            <span>1 TB</span>
+                        </div>
+                    </div>
+
+                    <!-- Egress Bandwidth Slider -->
+                    <div class="space-y-1.5 bg-slate-950 p-3.5 rounded-2xl border border-slate-800/80">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="font-bold text-slate-300">Tráfego de Saída (Egress):</span>
+                            <span id="slider-egress-val" class="font-mono font-bold text-cyan-400">100 GB</span>
+                        </div>
+                        <input type="range" id="slider-egress" min="10" max="2000" step="50" value="100" oninput="updateWorkloadComparison()" class="w-full accent-cyan-500 cursor-pointer">
+                        <div class="flex justify-between text-[10px] text-slate-500 font-mono">
+                            <span>10 GB</span>
+                            <span>2 TB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggles: Public IPv4 -->
+                <div class="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs text-slate-300 border-t border-slate-800/60">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="compare-toggle-ipv4" checked onchange="updateWorkloadComparison()" class="accent-cyan-500 rounded">
+                        <span>Incluir taxa de IPv4 público dedicado (~$0.005/h por provedor)</span>
+                    </label>
+                    <span class="text-[11px] text-slate-500 font-mono">Região Base: US East (N. Virginia / South Carolina)</span>
+                </div>
+            </div>
+
+            <!-- THREE CLOUDS SIDE-BY-SIDE CARDS -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch" id="cloud-comparison-cards">
+                
+                <!-- AWS Card -->
+                <div class="bg-slate-900 border border-amber-500/40 rounded-3xl p-5 shadow-xl flex flex-col justify-between space-y-4 relative overflow-hidden" id="card-comp-aws">
+                    <div id="badge-winner-aws" class="hidden absolute top-0 right-0 bg-emerald-500 text-slate-950 font-black text-[9px] uppercase px-3 py-1 rounded-bl-xl tracking-wider">
+                        🏆 MAIS ECONÔMICA
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+                            <span class="text-2xl">🟧</span>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Amazon Web Services</h3>
+                                <span class="text-[11px] font-mono text-amber-400" id="aws-matched-sku">Instância EC2 t4g / t3</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="mt-4 space-y-2.5 text-xs">
+                            <div class="flex justify-between text-slate-300">
+                                <span>Computação (730h):</span>
+                                <span class="font-mono text-white font-bold" id="aws-cost-compute">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Armazenamento (EBS gp3):</span>
+                                <span class="font-mono text-white font-bold" id="aws-cost-disk">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Tráfego Egress (Internet):</span>
+                                <span class="font-mono text-white font-bold" id="aws-cost-egress">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>IPv4 Público:</span>
+                                <span class="font-mono text-white font-bold" id="aws-cost-ipv4">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 space-y-2">
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Total Mensal:</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-black text-amber-400 font-mono" id="aws-total-usd">$0.00</span>
+                                <div class="text-[11px] font-mono text-slate-400" id="aws-total-brl">≈ R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed">
+                            <strong class="text-amber-300">Ponto de Atenção:</strong> A AWS oferece 100 GB de egress gratuito mensal antes de tarifar $0.09/GB.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Google Cloud Card -->
+                <div class="bg-slate-900 border border-blue-500/40 rounded-3xl p-5 shadow-xl flex flex-col justify-between space-y-4 relative overflow-hidden" id="card-comp-gcp">
+                    <div id="badge-winner-gcp" class="hidden absolute top-0 right-0 bg-emerald-500 text-slate-950 font-black text-[9px] uppercase px-3 py-1 rounded-bl-xl tracking-wider">
+                        🏆 MAIS ECONÔMICA
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+                            <span class="text-2xl">🟦</span>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Google Cloud (GCP)</h3>
+                                <span class="text-[11px] font-mono text-blue-400" id="gcp-matched-sku">Instância e2-medium / e2-standard</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="mt-4 space-y-2.5 text-xs">
+                            <div class="flex justify-between text-slate-300">
+                                <span>Computação (730h):</span>
+                                <span class="font-mono text-white font-bold" id="gcp-cost-compute">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Disco (Balanced PD):</span>
+                                <span class="font-mono text-white font-bold" id="gcp-cost-disk">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Tráfego Egress (Tier Premium):</span>
+                                <span class="font-mono text-white font-bold" id="gcp-cost-egress">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>IPv4 Público:</span>
+                                <span class="font-mono text-white font-bold" id="gcp-cost-ipv4">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 space-y-2">
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Total Mensal:</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-black text-blue-400 font-mono" id="gcp-total-usd">$0.00</span>
+                                <div class="text-[11px] font-mono text-slate-400" id="gcp-total-brl">≈ R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed">
+                            <strong class="text-blue-300">Ponto de Atenção:</strong> Família e2 possui balanceamento inteligente, ideal para APIs que oscilam entre picos e ociosidade.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Azure Card -->
+                <div class="bg-slate-900 border border-sky-500/40 rounded-3xl p-5 shadow-xl flex flex-col justify-between space-y-4 relative overflow-hidden" id="card-comp-azure">
+                    <div id="badge-winner-azure" class="hidden absolute top-0 right-0 bg-emerald-500 text-slate-950 font-black text-[9px] uppercase px-3 py-1 rounded-bl-xl tracking-wider">
+                        🏆 MAIS ECONÔMICA
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2.5 pb-3 border-b border-slate-800">
+                            <span class="text-2xl">🌐</span>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Microsoft Azure</h3>
+                                <span class="text-[11px] font-mono text-sky-400" id="azure-matched-sku">Série B2s / D2as_v5</span>
+                            </div>
+                        </div>
+
+                        <!-- Price Breakdown -->
+                        <div class="mt-4 space-y-2.5 text-xs">
+                            <div class="flex justify-between text-slate-300">
+                                <span>Computação (730h):</span>
+                                <span class="font-mono text-white font-bold" id="azure-cost-compute">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Disco (Standard/Premium SSD):</span>
+                                <span class="font-mono text-white font-bold" id="azure-cost-disk">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>Tráfego Egress (Bandwidth):</span>
+                                <span class="font-mono text-white font-bold" id="azure-cost-egress">$0.00</span>
+                            </div>
+                            <div class="flex justify-between text-slate-300">
+                                <span>IPv4 Público:</span>
+                                <span class="font-mono text-white font-bold" id="azure-cost-ipv4">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 space-y-2">
+                        <div class="flex items-baseline justify-between">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Total Mensal:</span>
+                            <div class="text-right">
+                                <span class="text-2xl font-black text-sky-400 font-mono" id="azure-total-usd">$0.00</span>
+                                <div class="text-[11px] font-mono text-slate-400" id="azure-total-brl">≈ R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="text-[10px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed">
+                            <strong class="text-sky-300">Ponto de Atenção:</strong> Série B é ótima para cargas com picos breves; para bancos ou filas contínuas, migre para série D.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- FinOps Expert Verdict -->
+            <div class="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-3xl p-5 shadow-xl space-y-3">
+                <div class="flex items-center gap-2 text-xs font-bold text-emerald-400 uppercase tracking-wider">
+                    <span>💡</span> Veredito FinOps do Especialista
+                </div>
+                <p id="finops-comparison-verdict" class="text-xs text-slate-300 leading-relaxed">
+                    Calculando o melhor custo-benefício para sua carga de trabalho...
+                </p>
             </div>
 
             <!-- Profile Recommender -->
@@ -782,7 +1031,7 @@
         </section>
 
         <!-- ========================================== -->
-        <!-- VIEW: MINI-QUIZ FINOPS & SELO VIRTUAL (Melhoria 5) -->
+        <!-- VIEW: MINI-QUIZ FINOPS & SELO VIRTUAL      -->
         <!-- ========================================== -->
         <section id="quiz-view" class="hidden space-y-6">
             
@@ -885,7 +1134,7 @@
 
             </div>
 
-            <!-- UNLOCKED BADGE CARD (Rendered after 3/3) -->
+            <!-- UNLOCKED BADGE CARD -->
             <div id="quiz-badge-container" class="hidden bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 shadow-2xl text-center space-y-4">
                 <div class="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-3xl animate-bounce">
                     🛡️
@@ -1111,7 +1360,7 @@
     </main>
 
     <!-- ========================================== -->
-    <!-- MODAL: GERADOR DE SCRIPT DE TEARDOWN (Melhoria 2) -->
+    <!-- MODAL: GERADOR DE SCRIPT DE TEARDOWN       -->
     <!-- ========================================== -->
     <div id="teardown-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
         <div class="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
@@ -1306,9 +1555,9 @@ terraform destroy -auto-approve</pre>
         let alarmOscillator = null;
         let geminiApiKey = localStorage.getItem('gemini_user_api_key') || "";
         let activeGeminiModel = localStorage.getItem('gemini_active_model') || "gemini-3.8-flash";
-        let currentTopologyMode = 'reactive'; // 'reactive' | 'reference'
+        let currentTopologyMode = 'reactive';
 
-        // Quiz State (Melhoria 5)
+        // Quiz State
         const quizAnswers = { 1: 'B', 2: 'C', 3: 'A' };
         const userQuizScore = { 1: false, 2: false, 3: false };
 
@@ -1319,7 +1568,7 @@ terraform destroy -auto-approve</pre>
             "gemini-1.5-flash"
         ];
 
-        // Sound Synthesizer via Web Audio API with MUTE SUPPORT (Melhoria 4)
+        // Sound Synthesizer via Web Audio API with MUTE SUPPORT
         function toggleAudioMute() {
             isAudioMuted = !isAudioMuted;
             localStorage.setItem('finops_audio_muted', isAudioMuted);
@@ -1425,6 +1674,9 @@ terraform destroy -auto-approve</pre>
                     activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
                 }
             }
+            if (viewId === 'compare-view') {
+                updateWorkloadComparison();
+            }
             playTone(480, 'sine', 0.08);
         }
 
@@ -1451,6 +1703,7 @@ terraform destroy -auto-approve</pre>
             if (label) label.innerText = `R$ ${effectiveRate.toFixed(2)}`;
             if (customInput) customInput.value = currentBaseDollarRate.toFixed(2);
             calculateTotal();
+            updateWorkloadComparison();
         }
 
         function toggleDollarModal(show) {
@@ -1500,6 +1753,174 @@ terraform destroy -auto-approve</pre>
                 }
             });
             playTone(520, 'sine', 0.05);
+        }
+
+        // ========================================================
+        // ENGINE: COMPARADOR DE PREÇOS MULTI-CLOUD (NOVA FEATURE)
+        // ========================================================
+        function loadComparisonPreset(preset) {
+            const vcpuSlider = document.getElementById('slider-vcpu');
+            const ramSlider = document.getElementById('slider-ram');
+            const diskSlider = document.getElementById('slider-disk');
+            const egressSlider = document.getElementById('slider-egress');
+
+            if (!vcpuSlider || !ramSlider || !diskSlider || !egressSlider) return;
+
+            if (preset === 'micro') {
+                vcpuSlider.value = 2;
+                ramSlider.value = 4;
+                diskSlider.value = 30;
+                egressSlider.value = 50;
+            } else if (preset === 'monolith') {
+                vcpuSlider.value = 4;
+                ramSlider.value = 16;
+                diskSlider.value = 150;
+                egressSlider.value = 300;
+            } else if (preset === 'data') {
+                vcpuSlider.value = 8;
+                ramSlider.value = 32;
+                diskSlider.value = 500;
+                egressSlider.value = 1000;
+            }
+            updateWorkloadComparison();
+            playTone(600, 'triangle', 0.1);
+        }
+
+        function updateWorkloadComparison() {
+            const vcpu = parseInt(document.getElementById('slider-vcpu')?.value || 2);
+            const ram = parseInt(document.getElementById('slider-ram')?.value || 4);
+            const disk = parseInt(document.getElementById('slider-disk')?.value || 50);
+            const egress = parseInt(document.getElementById('slider-egress')?.value || 100);
+            const hasIpv4 = document.getElementById('compare-toggle-ipv4')?.checked;
+
+            // Update Labels
+            const vcpuVal = document.getElementById('slider-vcpu-val');
+            const ramVal = document.getElementById('slider-ram-val');
+            const diskVal = document.getElementById('slider-disk-val');
+            const egressVal = document.getElementById('slider-egress-val');
+
+            if (vcpuVal) vcpuVal.innerText = `${vcpu} vCPU`;
+            if (ramVal) ramVal.innerText = `${ram} GB`;
+            if (diskVal) diskVal.innerText = `${disk} GB`;
+            if (egressVal) egressVal.innerText = `${egress} GB`;
+
+            const effectiveRate = isCardRateActive ? (currentBaseDollarRate * 1.065) : currentBaseDollarRate;
+
+            // PRICING ALGORITHMS (Standard East US Baseline - 730h/month)
+            // 1. AWS (t4g/t3 baseline + EBS gp3 at $0.08/GB + Egress $0.09/GB after 100GB free + IPv4 $0.005/h)
+            const awsComputeHourly = (vcpu * 0.0125) + (ram * 0.0035);
+            const awsComputeCost = awsComputeHourly * 730;
+            const awsDiskCost = disk * 0.08;
+            const awsBillableEgress = Math.max(0, egress - 100);
+            const awsEgressCost = awsBillableEgress * 0.09;
+            const awsIpv4Cost = hasIpv4 ? (0.005 * 730) : 0;
+            const awsTotal = awsComputeCost + awsDiskCost + awsEgressCost + awsIpv4Cost;
+
+            // 2. Google Cloud (e2 family baseline + Balanced PD at $0.10/GB + Egress $0.12/GB + IPv4 $0.005/h)
+            const gcpComputeHourly = (vcpu * 0.0142) + (ram * 0.0038);
+            const gcpComputeCost = gcpComputeHourly * 730;
+            const gcpDiskCost = disk * 0.10;
+            const gcpEgressCost = egress * 0.11; // Tier Premium
+            const gcpIpv4Cost = hasIpv4 ? (0.005 * 730) : 0;
+            const gcpTotal = gcpComputeCost + gcpDiskCost + gcpEgressCost + gcpIpv4Cost;
+
+            // 3. Azure (B-series / D-series baseline + Standard/Premium SSD at $0.09/GB + Egress $0.087/GB after 100GB free + IPv4 $0.005/h)
+            const azureComputeHourly = (vcpu * 0.0135) + (ram * 0.0036);
+            const azureComputeCost = azureComputeHourly * 730;
+            const azureDiskCost = disk * 0.09;
+            const azureBillableEgress = Math.max(0, egress - 100);
+            const azureEgressCost = azureBillableEgress * 0.087;
+            const azureIpv4Cost = hasIpv4 ? (0.005 * 730) : 0;
+            const azureTotal = azureComputeCost + azureDiskCost + azureEgressCost + azureIpv4Cost;
+
+            // DOM Updates: AWS
+            const elAwsCompute = document.getElementById('aws-cost-compute');
+            const elAwsDisk = document.getElementById('aws-cost-disk');
+            const elAwsEgress = document.getElementById('aws-cost-egress');
+            const elAwsIpv4 = document.getElementById('aws-cost-ipv4');
+            const elAwsTotalUsd = document.getElementById('aws-total-usd');
+            const elAwsTotalBrl = document.getElementById('aws-total-brl');
+            const elAwsSku = document.getElementById('aws-matched-sku');
+
+            if (elAwsCompute) elAwsCompute.innerText = `$${awsComputeCost.toFixed(2)}`;
+            if (elAwsDisk) elAwsDisk.innerText = `$${awsDiskCost.toFixed(2)}`;
+            if (elAwsEgress) elAwsEgress.innerText = `$${awsEgressCost.toFixed(2)}`;
+            if (elAwsIpv4) elAwsIpv4.innerText = `$${awsIpv4Cost.toFixed(2)}`;
+            if (elAwsTotalUsd) elAwsTotalUsd.innerText = `$${awsTotal.toFixed(2)}`;
+            if (elAwsTotalBrl) elAwsTotalBrl.innerText = `≈ R$ ${(awsTotal * effectiveRate).toFixed(2)}`;
+            if (elAwsSku) elAwsSku.innerText = vcpu <= 2 ? 'EC2 t4g.medium (ARM)' : (vcpu <= 4 ? 'EC2 t4g.xlarge' : 'EC2 c7g.2xlarge');
+
+            // DOM Updates: GCP
+            const elGcpCompute = document.getElementById('gcp-cost-compute');
+            const elGcpDisk = document.getElementById('gcp-cost-disk');
+            const elGcpEgress = document.getElementById('gcp-cost-egress');
+            const elGcpIpv4 = document.getElementById('gcp-cost-ipv4');
+            const elGcpTotalUsd = document.getElementById('gcp-total-usd');
+            const elGcpTotalBrl = document.getElementById('gcp-total-brl');
+            const elGcpSku = document.getElementById('gcp-matched-sku');
+
+            if (elGcpCompute) elGcpCompute.innerText = `$${gcpComputeCost.toFixed(2)}`;
+            if (elGcpDisk) elGcpDisk.innerText = `$${gcpDiskCost.toFixed(2)}`;
+            if (elGcpEgress) elGcpEgress.innerText = `$${gcpEgressCost.toFixed(2)}`;
+            if (elGcpIpv4) elGcpIpv4.innerText = `$${gcpIpv4Cost.toFixed(2)}`;
+            if (elGcpTotalUsd) elGcpTotalUsd.innerText = `$${gcpTotal.toFixed(2)}`;
+            if (elGcpTotalBrl) elGcpTotalBrl.innerText = `≈ R$ ${(gcpTotal * effectiveRate).toFixed(2)}`;
+            if (elGcpSku) elGcpSku.innerText = vcpu <= 2 ? 'Compute Engine e2-medium' : (vcpu <= 4 ? 'Compute Engine e2-standard-4' : 'Compute Engine c2-standard-8');
+
+            // DOM Updates: Azure
+            const elAzureCompute = document.getElementById('azure-cost-compute');
+            const elAzureDisk = document.getElementById('azure-cost-disk');
+            const elAzureEgress = document.getElementById('azure-cost-egress');
+            const elAzureIpv4 = document.getElementById('azure-cost-ipv4');
+            const elAzureTotalUsd = document.getElementById('azure-total-usd');
+            const elAzureTotalBrl = document.getElementById('azure-total-brl');
+            const elAzureSku = document.getElementById('azure-matched-sku');
+
+            if (elAzureCompute) elAzureCompute.innerText = `$${azureComputeCost.toFixed(2)}`;
+            if (elAzureDisk) elAzureDisk.innerText = `$${azureDiskCost.toFixed(2)}`;
+            if (elAzureEgress) elAzureEgress.innerText = `$${azureEgressCost.toFixed(2)}`;
+            if (elAzureIpv4) elAzureIpv4.innerText = `$${azureIpv4Cost.toFixed(2)}`;
+            if (elAzureTotalUsd) elAzureTotalUsd.innerText = `$${azureTotal.toFixed(2)}`;
+            if (elAzureTotalBrl) elAzureTotalBrl.innerText = `≈ R$ ${(azureTotal * effectiveRate).toFixed(2)}`;
+            if (elAzureSku) elAzureSku.innerText = vcpu <= 2 ? 'Virtual Machine B2s (Burstable)' : (vcpu <= 4 ? 'Virtual Machine D4as_v5' : 'Virtual Machine F8s_v2');
+
+            // Winner Calculation
+            const minCost = Math.min(awsTotal, gcpTotal, azureTotal);
+            const badgeAws = document.getElementById('badge-winner-aws');
+            const badgeGcp = document.getElementById('badge-winner-gcp');
+            const badgeAzure = document.getElementById('badge-winner-azure');
+            const cardAws = document.getElementById('card-comp-aws');
+            const cardGcp = document.getElementById('card-comp-gcp');
+            const cardAzure = document.getElementById('card-comp-azure');
+
+            [badgeAws, badgeGcp, badgeAzure].forEach(b => b?.classList.add('hidden'));
+            [cardAws, cardGcp, cardAzure].forEach(c => c?.classList.remove('ring-2', 'ring-emerald-400'));
+
+            let winnerName = "";
+            let diffPct = 0;
+
+            if (awsTotal === minCost) {
+                badgeAws?.classList.remove('hidden');
+                cardAws?.classList.add('ring-2', 'ring-emerald-400');
+                winnerName = "AWS (Amazon Web Services)";
+                diffPct = Math.round(((Math.max(gcpTotal, azureTotal) - awsTotal) / awsTotal) * 100);
+            } else if (gcpTotal === minCost) {
+                badgeGcp?.classList.remove('hidden');
+                cardGcp?.classList.add('ring-2', 'ring-emerald-400');
+                winnerName = "Google Cloud (GCP)";
+                diffPct = Math.round(((Math.max(awsTotal, azureTotal) - gcpTotal) / gcpTotal) * 100);
+            } else {
+                badgeAzure?.classList.remove('hidden');
+                cardAzure?.classList.add('ring-2', 'ring-emerald-400');
+                winnerName = "Microsoft Azure";
+                diffPct = Math.round(((Math.max(awsTotal, gcpTotal) - azureTotal) / azureTotal) * 100);
+            }
+
+            // Verdict text
+            const verdictEl = document.getElementById('finops-comparison-verdict');
+            if (verdictEl) {
+                verdictEl.innerHTML = `Para esta carga de <strong>${vcpu} vCPU / ${ram} GB RAM / ${disk} GB SSD / ${egress} GB Egress</strong>, a opção com menor custo direto é a <strong>${winnerName}</strong>, gerando até <strong>${diffPct}% de economia</strong> em comparação ao provedor mais caro.<br><span class="text-slate-400 mt-1 inline-block">💡 <strong>Dica FinOps:</strong> Conforme o tráfego de saída (Egress) cresce acima de 500 GB, o custo de rede passa a pesar mais do que a própria máquina. Avalie colocar Cloudflare na frente para zerar as taxas de saída!</span>`;
+            }
         }
 
         // Blueprint Filter
@@ -1970,7 +2391,7 @@ terraform destroy -auto-approve</pre>
             playTone(650, 'triangle', 0.15);
         }
 
-        // Calculate Totals, Risk Engine & Student Currency (Melhoria 1)
+        // Calculate Totals, Risk Engine & Student Currency
         function calculateTotal() {
             let totalUsd = 0;
             let hasDanger = false;
@@ -2002,7 +2423,6 @@ terraform destroy -auto-approve</pre>
             if (totalUsdEl) totalUsdEl.innerText = `$${totalUsd.toFixed(2)}`;
             if (totalBrlEl) totalBrlEl.innerHTML = `≈ R$ ${totalBrl.toFixed(2)} <span class="text-[11px] font-normal text-slate-400">(${isCardRateActive ? 'Dólar Cartão c/ IOF' : 'cotação comercial'})</span>`;
 
-            // Calculate Student Currency Equivalent (Melhoria 1)
             updateStudentCurrency(totalBrl);
 
             if (checkedDangerCount >= 2) {
@@ -2028,7 +2448,7 @@ terraform destroy -auto-approve</pre>
             renderArchitectureTopology();
         }
 
-        // Logic: Moeda de Estudante ☕🍔 (Melhoria 1)
+        // Logic: Moeda de Estudante ☕🍔
         function updateStudentCurrency(brl) {
             const iconEl = document.getElementById('student-currency-icon');
             const textEl = document.getElementById('student-currency-text');
@@ -2057,7 +2477,7 @@ terraform destroy -auto-approve</pre>
             }
         }
 
-        // DEEP LINKING (Melhoria 3)
+        // DEEP LINKING
         function copyShareableLink() {
             const checked = Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.getAttribute('data-service'));
             const isWeekend = document.getElementById('weekend-multiplier')?.checked;
@@ -2101,7 +2521,7 @@ terraform destroy -auto-approve</pre>
             showToast("✨ Simulação restaurada a partir do link compartilhado!");
         }
 
-        // TEARDOWN SCRIPT GENERATOR (Melhoria 2)
+        // TEARDOWN SCRIPT GENERATOR
         function toggleTeardownModal(show) {
             const modal = document.getElementById('teardown-modal');
             if (!modal) return;
@@ -2169,7 +2589,7 @@ terraform destroy -auto-approve</pre>
             });
         }
 
-        // MINI-QUIZ FINOPS COM SELO VIRTUAL (Melhoria 5)
+        // MINI-QUIZ FINOPS COM SELO VIRTUAL
         function answerQuiz(qNum, selectedOption) {
             const correct = quizAnswers[qNum];
             const isCorrect = (selectedOption === correct);
@@ -2195,7 +2615,6 @@ terraform destroy -auto-approve</pre>
             }
             feedback.classList.remove('hidden');
 
-            // Update Badge and Score
             updateQuizProgress();
         }
 
@@ -2660,6 +3079,7 @@ terraform destroy -auto-approve</pre>
             updateApiKeyUI();
             renderArchitectureTopology();
             restoreFromHash();
+            updateWorkloadComparison();
         });
     </script>
 </body>
