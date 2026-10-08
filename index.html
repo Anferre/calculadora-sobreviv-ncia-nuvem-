@@ -48,21 +48,20 @@
         /* Floating Animations for Cloud Badges */
         @keyframes float-slow {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-7px) rotate(0.8deg); }
+            50% { transform: translateY(-6px) rotate(0.8deg); }
         }
         @keyframes float-reverse {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(7px) rotate(-0.8deg); }
+            50% { transform: translateY(6px) rotate(-0.8deg); }
         }
         @keyframes float-mid {
             0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-9px); }
+            50% { transform: translateY(-7px); }
         }
         .animate-float-1 { animation: float-slow 4.5s ease-in-out infinite; }
         .animate-float-2 { animation: float-reverse 5s ease-in-out infinite; }
         .animate-float-3 { animation: float-mid 4s ease-in-out infinite; }
 
-        /* Subtle glowing aura */
         @keyframes multi-glow {
             0%, 100% { opacity: 0.35; filter: blur(30px); }
             50% { opacity: 0.6; filter: blur(40px); }
@@ -83,26 +82,14 @@
             transform: translateY(-3px) scale(1.01);
         }
 
-        /* Animated SVG flow lines */
-        @keyframes flowDash {
-            to { stroke-dashoffset: -24; }
+        /* Toast animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
-        .flow-line-write {
-            stroke-dasharray: 6 4;
-            animation: flowDash 1s linear infinite;
+        .toast-animate {
+            animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        .flow-line-read {
-            stroke-dasharray: 6 4;
-            animation: flowDash 1.2s linear infinite reverse;
-        }
-
-        /* Pulse glow rings */
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.8; }
-        }
-        .animate-pulse-ring { animation: pulse-ring 2.5s infinite ease-in-out; }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
@@ -128,15 +115,22 @@
                     <div class="flex items-center gap-2">
                         <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                             Calculadora de Sobrevivência na Nuvem
-                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">FinOps v4.0</span>
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">FinOps v4.5</span>
                         </h1>
                     </div>
                     <p class="text-xs text-slate-400">Proteção contra faturas fantasmas, simulador de risco e modelagem visual para estudantes & devs</p>
                 </div>
             </div>
 
-            <!-- Currency Rate Badge & Settings -->
-            <div class="flex items-center gap-2">
+            <!-- Currency Rate Badge, Audio Toggle & Settings -->
+            <div class="flex items-center flex-wrap gap-2">
+                <!-- AUDIO MUTE TOGGLE (Melhoria 4) -->
+                <button id="audio-toggle-btn" onclick="toggleAudioMute()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 hover:text-white transition cursor-pointer" title="Silenciar / Ativar efeitos sonoros">
+                    <span id="audio-toggle-icon">🔊</span>
+                    <span id="audio-toggle-label" class="font-medium">Som</span>
+                </button>
+
+                <!-- CURRENCY SELECTOR -->
                 <button onclick="toggleDollarModal(true)" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-800 hover:border-slate-700 text-xs font-mono transition cursor-pointer" title="Cotação comercial ao vivo com simulador de spread bancário">
                     <span id="usd-status-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-slate-400 font-sans">USD:</span>
@@ -144,6 +138,7 @@
                     <span class="text-[11px] text-slate-500 hover:text-cyan-400 ml-1">⚙️ Câmbio</span>
                 </button>
 
+                <!-- GEMINI API KEY -->
                 <button onclick="toggleApiKeyModal(true)" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/40 text-xs text-slate-300 hover:text-white transition cursor-pointer">
                     <span id="header-key-icon">🔑</span>
                     <span id="header-key-label" class="font-medium">Chave Gemini</span>
@@ -154,7 +149,7 @@
         <!-- Main Navigation Tabs -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex items-center gap-1.5 overflow-x-auto py-2 scrollbar-none">
             <button onclick="switchMainView('calc-view')" id="tab-btn-calc-view" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                <span>🧪</span> Simulador de Custos & Topologia
+                <span>🧪</span> Simulador & Topologia
             </button>
             <button onclick="switchMainView('compare-view')" id="tab-btn-compare-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
                 <span>⚖️</span> Matriz Comparativa
@@ -162,8 +157,11 @@
             <button onclick="switchMainView('blueprints-view')" id="tab-btn-blueprints-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
                 <span>🚀</span> Projetos Prontos ($0.00)
             </button>
+            <button onclick="switchMainView('quiz-view')" id="tab-btn-quiz-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-amber-400 hover:text-amber-200 hover:bg-slate-900 border border-transparent">
+                <span>🏆</span> Quiz FinOps & Selo
+            </button>
             <button onclick="switchMainView('career-view')" id="tab-btn-career-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
-                <span>🎓</span> Trilha de Carreira & Certificações
+                <span>🎓</span> Trilha & Certificações
             </button>
             <button onclick="switchMainView('ai-view')" id="tab-btn-ai-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
                 <span>✨</span> Sentinela Gemini IA
@@ -171,14 +169,13 @@
         </div>
     </header>
 
-    <!-- NEW: Animated Cloud Ecosystem Showcase (Visuais Atraentes para Estudantes) -->
+    <!-- Animated Cloud Ecosystem Showcase -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
             
             <!-- Google Cloud Emblem Card -->
             <div class="animate-float-1 p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900/90 border border-blue-500/30 hover:border-blue-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('gcp')">
                 <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                    <!-- Google Cloud Native SVG Icon -->
                     <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
                         <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#4285F4"/>
                         <path d="M19 19H6c-2.76 0-5-2.24-5-5 0-2.58 1.95-4.68 4.5-4.95l.85-.09.39-.77C7.8 6.13 9.77 5 12 5c2.93 0 5.4 1.95 6.06 4.78l.26 1.13 1.16.14C20.9 11.23 22 12.5 22 14c0 2.76-2.24 5-5 5z" fill="#34A853"/>
@@ -197,7 +194,6 @@
             <!-- AWS Emblem Card -->
             <div class="animate-float-2 p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900/90 border border-amber-500/30 hover:border-amber-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('aws')">
                 <div class="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                    <!-- AWS Native Cloud SVG Icon -->
                     <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
                         <path d="M18.8 11.2c-.6-3.1-3.3-5.2-6.5-5.2-2.6 0-4.9 1.5-5.9 3.8-2.6.3-4.4 2.5-4.4 5.2 0 2.9 2.4 5.3 5.3 5.3h11.2c2.6 0 4.8-2.1 4.8-4.8 0-2.4-1.9-4.3-4.5-4.3z" fill="#FF9900"/>
                         <path d="M7 16c2.5 2 7.5 2 10 0" stroke="#232F3E" stroke-width="2" stroke-linecap="round"/>
@@ -216,7 +212,6 @@
             <!-- Microsoft Azure Emblem Card -->
             <div class="animate-float-3 p-3.5 rounded-2xl bg-gradient-to-r from-sky-950/40 via-slate-900 to-slate-900/90 border border-sky-500/30 hover:border-sky-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('azure')">
                 <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
-                    <!-- Azure Native Cloud SVG Icon -->
                     <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
                         <path d="M13.2 3.5L4 18.5h6.2l3-6 4 6H20L13.2 3.5z" fill="#0089D6"/>
                         <path d="M13.2 3.5l-3.2 9 3 6h4.2l-4-9z" fill="#0072C6" opacity="0.6"/>
@@ -303,6 +298,11 @@
                             <option value="jamstack_cdn">Web: Global Jamstack CDN (AWS)</option>
                             <option value="bot_always_free">DevOps: Bot 24/7 Always Free (GCP)</option>
                         </select>
+
+                        <!-- Deep Link Share Button (Melhoria 3) -->
+                        <button onclick="copyShareableLink()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-[11px] font-mono font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Gerar link com esta simulação exata para compartilhar">
+                            <span>🔗</span> Compartilhar Lab
+                        </button>
 
                         <!-- Export Button -->
                         <button onclick="exportTopologyDiagram()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-mono font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Exportar diagrama em formato visual">
@@ -531,6 +531,15 @@
                             <div class="text-sm font-semibold text-emerald-400 font-mono mt-0.5" id="total-brl">
                                 ≈ R$ 0,00 <span class="text-[11px] font-normal text-slate-400">(cotação comercial)</span>
                             </div>
+
+                            <!-- MOEDA DE ESTUDANTE (Melhoria 1) -->
+                            <div id="student-currency-container" class="mt-3 p-3 rounded-2xl bg-slate-950/80 border border-slate-800 text-xs transition-all flex items-start gap-2.5">
+                                <span id="student-currency-icon" class="text-lg">🥗</span>
+                                <div>
+                                    <span class="text-[10px] font-mono uppercase font-bold text-slate-400 block">Equivalência em Moeda Estudantil:</span>
+                                    <p id="student-currency-text" class="text-slate-200 mt-0.5 leading-snug">Bolsa intacta! Zero risco de virar estagiário sem almoço.</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Weekend Multiplier Option -->
@@ -551,12 +560,23 @@
 
                         <!-- Action Buttons -->
                         <div class="space-y-2 pt-2">
+                            <!-- SCRIPT DE TEARDOWN (Melhoria 2) -->
+                            <button onclick="openTeardownModal()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 cursor-pointer">
+                                <span>🧹</span> Gerar Script de Teardown / Destruição
+                            </button>
+
                             <button onclick="executeFullAiAudit()" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-cyan-500/20 cursor-pointer">
                                 <span>✨</span> Auditar Cesta Atual com Gemini IA
                             </button>
-                            <button onclick="resetCalculator()" class="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition cursor-pointer">
-                                Limpar Seleção
-                            </button>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="copyShareableLink()" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-medium text-xs transition cursor-pointer flex items-center justify-center gap-1.5 border border-slate-700">
+                                    <span>🔗</span> Copiar Link
+                                </button>
+                                <button onclick="resetCalculator()" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition cursor-pointer">
+                                    Limpar Cesta
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Hidden Easter Egg Trigger Link -->
@@ -568,7 +588,7 @@
 
                     </div>
 
-                    <!-- Kill Switch Card -->
+                    <!-- Golden FinOps Rule -->
                     <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800/80 rounded-2xl p-4 text-xs text-slate-400">
                         <span class="text-white font-bold block mb-1">💡 Dica de Ouro de Sobrevivência:</span>
                         Terminou o laboratório? Nunca deixe para desligar amanhã. Use o comando de destruição no terminal ou configure um <strong>Budget Alert de $1.00</strong> logo no primeiro dia.
@@ -757,6 +777,135 @@
                     </button>
                 </div>
 
+            </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW: MINI-QUIZ FINOPS & SELO VIRTUAL (Melhoria 5) -->
+        <!-- ========================================== -->
+        <section id="quiz-view" class="hidden space-y-6">
+            
+            <div class="bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900 border border-amber-500/30 p-5 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-mono font-bold uppercase">Gamificação & Carreira</span>
+                    <h2 class="text-base font-extrabold text-white mt-1 flex items-center gap-2">
+                        <span>🏆</span> Desafio FinOps de Sobrevivência
+                    </h2>
+                    <p class="text-xs text-slate-300 mt-0.5">Responda às 3 pegadinhas clássicas de faturamento para desbloquear o seu **Selo Virtual de Arquiteto FinOps**!</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="quiz-score-badge" class="px-3 py-1.5 rounded-xl bg-slate-950 border border-amber-500/40 font-mono text-xs font-bold text-amber-300">0 / 3 Acertos</span>
+                </div>
+            </div>
+
+            <!-- Quiz Questions Container -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4" id="quiz-questions-grid">
+                
+                <!-- Question 1 -->
+                <div class="quiz-card bg-slate-900/80 border border-slate-800 rounded-3xl p-5 space-y-3 flex flex-col justify-between" id="quiz-card-1">
+                    <div>
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-2 border-b border-slate-800">
+                            <span>Questão 1</span>
+                            <span class="text-amber-400 font-bold">IPv4 & Ociosidade</span>
+                        </div>
+                        <h3 class="text-xs font-bold text-white mt-2 leading-relaxed">
+                            O que acontece se você desligar a sua VM na AWS ou GCP, mas esquecer o IP público elástico reservado no console?
+                        </h3>
+                    </div>
+                    
+                    <div class="space-y-2 pt-2">
+                        <button onclick="answerQuiz(1, 'A')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>A)</strong> Fica 100% de graça, pois a VM está parada.
+                        </button>
+                        <button onclick="answerQuiz(1, 'B')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>B)</strong> O provedor cobra multa por ociosidade do IPv4.
+                        </button>
+                        <button onclick="answerQuiz(1, 'C')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>C)</strong> O IP é liberado automaticamente em 1 hora.
+                        </button>
+                    </div>
+
+                    <div id="quiz-feedback-1" class="hidden text-[11px] p-2.5 rounded-xl font-mono"></div>
+                </div>
+
+                <!-- Question 2 -->
+                <div class="quiz-card bg-slate-900/80 border border-slate-800 rounded-3xl p-5 space-y-3 flex flex-col justify-between" id="quiz-card-2">
+                    <div>
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-2 border-b border-slate-800">
+                            <span>Questão 2</span>
+                            <span class="text-amber-400 font-bold">Always Free vs Bancos</span>
+                        </div>
+                        <h3 class="text-xs font-bold text-white mt-2 leading-relaxed">
+                            Qual destes recursos NÃO tem cota Always Free permanente e cobrará no cartão após o fim do período de testes?
+                        </h3>
+                    </div>
+                    
+                    <div class="space-y-2 pt-2">
+                        <button onclick="answerQuiz(2, 'A')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>A)</strong> VM e2-micro do Google Cloud (EUA).
+                        </button>
+                        <button onclick="answerQuiz(2, 'B')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>B)</strong> BigQuery Sandbox (10 GB dados / 1 TB SQL).
+                        </button>
+                        <button onclick="answerQuiz(2, 'C')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>C)</strong> Banco gerenciado GCP Cloud SQL / AWS RDS.
+                        </button>
+                    </div>
+
+                    <div id="quiz-feedback-2" class="hidden text-[11px] p-2.5 rounded-xl font-mono"></div>
+                </div>
+
+                <!-- Question 3 -->
+                <div class="quiz-card bg-slate-900/80 border border-slate-800 rounded-3xl p-5 space-y-3 flex flex-col justify-between" id="quiz-card-3">
+                    <div>
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 pb-2 border-b border-slate-800">
+                            <span>Questão 3</span>
+                            <span class="text-amber-400 font-bold">O Vilão das Faturas</span>
+                        </div>
+                        <h3 class="text-xs font-bold text-white mt-2 leading-relaxed">
+                            Por que o NAT Gateway na AWS é apelidado de vilão dos estudantes e deve ser evitado em laboratórios simples?
+                        </h3>
+                    </div>
+                    
+                    <div class="space-y-2 pt-2">
+                        <button onclick="answerQuiz(3, 'A')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>A)</strong> Cobra ~$0.045/hora (~$32/mês) mesmo com tráfego zero.
+                        </button>
+                        <button onclick="answerQuiz(3, 'B')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>B)</strong> Não permite conexão com repositórios GitHub.
+                        </button>
+                        <button onclick="answerQuiz(3, 'C')" class="quiz-opt-btn w-full text-left p-2.5 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500 text-xs text-slate-300 transition cursor-pointer">
+                            <strong>C)</strong> Só funciona se a conta tiver cartão Black.
+                        </button>
+                    </div>
+
+                    <div id="quiz-feedback-3" class="hidden text-[11px] p-2.5 rounded-xl font-mono"></div>
+                </div>
+
+            </div>
+
+            <!-- UNLOCKED BADGE CARD (Rendered after 3/3) -->
+            <div id="quiz-badge-container" class="hidden bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border-2 border-emerald-500/50 rounded-3xl p-6 shadow-2xl text-center space-y-4">
+                <div class="inline-flex p-3 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-3xl animate-bounce">
+                    🛡️
+                </div>
+                <div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500 text-slate-950 text-xs font-black uppercase tracking-wider">CONQUISTA DESBLOQUEADA!</span>
+                    <h3 class="text-xl font-black text-white mt-2">Arquiteto FinOps Sobrevivente 🛡️</h3>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto mt-1">
+                        Parabéns! Você demonstrou que conhece as pegadinhas de faturamento e tem o conhecimento necessário para estudar em nuvem sem sustos no bolso.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button onclick="copyLinkedInAchievement()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-bold text-xs transition cursor-pointer shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                        <span>📋</span> Copiar Post de Celebração para o LinkedIn
+                    </button>
+                    <button onclick="resetQuiz()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer">
+                        Refazer Desafio
+                    </button>
+                </div>
             </div>
 
         </section>
@@ -962,6 +1111,50 @@
     </main>
 
     <!-- ========================================== -->
+    <!-- MODAL: GERADOR DE SCRIPT DE TEARDOWN (Melhoria 2) -->
+    <!-- ========================================== -->
+    <div id="teardown-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md">
+        <div class="w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4 max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🧹</span>
+                    <h3 class="text-sm font-bold text-white">Script Automático de Teardown / Destruição</h3>
+                </div>
+                <button onclick="toggleTeardownModal(false)" class="text-slate-400 hover:text-white font-bold cursor-pointer text-lg">&times;</button>
+            </div>
+
+            <p class="text-xs text-slate-300 leading-relaxed">
+                Execute os comandos abaixo no seu terminal para desprovisionar com segurança os recursos marcados e garantir que sua fatura permaneça em <strong>$0.00</strong>.
+            </p>
+
+            <div class="flex-1 overflow-y-auto space-y-3">
+                <div>
+                    <span class="text-[11px] font-mono text-cyan-400 uppercase font-bold block mb-1">1. Terminal CLI (Bash / Cloud Shell):</span>
+                    <pre id="teardown-cli-code" class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-slate-200 overflow-x-auto whitespace-pre-wrap select-all"></pre>
+                </div>
+
+                <div>
+                    <span class="text-[11px] font-mono text-emerald-400 uppercase font-bold block mb-1">2. Destruição via Terraform (IaC):</span>
+                    <pre class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-[11px] font-mono text-emerald-300 select-all"># Destrói toda a infraestrutura declarada no repositório
+terraform destroy -auto-approve</pre>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                <span class="text-[10px] text-slate-500 font-mono">Dica: Rode no AWS CloudShell, Google Cloud Shell ou Azure Cloud Shell.</span>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleTeardownModal(false)" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold cursor-pointer">
+                        Fechar
+                    </button>
+                    <button onclick="copyTeardownCommands()" id="btn-copy-teardown" class="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition cursor-pointer flex items-center gap-1.5">
+                        <span>📋</span> Copiar Script CLI
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
     <!-- MODAL 1: CHAVE GEMINI API COM TESTADOR     -->
     <!-- ========================================== -->
     <div id="api-key-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
@@ -1096,6 +1289,9 @@
         </div>
     </div>
 
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 pointer-events-none flex flex-col gap-2"></div>
+
     <!-- ========================================== -->
     <!-- JAVASCRIPT LOGIC & RESILIENT ARCHITECTURE  -->
     <!-- ========================================== -->
@@ -1103,6 +1299,7 @@
         // Core State
         let currentBaseDollarRate = 5.65;
         let isCardRateActive = false;
+        let isAudioMuted = localStorage.getItem('finops_audio_muted') === 'true';
         let easterEggClickCount = 0;
         let easterEggClickTimer = null;
         let audioCtx = null;
@@ -1111,17 +1308,40 @@
         let activeGeminiModel = localStorage.getItem('gemini_active_model') || "gemini-3.8-flash";
         let currentTopologyMode = 'reactive'; // 'reactive' | 'reference'
 
-        // Fallback priority cascade for models to handle high demand / capacity spikes
+        // Quiz State (Melhoria 5)
+        const quizAnswers = { 1: 'B', 2: 'C', 3: 'A' };
+        const userQuizScore = { 1: false, 2: false, 3: false };
+
         const FALLBACK_MODEL_POOL = [
             "gemini-3.8-flash",
             "gemini-2.5-flash",
             "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-3.5-flash"
+            "gemini-1.5-flash"
         ];
 
-        // Sound Synthesizer via Web Audio API
+        // Sound Synthesizer via Web Audio API with MUTE SUPPORT (Melhoria 4)
+        function toggleAudioMute() {
+            isAudioMuted = !isAudioMuted;
+            localStorage.setItem('finops_audio_muted', isAudioMuted);
+            updateAudioUI();
+            if (isAudioMuted) {
+                stopAlarmSound();
+                showToast("🔇 Áudio desativado (Modo Silencioso)");
+            } else {
+                playTone(520, 'sine', 0.1);
+                showToast("🔊 Efeitos sonoros ativados");
+            }
+        }
+
+        function updateAudioUI() {
+            const icon = document.getElementById('audio-toggle-icon');
+            const label = document.getElementById('audio-toggle-label');
+            if (icon) icon.innerText = isAudioMuted ? "🔇" : "🔊";
+            if (label) label.innerText = isAudioMuted ? "Mudo" : "Som";
+        }
+
         function playTone(freq = 440, type = 'sine', duration = 0.15) {
+            if (isAudioMuted) return;
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1139,6 +1359,7 @@
         }
 
         function startAlarmSound() {
+            if (isAudioMuted) return;
             try {
                 if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
                 if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -1164,15 +1385,31 @@
             } catch (e) {}
         }
 
+        // Toast Helper
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = "p-3 px-4 rounded-2xl bg-slate-900 border border-cyan-500/40 text-xs font-semibold text-white shadow-2xl toast-animate flex items-center gap-2 pointer-events-auto";
+            toast.innerHTML = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
         // View Switcher
         function switchMainView(viewId) {
-            const views = ['calc-view', 'compare-view', 'blueprints-view', 'career-view', 'ai-view'];
+            const views = ['calc-view', 'compare-view', 'blueprints-view', 'quiz-view', 'career-view', 'ai-view'];
             views.forEach(v => {
                 const el = document.getElementById(v);
                 const btn = document.getElementById('tab-btn-' + v);
                 if (el) el.classList.add('hidden');
                 if (btn) {
-                    btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
+                    btn.classList.remove('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30', 'bg-amber-500/20', 'text-amber-300', 'border-amber-500/30');
                     btn.classList.add('text-slate-400', 'border-transparent');
                 }
             });
@@ -1182,7 +1419,11 @@
             if (activeView) activeView.classList.remove('hidden');
             if (activeBtn) {
                 activeBtn.classList.remove('text-slate-400', 'border-transparent');
-                activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
+                if (viewId === 'quiz-view') {
+                    activeBtn.classList.add('bg-amber-500/20', 'text-amber-300', 'border-amber-500/30');
+                } else {
+                    activeBtn.classList.add('bg-cyan-500/20', 'text-cyan-300', 'border-cyan-500/30');
+                }
             }
             playTone(480, 'sine', 0.08);
         }
@@ -1378,7 +1619,6 @@
                             <span class="text-[10px] font-mono text-slate-500">10.0.0.0/16</span>
                         </div>
 
-                        <!-- 4 Connected Columns with Visual Direction Arrows -->
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-stretch relative">
                             
                             <!-- Col 1: Internet & Ingress -->
@@ -1471,7 +1711,7 @@
             `;
         }
 
-        // RENDER: High-Fidelity Flow Diagram (Baseado no seu modelo visual)
+        // RENDER: High-Fidelity Flow Diagram (Reference Model)
         function renderSelectedReferenceLab() {
             const container = document.getElementById('architecture-diagram-container');
             const labKey = document.getElementById('ref-lab-selector')?.value || 'data_streaming';
@@ -1484,7 +1724,6 @@
                     <div class="w-full space-y-3 font-sans">
                         <div class="rounded-3xl border-2 border-slate-800 bg-slate-950 p-5 relative shadow-2xl space-y-6">
                             
-                            <!-- Header Diagram Box -->
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800 text-xs">
                                 <div class="flex items-center gap-2">
                                     <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS CLOUD</span>
@@ -1500,10 +1739,7 @@
                                 </div>
                             </div>
 
-                            <!-- Top Ingestion Tier -->
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
-                                
-                                <!-- Step 1: RabbitMQ -->
                                 <div class="p-3.5 rounded-2xl border border-amber-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🐇</span>
@@ -1513,7 +1749,6 @@
                                     <div class="text-[10px] text-slate-400">Produtor de mensagens & eventos</div>
                                 </div>
 
-                                <!-- Step 2: Kinesis DataStream -->
                                 <div class="p-3.5 rounded-2xl border border-blue-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🌊</span>
@@ -1523,7 +1758,6 @@
                                     <div class="text-[10px] text-slate-400">Buffer contínuo de eventos</div>
                                 </div>
 
-                                <!-- Step 3: Kinesis Firehose -->
                                 <div class="p-3.5 rounded-2xl border border-blue-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🚿</span>
@@ -1533,7 +1767,6 @@
                                     <div class="text-[10px] text-slate-400">Compactação e entrega contínua</div>
                                 </div>
 
-                                <!-- Step 4: OpenSearch & Dev Team -->
                                 <div class="p-3.5 rounded-2xl border border-purple-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🔍</span>
@@ -1542,10 +1775,8 @@
                                     <div class="text-xs font-bold text-white">OpenSearch</div>
                                     <div class="text-[10px] text-slate-400">👤 Dev Team (Análise de Logs)</div>
                                 </div>
-
                             </div>
 
-                            <!-- Flow Connector Bar (Visual Dashed Lines) -->
                             <div class="relative py-1 flex items-center justify-center">
                                 <div class="w-full border-t border-dashed border-blue-500/60"></div>
                                 <span class="absolute px-3 py-0.5 rounded-full bg-slate-900 border border-blue-500/40 text-[10px] font-mono text-blue-400">
@@ -1553,10 +1784,7 @@
                                 </span>
                             </div>
 
-                            <!-- Middle & Storage Tier: S3 Parquet, Glue Catalog & Lambda -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-                                
-                                <!-- Glue Catalog & Table -->
                                 <div class="p-3.5 rounded-2xl border border-cyan-500/30 bg-slate-900/80 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">📋</span>
@@ -1566,7 +1794,6 @@
                                     <div class="text-[10px] text-slate-400">Catalogação de esquema para Athena</div>
                                 </div>
 
-                                <!-- Bucket S3 Parquet -->
                                 <div class="p-3.5 rounded-2xl border-2 border-emerald-500/40 bg-slate-900 space-y-2 arch-card shadow-lg">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🪣</span>
@@ -1576,7 +1803,6 @@
                                     <div class="text-[10px] text-slate-400">Armazenamento particionado por data</div>
                                 </div>
 
-                                <!-- AWS Lambda ETL -->
                                 <div class="p-3.5 rounded-2xl border border-amber-500/40 bg-slate-900/80 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">λ</span>
@@ -1585,10 +1811,8 @@
                                     <div class="text-xs font-bold text-white">AWS Lambda (ETL)</div>
                                     <div class="text-[10px] text-slate-400">Transformação sob demanda para CSV</div>
                                 </div>
-
                             </div>
 
-                            <!-- Flow Connector Bar 2 -->
                             <div class="relative py-1 flex items-center justify-center">
                                 <div class="w-full border-t border-dashed border-emerald-500/60"></div>
                                 <span class="absolute px-3 py-0.5 rounded-full bg-slate-900 border border-emerald-500/40 text-[10px] font-mono text-emerald-400">
@@ -1596,10 +1820,7 @@
                                 </span>
                             </div>
 
-                            <!-- Bottom Consumer Tier: Athena, CloudFront & Operador SAC -->
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                                
-                                <!-- Athena -->
                                 <div class="p-3.5 rounded-2xl border border-emerald-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🔎</span>
@@ -1609,7 +1830,6 @@
                                     <div class="text-[10px] text-slate-400">Consulta SQL direto no bucket S3</div>
                                 </div>
 
-                                <!-- S3 CSV + CloudFront CDN -->
                                 <div class="p-3.5 rounded-2xl border border-cyan-500/40 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">🌐</span>
@@ -1619,7 +1839,6 @@
                                     <div class="text-[10px] text-slate-400">Distribuição com Presigned URL</div>
                                 </div>
 
-                                <!-- Operadores SAC -->
                                 <div class="p-3.5 rounded-2xl border border-slate-700 bg-slate-900/90 space-y-2 arch-card">
                                     <div class="flex items-center justify-between">
                                         <span class="text-xl">👥</span>
@@ -1628,10 +1847,8 @@
                                     <div class="text-xs font-bold text-white">Operador SAC & SAC-CM</div>
                                     <div class="text-[10px] text-slate-400">Acesso a relatórios e dashboards</div>
                                 </div>
-
                             </div>
 
-                            <!-- FinOps Architecture Guidance -->
                             <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <div class="flex items-center gap-2">
                                     <span class="text-emerald-400 font-bold">💡 Diretriz FinOps de Arquitetura:</span>
@@ -1753,7 +1970,7 @@
             playTone(650, 'triangle', 0.15);
         }
 
-        // Calculate Totals & Risk Engine
+        // Calculate Totals, Risk Engine & Student Currency (Melhoria 1)
         function calculateTotal() {
             let totalUsd = 0;
             let hasDanger = false;
@@ -1785,6 +2002,9 @@
             if (totalUsdEl) totalUsdEl.innerText = `$${totalUsd.toFixed(2)}`;
             if (totalBrlEl) totalBrlEl.innerHTML = `≈ R$ ${totalBrl.toFixed(2)} <span class="text-[11px] font-normal text-slate-400">(${isCardRateActive ? 'Dólar Cartão c/ IOF' : 'cotação comercial'})</span>`;
 
+            // Calculate Student Currency Equivalent (Melhoria 1)
+            updateStudentCurrency(totalBrl);
+
             if (checkedDangerCount >= 2) {
                 if (riskBadge) {
                     riskBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
@@ -1808,12 +2028,225 @@
             renderArchitectureTopology();
         }
 
+        // Logic: Moeda de Estudante ☕🍔 (Melhoria 1)
+        function updateStudentCurrency(brl) {
+            const iconEl = document.getElementById('student-currency-icon');
+            const textEl = document.getElementById('student-currency-text');
+            const boxEl = document.getElementById('student-currency-container');
+            if (!textEl || !iconEl || !boxEl) return;
+
+            if (brl <= 0.05) {
+                iconEl.innerText = "🥗";
+                textEl.innerText = "Bolsa intacta! Zero risco de virar estagiário sem almoço.";
+                boxEl.className = "mt-3 p-3 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 text-xs text-emerald-300 transition-all flex items-start gap-2.5";
+            } else if (brl <= 25) {
+                const coffees = Math.max(1, Math.round(brl / 5));
+                iconEl.innerText = "☕";
+                textEl.innerText = `Equivale a ~${coffees} cafezinhos expressos ou 1 lanche rápido na cantina da faculdade.`;
+                boxEl.className = "mt-3 p-3 rounded-2xl bg-amber-950/30 border border-amber-500/30 text-xs text-amber-300 transition-all flex items-start gap-2.5";
+            } else if (brl <= 75) {
+                const meals = Math.max(2, Math.round(brl / 12));
+                iconEl.innerText = "🍱";
+                textEl.innerText = `Equivale a ~${meals} almoços no bandejão/RU da faculdade ou 1 mês e meio de Spotify Premium!`;
+                boxEl.className = "mt-3 p-3 rounded-2xl bg-amber-950/40 border border-amber-500/40 text-xs text-amber-200 transition-all flex items-start gap-2.5";
+            } else {
+                const coxinhaMonths = Math.round(brl / 15);
+                iconEl.innerText = "🚨";
+                textEl.innerText = `Equivale a ~${coxinhaMonths} coxinhas com suco ou o rancho de comida da semana! Desligue isso logo!`;
+                boxEl.className = "mt-3 p-3 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-xs text-rose-300 transition-all flex items-start gap-2.5 animate-pulse";
+            }
+        }
+
+        // DEEP LINKING (Melhoria 3)
+        function copyShareableLink() {
+            const checked = Array.from(document.querySelectorAll('.service-checkbox:checked')).map(cb => cb.getAttribute('data-service'));
+            const isWeekend = document.getElementById('weekend-multiplier')?.checked;
+            
+            const params = new URLSearchParams();
+            if (checked.length > 0) params.set('services', checked.join(','));
+            if (isWeekend) params.set('weekend', '1');
+
+            const shareUrl = `${window.location.origin}${window.location.pathname}#${params.toString()}`;
+
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                showToast("🔗 Link da simulação copiado para a área de transferência!");
+                playTone(600, 'triangle', 0.1);
+            }).catch(() => {
+                prompt("Copie seu link de compartilhamento:", shareUrl);
+            });
+        }
+
+        function restoreFromHash() {
+            const hash = window.location.hash.replace(/^#/, '');
+            if (!hash) return;
+
+            const params = new URLSearchParams(hash);
+            const servicesParam = params.get('services');
+            const weekendParam = params.get('weekend');
+
+            if (servicesParam) {
+                const services = servicesParam.split(',');
+                document.querySelectorAll('.service-checkbox').forEach(cb => {
+                    const svc = cb.getAttribute('data-service');
+                    cb.checked = services.includes(svc);
+                });
+            }
+
+            if (weekendParam === '1') {
+                const weekend = document.getElementById('weekend-multiplier');
+                if (weekend) weekend.checked = true;
+            }
+
+            calculateTotal();
+            showToast("✨ Simulação restaurada a partir do link compartilhado!");
+        }
+
+        // TEARDOWN SCRIPT GENERATOR (Melhoria 2)
+        function toggleTeardownModal(show) {
+            const modal = document.getElementById('teardown-modal');
+            if (!modal) return;
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+
+        function openTeardownModal() {
+            const checked = Array.from(document.querySelectorAll('.service-checkbox:checked'));
+            const cliEl = document.getElementById('teardown-cli-code');
+            if (!cliEl) return;
+
+            let script = "#!/bin/bash\n# FinOps Survival: Script de Destruição / Teardown Automático\necho '🧹 Iniciando limpeza de recursos para proteger a fatura...'\n\n";
+
+            if (checked.length === 0) {
+                script += "# Nenhum recurso selecionado na calculadora.\n# Dica: Execute comandos globais de auditoria:\naws ec2 describe-instances --query 'Reservations[].Instances[].InstanceId' --output text\ngcloud compute instances list\naz vm list --output table\n";
+            } else {
+                checked.forEach(cb => {
+                    const svc = cb.getAttribute('data-service');
+                    const name = cb.getAttribute('data-name');
+                    script += `# --- Teardown: ${name} ---\n`;
+
+                    if (svc === 'aws_nat') {
+                        script += "NAT_IDS=$(aws ec2 describe-nat-gateways --filter 'Name=state,Values=available' --query 'NatGateways[].NatGatewayId' --output text)\n";
+                        script += "for id in $NAT_IDS; do\n  echo \"Excluindo NAT Gateway: $id\"\n  aws ec2 delete-nat-gateway --nat-gateway-id $id\ndone\n\n";
+                    } else if (svc === 'aws_alb') {
+                        script += "ALB_ARNS=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[].LoadBalancerArn' --output text)\n";
+                        script += "for arn in $ALB_ARNS; do\n  echo \"Excluindo ALB: $arn\"\n  aws elbv2 delete-load-balancer --load-balancer-arn $arn\ndone\n\n";
+                    } else if (svc === 'aws_t2_micro') {
+                        script += "aws ec2 terminate-instances --instance-ids $(aws ec2 describe-instances --filters 'Name=instance-state-name,Values=running' --query 'Reservations[].Instances[].InstanceId' --output text)\n\n";
+                    } else if (svc === 'gcp_nat') {
+                        script += "echo 'Removendo Cloud NAT Router no GCP...'\ngcloud compute routers nats delete nat-config --router=nat-router --region=us-central1 --quiet\n\n";
+                    } else if (svc === 'gcp_sql') {
+                        script += "echo 'Deletando instâncias do Cloud SQL...'\ngcloud sql instances delete $(gcloud sql instances list --format='value(name)') --quiet\n\n";
+                    } else if (svc === 'gcp_e2_micro') {
+                        script += "gcloud compute instances delete $(gcloud compute instances list --format='value(name)') --quiet\n\n";
+                    } else if (svc === 'azure_bastion') {
+                        script += "az network bastion delete --name MyBastionHost --resource-group MyResourceGroup --no-wait\n\n";
+                    } else if (svc === 'azure_b1s') {
+                        script += "az vm delete --resource-group MyResourceGroup --name MyVM --yes\n\n";
+                    } else if (svc === 'unattached_ip') {
+                        script += "# Liberando IPs elásticos desvinculados na AWS para evitar multas de ociosidade\nALLOCS=$(aws ec2 describe-addresses --query 'Addresses[?AssociationId==null].AllocationId' --output text)\nfor alloc in $ALLOCS; do\n  aws ec2 release-address --allocation-id $alloc\ndone\n\n";
+                    }
+                });
+            }
+
+            script += "echo '✅ Teardown concluído! Sua conta de nuvem está segura.'";
+            cliEl.innerText = script;
+            toggleTeardownModal(true);
+            playTone(550, 'triangle', 0.1);
+        }
+
+        function copyTeardownCommands() {
+            const cliEl = document.getElementById('teardown-cli-code');
+            const btn = document.getElementById('btn-copy-teardown');
+            if (!cliEl) return;
+
+            navigator.clipboard.writeText(cliEl.innerText).then(() => {
+                if (btn) btn.innerHTML = "<span>✅</span> Copiado com Sucesso!";
+                showToast("📋 Script de Teardown copiado!");
+                playTone(680, 'triangle', 0.15);
+                setTimeout(() => {
+                    if (btn) btn.innerHTML = "<span>📋</span> Copiar Script CLI";
+                }, 2500);
+            });
+        }
+
+        // MINI-QUIZ FINOPS COM SELO VIRTUAL (Melhoria 5)
+        function answerQuiz(qNum, selectedOption) {
+            const correct = quizAnswers[qNum];
+            const isCorrect = (selectedOption === correct);
+            userQuizScore[qNum] = isCorrect;
+
+            const card = document.getElementById(`quiz-card-${qNum}`);
+            const feedback = document.getElementById(`quiz-feedback-${qNum}`);
+            const buttons = card.querySelectorAll('.quiz-opt-btn');
+
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.remove('hover:border-cyan-500');
+            });
+
+            if (isCorrect) {
+                feedback.className = "text-[11px] p-2.5 rounded-xl font-mono bg-emerald-950/60 text-emerald-300 border border-emerald-500/40";
+                feedback.innerHTML = "✅ <strong>Correto!</strong> Você evitou uma cobrança fantasma.";
+                playTone(600, 'triangle', 0.1);
+            } else {
+                feedback.className = "text-[11px] p-2.5 rounded-xl font-mono bg-rose-950/60 text-rose-300 border border-rose-500/40";
+                feedback.innerHTML = `❌ <strong>Incorreto!</strong> A resposta certa é a alternativa <strong>${correct}</strong>.`;
+                playTone(300, 'sawtooth', 0.15);
+            }
+            feedback.classList.remove('hidden');
+
+            // Update Badge and Score
+            updateQuizProgress();
+        }
+
+        function updateQuizProgress() {
+            const score = Object.values(userQuizScore).filter(Boolean).length;
+            const badge = document.getElementById('quiz-score-badge');
+            const badgeContainer = document.getElementById('quiz-badge-container');
+
+            if (badge) badge.innerText = `${score} / 3 Acertos`;
+
+            if (score === 3) {
+                if (badgeContainer) badgeContainer.classList.remove('hidden');
+                if (typeof confetti === 'function') {
+                    confetti({ particleCount: 100, spread: 80, origin: { y: 0.6 } });
+                }
+                playTone(700, 'triangle', 0.2);
+                setTimeout(() => playTone(900, 'triangle', 0.3), 150);
+            }
+        }
+
+        function resetQuiz() {
+            for (let i = 1; i <= 3; i++) {
+                userQuizScore[i] = false;
+                const feedback = document.getElementById(`quiz-feedback-${i}`);
+                if (feedback) feedback.classList.add('hidden');
+                const card = document.getElementById(`quiz-card-${i}`);
+                if (card) {
+                    card.querySelectorAll('.quiz-opt-btn').forEach(b => b.disabled = false);
+                }
+            }
+            const badgeContainer = document.getElementById(`quiz-badge-container`);
+            if (badgeContainer) badgeContainer.classList.add('hidden');
+            updateQuizProgress();
+            playTone(400, 'sine', 0.1);
+        }
+
+        function copyLinkedInAchievement() {
+            const text = `🛡️ Acabo de conquistar o selo de "Arquiteto FinOps Sobrevivente" na Calculadora de Sobrevivência na Nuvem!\n\nPratiquei prevenção de faturas fantasmas na AWS, Google Cloud e Azure, identificando riscos com NAT Gateways, IPv4 ociosos e bancos contínuos.\n\nSimule você também seu laboratório custo zero: ${window.location.origin}${window.location.pathname}\n\n#CloudComputing #FinOps #DevOps #AWS #GoogleCloud #Azure`;
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("📋 Texto de celebração copiado para a área de transferência!");
+                playTone(650, 'triangle', 0.1);
+            });
+        }
+
         function resetCalculator() {
             document.querySelectorAll('.service-checkbox').forEach(cb => cb.checked = false);
             const weekend = document.getElementById('weekend-multiplier');
             if (weekend) weekend.checked = false;
             calculateTotal();
             playTone(380, 'sine', 0.1);
+            showToast("🧹 Cesta limpa com sucesso!");
         }
 
         // Blueprint Loader
@@ -1914,9 +2347,7 @@
             resetCalculator();
         }
 
-        // ==========================================
         // GEMINI API & RESILIENT FINOPS ENGINE
-        // ==========================================
         function toggleApiKeyModal(show) {
             const modal = document.getElementById('api-key-modal');
             const input = document.getElementById('input-gemini-key');
@@ -1980,7 +2411,6 @@
             return null;
         }
 
-        // Resilient Engine: Dispatches call with model cascade & auto-healing
         async function dispatchGeminiCall(apiKey, prompt, systemPrompt, preferredModel) {
             const candidateList = [
                 preferredModel,
@@ -2024,13 +2454,11 @@
 
                         if (errMsg.toLowerCase().includes('high demand') || errMsg.toLowerCase().includes('spikes in demand') || response.status === 503 || response.status === 429) {
                             highDemandEncountered = true;
-                            console.warn(`[Sentinela FinOps] Modelo ${model} sob alta demanda. Tentando modelo alternativo...`);
                             await new Promise(r => setTimeout(r, 600));
                             continue;
                         }
 
                         if (response.status === 404 || errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('no longer available')) {
-                            console.warn(`[Sentinela FinOps] Modelo ${model} indisponível. Tentando próximo da fila...`);
                             continue;
                         }
 
@@ -2056,7 +2484,6 @@
             throw new Error(lastErrorMessage || "Falha na comunicação com a API.");
         }
 
-        // Live Key Tester directly against Google's API with Auto-Healing & Cascading
         async function testCurrentApiKey() {
             const input = document.getElementById('input-gemini-key');
             const feedback = document.getElementById('key-test-feedback');
@@ -2159,10 +2586,8 @@
                     if (iconEl) iconEl.innerText = "✨";
 
                 } catch (apiError) {
-                    console.error("Erro na chamada da API Gemini:", apiError);
                     const isHighDemand = apiError.message.toLowerCase().includes('alta demanda') || apiError.message.toLowerCase().includes('demand');
-                    
-                    outputMarkdown = `### ⚠️ Alerta de Capacidade dos Servidores Google (Free Tier)\n\n${apiError.message}\n\n* **Status Técnico:** Sua chave é válida, mas os servidores públicos do Google estão temporariamente saturados para requisições externas.\n* **Medida Automática:** O **Motor FinOps Integrado** assumiu o diagnóstico para você não ficar sem resposta.\n\n---\n\n#### 🤖 Diagnóstico FinOps Local:\n\n${getLocalKnowledgeResponse(prompt)}`;
+                    outputMarkdown = `### ⚠️ Alerta de Capacidade dos Servidores Google (Free Tier)\n\n${apiError.message}\n\n* **Status Técnico:** O **Motor FinOps Integrado** assumiu o diagnóstico para você não ficar sem resposta.\n\n---\n\n#### 🤖 Diagnóstico FinOps Local:\n\n${getLocalKnowledgeResponse(prompt)}`;
                     
                     if (badgeEl) {
                         badgeEl.className = isHighDemand 
@@ -2230,9 +2655,11 @@
             if (weekend) weekend.addEventListener('change', calculateTotal);
 
             fetchLiveDollarRate();
+            updateAudioUI();
             updateTrackProgress();
             updateApiKeyUI();
             renderArchitectureTopology();
+            restoreFromHash();
         });
     </script>
 </body>
