@@ -11,7 +11,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -22,9 +22,18 @@
                         mono: ['Fira Code', 'monospace']
                     },
                     colors: {
-                        aws: '#FF9900',
-                        gcp: '#4285F4',
-                        azure: '#0089D6'
+                        aws: {
+                            DEFAULT: '#FF9900',
+                            glow: 'rgba(255, 153, 0, 0.4)'
+                        },
+                        gcp: {
+                            DEFAULT: '#4285F4',
+                            glow: 'rgba(66, 133, 244, 0.4)'
+                        },
+                        azure: {
+                            DEFAULT: '#0089D6',
+                            glow: 'rgba(0, 137, 214, 0.4)'
+                        }
                     }
                 }
             }
@@ -32,45 +41,94 @@
     </script>
     <style>
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #090d16; }
+        ::-webkit-scrollbar-track { background: #070a12; }
         ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #334155; }
-        @keyframes pulse-slow { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-        .animate-pulse-slow { animation: pulse-slow 3s infinite; }
+        
+        /* Floating Animations for Cloud Badges */
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-7px) rotate(0.8deg); }
+        }
+        @keyframes float-reverse {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(7px) rotate(-0.8deg); }
+        }
+        @keyframes float-mid {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-9px); }
+        }
+        .animate-float-1 { animation: float-slow 4.5s ease-in-out infinite; }
+        .animate-float-2 { animation: float-reverse 5s ease-in-out infinite; }
+        .animate-float-3 { animation: float-mid 4s ease-in-out infinite; }
+
+        /* Subtle glowing aura */
+        @keyframes multi-glow {
+            0%, 100% { opacity: 0.35; filter: blur(30px); }
+            50% { opacity: 0.6; filter: blur(40px); }
+        }
+        .animate-multi-glow { animation: multi-glow 6s ease-in-out infinite alternate; }
+
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-6px); }
             40%, 80% { transform: translateX(6px); }
         }
         .animate-shake { animation: shake 0.35s ease-in-out infinite; }
-        .diagram-node {
-            transition: all 0.25s ease-in-out;
+
+        .arch-card {
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .diagram-node:hover {
-            transform: translateY(-2px);
+        .arch-card:hover {
+            transform: translateY(-3px) scale(1.01);
         }
+
+        /* Animated SVG flow lines */
+        @keyframes flowDash {
+            to { stroke-dashoffset: -24; }
+        }
+        .flow-line-write {
+            stroke-dasharray: 6 4;
+            animation: flowDash 1s linear infinite;
+        }
+        .flow-line-read {
+            stroke-dasharray: 6 4;
+            animation: flowDash 1.2s linear infinite reverse;
+        }
+
+        /* Pulse glow rings */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .animate-pulse-ring { animation: pulse-ring 2.5s infinite ease-in-out; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 min-h-screen font-sans antialiased selection:bg-cyan-500 selection:text-slate-950 overflow-x-hidden">
 
-    <!-- Top Glow Backdrop -->
-    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-48 bg-gradient-to-b from-cyan-500/10 via-blue-500/5 to-transparent blur-3xl pointer-events-none -z-10"></div>
+    <!-- Atmospheric Multi-Cloud Ambient Aura Backdrop -->
+    <div class="fixed top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-64 pointer-events-none -z-10 overflow-hidden">
+        <div class="absolute -top-12 left-1/4 w-80 h-80 bg-blue-600/15 rounded-full animate-multi-glow"></div>
+        <div class="absolute -top-12 right-1/4 w-80 h-80 bg-amber-500/15 rounded-full animate-multi-glow" style="animation-delay: -2s;"></div>
+        <div class="absolute -top-8 left-1/2 -translate-x-1/2 w-96 h-96 bg-cyan-500/10 rounded-full animate-multi-glow" style="animation-delay: -4s;"></div>
+    </div>
 
     <!-- Navigation Header -->
-    <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col md:flex-row items-center justify-between gap-4">
+    <header class="border-b border-slate-800/80 bg-slate-950/85 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col md:flex-row items-center justify-between gap-3">
             
             <!-- Logo & Easter Egg Trigger -->
             <div class="flex items-center gap-3">
-                <button id="cloud-egg-btn" onclick="handleCloudClick()" class="relative p-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/50 hover:bg-slate-800/80 transition-all cursor-pointer group" title="Clique 5 vezes para um teste de estresse de faturamento!">
-                    <span class="text-2xl group-hover:scale-110 transition-transform inline-block">☁️</span>
+                <button id="cloud-egg-btn" onclick="handleCloudClick()" class="relative p-2.5 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-cyan-500/10 transition-all cursor-pointer group" title="Clique 5 vezes para um teste de estresse de faturamento!">
+                    <span class="text-2xl group-hover:scale-125 transition-transform inline-block">☁️</span>
                     <span id="click-feedback-badge" class="hidden absolute -top-1 -right-1 px-1.5 py-0.2 rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-lg animate-bounce">0</span>
                 </button>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center gap-2">
+                        <h1 class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-2">
                             Calculadora de Sobrevivência na Nuvem
-                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">FinOps v3.8</span>
+                            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">FinOps v4.0</span>
                         </h1>
                     </div>
                     <p class="text-xs text-slate-400">Proteção contra faturas fantasmas, simulador de risco e modelagem visual para estudantes & devs</p>
@@ -94,8 +152,8 @@
         </div>
 
         <!-- Main Navigation Tabs -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex items-center gap-1 overflow-x-auto py-2 scrollbar-none">
-            <button onclick="switchMainView('calc-view')" id="tab-btn-calc-view" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/60 flex items-center gap-1.5 overflow-x-auto py-2 scrollbar-none">
+            <button onclick="switchMainView('calc-view')" id="tab-btn-calc-view" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition cursor-pointer flex items-center gap-2 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                 <span>🧪</span> Simulador de Custos & Topologia
             </button>
             <button onclick="switchMainView('compare-view')" id="tab-btn-compare-view" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent">
@@ -113,6 +171,69 @@
         </div>
     </header>
 
+    <!-- NEW: Animated Cloud Ecosystem Showcase (Visuais Atraentes para Estudantes) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            
+            <!-- Google Cloud Emblem Card -->
+            <div class="animate-float-1 p-3.5 rounded-2xl bg-gradient-to-r from-blue-950/40 via-slate-900 to-slate-900/90 border border-blue-500/30 hover:border-blue-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('gcp')">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
+                    <!-- Google Cloud Native SVG Icon -->
+                    <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
+                        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z" fill="#4285F4"/>
+                        <path d="M19 19H6c-2.76 0-5-2.24-5-5 0-2.58 1.95-4.68 4.5-4.95l.85-.09.39-.77C7.8 6.13 9.77 5 12 5c2.93 0 5.4 1.95 6.06 4.78l.26 1.13 1.16.14C20.9 11.23 22 12.5 22 14c0 2.76-2.24 5-5 5z" fill="#34A853"/>
+                        <circle cx="12" cy="12" r="3" fill="#FBBC05"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white group-hover:text-blue-300 transition">Google Cloud</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-bold">Always Free</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 truncate mt-0.5">VM e2-micro perpétua e BigQuery sem cartão</p>
+                </div>
+            </div>
+
+            <!-- AWS Emblem Card -->
+            <div class="animate-float-2 p-3.5 rounded-2xl bg-gradient-to-r from-amber-950/40 via-slate-900 to-slate-900/90 border border-amber-500/30 hover:border-amber-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('aws')">
+                <div class="w-11 h-11 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
+                    <!-- AWS Native Cloud SVG Icon -->
+                    <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
+                        <path d="M18.8 11.2c-.6-3.1-3.3-5.2-6.5-5.2-2.6 0-4.9 1.5-5.9 3.8-2.6.3-4.4 2.5-4.4 5.2 0 2.9 2.4 5.3 5.3 5.3h11.2c2.6 0 4.8-2.1 4.8-4.8 0-2.4-1.9-4.3-4.5-4.3z" fill="#FF9900"/>
+                        <path d="M7 16c2.5 2 7.5 2 10 0" stroke="#232F3E" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M17 15l1.5 1-1.5 1" stroke="#232F3E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white group-hover:text-amber-300 transition">Amazon Web Services</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">12 Meses Grátis</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 truncate mt-0.5">750h/mês de EC2 e 1 TB de CDN CloudFront</p>
+                </div>
+            </div>
+
+            <!-- Microsoft Azure Emblem Card -->
+            <div class="animate-float-3 p-3.5 rounded-2xl bg-gradient-to-r from-sky-950/40 via-slate-900 to-slate-900/90 border border-sky-500/30 hover:border-sky-400 transition-all flex items-center gap-3.5 shadow-lg group cursor-pointer" onclick="filterCloud('azure')">
+                <div class="w-11 h-11 rounded-xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center p-2 group-hover:scale-110 transition-transform">
+                    <!-- Azure Native Cloud SVG Icon -->
+                    <svg class="w-full h-full" viewBox="0 0 24 24" fill="none">
+                        <path d="M13.2 3.5L4 18.5h6.2l3-6 4 6H20L13.2 3.5z" fill="#0089D6"/>
+                        <path d="M13.2 3.5l-3.2 9 3 6h4.2l-4-9z" fill="#0072C6" opacity="0.6"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-bold text-white group-hover:text-sky-300 transition">Microsoft Azure</span>
+                        <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-bold">$100 Estudante</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 truncate mt-0.5">Azure for Students sem cartão de crédito</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -122,9 +243,9 @@
         <section id="calc-view" class="space-y-6">
             
             <!-- Quick Intro & Cloud Filter -->
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/70 border border-slate-800/80 p-4 rounded-2xl shadow-md">
                 <div>
-                    <h2 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <h2 class="text-sm font-extrabold text-white uppercase tracking-wider flex items-center gap-2">
                         <span>🛡️</span> Monte seu Laboratório Acadêmico
                     </h2>
                     <p class="text-xs text-slate-400 mt-0.5">Selecione componentes para projetar a infraestrutura e diagnosticar cobranças ocultas em tempo real.</p>
@@ -132,74 +253,82 @@
                 
                 <!-- Cloud Selector Tabs -->
                 <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                    <button onclick="filterCloud('all')" id="cloud-filter-all" class="cloud-pill active px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-white transition">Todas</button>
-                    <button onclick="filterCloud('gcp')" id="cloud-filter-gcp" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">GCP 🔵</button>
-                    <button onclick="filterCloud('aws')" id="cloud-filter-aws" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">AWS 🟠</button>
-                    <button onclick="filterCloud('azure')" id="cloud-filter-azure" class="cloud-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Azure 🔷</button>
+                    <button onclick="filterCloud('all')" id="cloud-filter-all" class="cloud-pill active px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-800 text-white transition cursor-pointer">Todas</button>
+                    <button onclick="filterCloud('gcp')" id="cloud-filter-gcp" class="cloud-pill px-3 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span> GCP
+                    </button>
+                    <button onclick="filterCloud('aws')" id="cloud-filter-aws" class="cloud-pill px-3 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span> AWS
+                    </button>
+                    <button onclick="filterCloud('azure')" id="cloud-filter-azure" class="cloud-pill px-3 py-1.5 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-sky-500"></span> Azure
+                    </button>
                 </div>
             </div>
 
             <!-- LIVE ARCHITECTURE TOPOLOGY CANVAS -->
-            <div class="bg-slate-900/70 border border-cyan-500/20 rounded-2xl p-5 shadow-xl relative overflow-hidden">
+            <div class="bg-slate-900/80 border border-cyan-500/25 rounded-3xl p-5 shadow-2xl relative overflow-hidden backdrop-blur-md">
                 <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pb-4 border-b border-slate-800/80">
-                    <div class="flex items-center gap-2.5">
-                        <span class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-base">📐</span>
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-lg shadow-inner">
+                            📐
+                        </div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                                    Arquitetura da Solução — Visão CCOE & Topologia
+                                <h3 class="text-sm font-extrabold text-white flex items-center gap-2">
+                                    Diagrama de Arquitetura da Solução & Topologia
                                 </h3>
-                                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest">TechTeam Standard</span>
+                                <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 uppercase tracking-widest font-bold">Padrão FinOps</span>
                             </div>
-                            <p class="text-xs text-slate-400">Diagrama de engenharia com fluxos de leitura, ingestão de dados e isolamento perimetral.</p>
+                            <p class="text-xs text-slate-400">Fluxos de leitura, ingestão de dados e isolamento de segurança visualizados em tempo real.</p>
                         </div>
                     </div>
                     
-                    <!-- Controls: Mode Selector & Legend -->
+                    <!-- Controls: Mode Selector & Reference Labs -->
                     <div class="flex flex-wrap items-center gap-2">
                         <!-- Mode Selector -->
                         <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800 text-[11px]">
-                            <button onclick="setTopologyMode('reactive')" id="topo-btn-reactive" class="px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300">
+                            <button onclick="setTopologyMode('reactive')" id="topo-btn-reactive" class="px-3 py-1.5 rounded-lg font-bold transition bg-slate-800 text-cyan-300 cursor-pointer">
                                 ⚡ Cesta Atual
                             </button>
-                            <button onclick="setTopologyMode('reference')" id="topo-btn-reference" class="px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white">
-                                🏛️ Labs CCOE
+                            <button onclick="setTopologyMode('reference')" id="topo-btn-reference" class="px-3 py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white cursor-pointer">
+                                🏛️ Modelos de Labs
                             </button>
                         </div>
 
                         <!-- Reference Lab Selector -->
-                        <select id="ccoe-lab-selector" onchange="renderCcoeSelectedLab()" class="hidden bg-slate-950 border border-slate-800 text-slate-200 text-[11px] rounded-xl px-2.5 py-1 focus:ring-1 focus:ring-cyan-500 outline-none">
-                            <option value="data_streaming">Pipeline: Streaming & Data Lake</option>
-                            <option value="serverless_analytics">Pipeline: BigQuery Serverless</option>
-                            <option value="jamstack_cdn">Web: Global Jamstack CDN</option>
-                            <option value="bot_always_free">DevOps: Bot 24/7 Always Free</option>
+                        <select id="ref-lab-selector" onchange="renderSelectedReferenceLab()" class="hidden bg-slate-950 border border-slate-800 text-slate-200 text-[11px] rounded-xl px-2.5 py-1.5 focus:ring-1 focus:ring-cyan-500 outline-none cursor-pointer">
+                            <option value="data_streaming">Pipeline: Streaming & Data Lakehouse (AWS)</option>
+                            <option value="serverless_analytics">Pipeline: BigQuery Serverless (GCP)</option>
+                            <option value="jamstack_cdn">Web: Global Jamstack CDN (AWS)</option>
+                            <option value="bot_always_free">DevOps: Bot 24/7 Always Free (GCP)</option>
                         </select>
 
                         <!-- Export Button -->
-                        <button onclick="exportTopologyDiagram()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-[11px] font-mono transition flex items-center gap-1 cursor-pointer" title="Exportar diagrama em formato visual">
+                        <button onclick="exportTopologyDiagram()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[11px] font-mono font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="Exportar diagrama em formato visual">
                             <span>📥</span> Exportar
                         </button>
                     </div>
                 </div>
 
-                <!-- CCOE Technical Legend Bar -->
+                <!-- Technical Legend Bar -->
                 <div class="flex flex-wrap items-center justify-between gap-3 pt-3 pb-1 text-[11px] font-mono border-b border-slate-800/40">
                     <div class="flex items-center gap-4">
-                        <span class="flex items-center gap-1.5 text-blue-400">
+                        <span class="flex items-center gap-1.5 text-blue-400 font-semibold">
                             <span class="w-4 h-0.5 border-t-2 border-dashed border-blue-400"></span> Escrita / Ingestão
                         </span>
-                        <span class="flex items-center gap-1.5 text-emerald-400">
+                        <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
                             <span class="w-4 h-0.5 border-t-2 border-dashed border-emerald-400"></span> Leitura / Consulta
                         </span>
-                        <span class="flex items-center gap-1.5 text-rose-400">
+                        <span class="flex items-center gap-1.5 text-rose-400 font-semibold">
                             <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span> Alerta de Custo Fixo
                         </span>
                     </div>
-                    <span id="diagram-scope-badge" class="text-slate-500 text-[10px]">Perímetro: Multi-Cloud VPC</span>
+                    <span id="diagram-scope-badge" class="text-slate-500 text-[10px]">Perímetro: Cesta Dinâmica Selecionada</span>
                 </div>
 
                 <!-- Dynamic Diagram Layout -->
-                <div id="architecture-diagram-container" class="mt-4 min-h-[220px] flex items-center justify-center overflow-x-auto"></div>
+                <div id="architecture-diagram-container" class="mt-4 min-h-[260px] flex items-center justify-center overflow-x-auto"></div>
             </div>
 
             <!-- Two Column Layout: Services Catalog + Live Risk Summary -->
@@ -209,84 +338,84 @@
                 <div class="lg:col-span-2 space-y-6">
                     
                     <!-- Free Tier Safe Resources -->
-                    <div class="bg-slate-900/50 border border-emerald-500/20 rounded-2xl p-5">
+                    <div class="bg-slate-900/60 border border-emerald-500/25 rounded-3xl p-5 shadow-lg">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase">Custo Zero</span>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase tracking-wider">Custo Zero</span>
                                 <h3 class="text-sm font-bold text-white">Camada Segura (Always Free & Free Tier)</h3>
                             </div>
-                            <span class="text-xs text-emerald-400 font-mono font-semibold">$0.00 / mês</span>
+                            <span class="text-xs text-emerald-400 font-mono font-bold">$0.00 / mês</span>
                         </div>
 
                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" id="safe-services-container">
                             
                             <!-- GCP e2-micro -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="gcp">
                                 <input type="checkbox" data-service="gcp_e2_micro" data-name="GCP: VM e2-micro" data-layer="compute" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">GCP: VM e2-micro</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-bold">GCP</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">1 vCPU, 1 GB RAM, 30 GB disco. 100% grátis perpétuo nas regiões us-central1, us-east1 ou us-west1.</p>
                                 </div>
                             </label>
 
                             <!-- AWS EC2 t2.micro -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="aws">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="aws">
                                 <input type="checkbox" data-service="aws_t2_micro" data-name="AWS: EC2 t2.micro" data-layer="compute" data-cloud="AWS" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">AWS: EC2 t2.micro / t3.micro</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-semibold">AWS</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">AWS</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">750 horas/mês gratuitas nos primeiros 12 meses. Ótimo para testes de Linux e Docker inicial.</p>
                                 </div>
                             </label>
 
                             <!-- Azure B1s -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="azure">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="azure">
                                 <input type="checkbox" data-service="azure_b1s" data-name="Azure: VM B1s" data-layer="compute" data-cloud="Azure" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">Azure: VM Série B1s</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-400 font-semibold">Azure</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-400 font-bold">Azure</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">750 horas/mês gratuitas por 1 ano. 1 vCPU, 1 GB de RAM com discos gerenciados.</p>
                                 </div>
                             </label>
 
                             <!-- GCP BigQuery -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="gcp">
                                 <input type="checkbox" data-service="gcp_bigquery" data-name="GCP: BigQuery Sandbox" data-layer="data" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">GCP: BigQuery Sandbox</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-bold">GCP</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">10 GB de armazenamento e 1 TB/mês de consultas SQL sem pedir cartão de crédito.</p>
                                 </div>
                             </label>
 
                             <!-- AWS S3 + CloudFront -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="aws">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="aws">
                                 <input type="checkbox" data-service="aws_s3_jamstack" data-name="AWS: S3 + CloudFront" data-layer="storage" data-cloud="AWS" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">AWS: S3 + CloudFront CDN</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-semibold">AWS</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-400 font-bold">AWS</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">5 GB de S3 + 1 TB de transferência gratuita mensal via CDN CloudFront com SSL.</p>
                                 </div>
                             </label>
 
                             <!-- GCP Cloud Run -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800 hover:border-emerald-500/40 transition cursor-pointer" data-cloud="gcp">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-emerald-500/50 hover:bg-slate-950 transition cursor-pointer" data-cloud="gcp">
                                 <input type="checkbox" data-service="gcp_cloud_run" data-name="GCP: Cloud Run" data-layer="compute" data-cloud="GCP" data-price="0.00" data-danger="false" class="service-checkbox mt-1 accent-emerald-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center gap-1.5">
                                         <span class="font-bold text-white">GCP: Cloud Run (Serverless)</span>
-                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-semibold">GCP</span>
+                                        <span class="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/20 text-blue-400 font-bold">GCP</span>
                                     </div>
                                     <p class="text-slate-400 mt-1">2 milhões de requisições grátis todo mês. Escala até zero instâncias quando sem uso.</p>
                                 </div>
@@ -296,19 +425,19 @@
                     </div>
 
                     <!-- Trap Zone / Paid Pitfalls -->
-                    <div class="bg-slate-900/50 border border-rose-500/30 rounded-2xl p-5">
+                    <div class="bg-slate-900/60 border border-rose-500/35 rounded-3xl p-5 shadow-lg">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 text-xs font-bold uppercase">🚨 Zona de Risco</span>
+                                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 text-[10px] font-black uppercase tracking-wider">🚨 Zona de Risco</span>
                                 <h3 class="text-sm font-bold text-white">As Armadilhas Clássicas (Cobrança Horária Contínua)</h3>
                             </div>
-                            <span class="text-xs text-rose-400 font-mono font-semibold">Cuidado Redobrado!</span>
+                            <span class="text-xs text-rose-400 font-mono font-bold">Atenção Redobrada!</span>
                         </div>
 
                         <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3" id="trap-services-container">
                             
                             <!-- AWS NAT Gateway -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
                                 <input type="checkbox" data-service="aws_nat" data-name="AWS: NAT Gateway" data-layer="network" data-cloud="AWS" data-price="32.40" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -320,7 +449,7 @@
                             </label>
 
                             <!-- GCP NAT Gateway -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
                                 <input type="checkbox" data-service="gcp_nat" data-name="GCP: Cloud NAT" data-layer="network" data-cloud="GCP" data-price="32.80" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -332,7 +461,7 @@
                             </label>
 
                             <!-- Azure Bastion -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="azure">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="azure">
                                 <input type="checkbox" data-service="azure_bastion" data-name="Azure: Bastion Host" data-layer="ingress" data-cloud="Azure" data-price="28.80" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -344,7 +473,7 @@
                             </label>
 
                             <!-- Unattached Static IPv4 -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="all">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="all">
                                 <input type="checkbox" data-service="unattached_ip" data-name="Multi-Cloud: IPv4 Órfão" data-layer="ingress" data-cloud="Multi" data-price="3.60" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -356,7 +485,7 @@
                             </label>
 
                             <!-- GCP Cloud SQL -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="gcp">
                                 <input type="checkbox" data-service="gcp_sql" data-name="GCP: Cloud SQL" data-layer="data" data-cloud="GCP" data-price="12.50" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -368,7 +497,7 @@
                             </label>
 
                             <!-- AWS ALB -->
-                            <label class="service-card flex items-start gap-3 p-3 rounded-xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
+                            <label class="service-card flex items-start gap-3 p-3.5 rounded-2xl bg-rose-950/20 border border-rose-500/30 hover:border-rose-400 transition cursor-pointer" data-cloud="aws">
                                 <input type="checkbox" data-service="aws_alb" data-name="AWS: Load Balancer (ALB)" data-layer="network" data-cloud="AWS" data-price="16.20" data-danger="true" class="service-checkbox mt-1 accent-rose-500 w-4 h-4 rounded">
                                 <div class="text-xs">
                                     <div class="flex items-center justify-between">
@@ -386,17 +515,17 @@
                 <!-- Right 1 Col: Summary & Financial Diagnosis -->
                 <div class="space-y-4 lg:sticky lg:top-24">
                     
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4">
+                    <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-5 shadow-2xl space-y-4 backdrop-blur-md">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Diagnóstico Financeiro</span>
-                            <span id="risk-badge" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Risco Zero 🟢</span>
+                            <span id="risk-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Risco Zero 🟢</span>
                         </div>
 
                         <!-- Price Counter -->
                         <div>
                             <span class="text-xs text-slate-400">Total Mensal Estimado:</span>
                             <div class="flex items-baseline gap-2 mt-1">
-                                <span class="text-3xl font-extrabold text-white font-mono" id="total-usd">$0.00</span>
+                                <span class="text-4xl font-black text-white font-mono" id="total-usd">$0.00</span>
                                 <span class="text-xs font-bold text-slate-400 uppercase">USD</span>
                             </div>
                             <div class="text-sm font-semibold text-emerald-400 font-mono mt-0.5" id="total-brl">
@@ -407,7 +536,7 @@
                         <!-- Weekend Multiplier Option -->
                         <div class="pt-3 border-t border-slate-800/80">
                             <label class="flex items-start gap-2.5 cursor-pointer">
-                                <input type="checkbox" id="weekend-multiplier" class="mt-0.5 accent-rose-500 rounded">
+                                <input type="checkbox" id="weekend-multiplier" class="mt-0.5 accent-rose-500 w-4 h-4 rounded">
                                 <span class="text-xs text-slate-300">
                                     <strong class="text-white block">Esqueci ligado na sexta-feira (+72h)</strong>
                                     Simula recursos ociosos faturando durante todo o fim de semana.
@@ -416,7 +545,7 @@
                         </div>
 
                         <!-- Risk Message Box -->
-                        <div id="risk-box" class="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
+                        <div id="risk-box" class="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 leading-relaxed">
                             Nenhum serviço pago marcado. Seu cartão está 100% protegido nas cotas gratuitas!
                         </div>
 
@@ -456,7 +585,7 @@
         <!-- ========================================== -->
         <section id="compare-view" class="hidden space-y-6">
             
-            <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+            <div class="bg-slate-900/70 border border-slate-800 p-5 rounded-3xl">
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <span>⚖️</span> Matriz Comparativa: Google Cloud vs. AWS vs. Microsoft Azure
                 </h2>
@@ -483,40 +612,40 @@
             </div>
 
             <!-- Comparative Table -->
-            <div class="overflow-x-auto rounded-2xl border border-slate-800 bg-slate-900/60">
+            <div class="overflow-x-auto rounded-3xl border border-slate-800 bg-slate-900/60 shadow-xl">
                 <table class="w-full text-left text-xs">
                     <thead class="bg-slate-950/80 text-slate-300 uppercase font-bold border-b border-slate-800">
                         <tr>
-                            <th class="p-3.5">Recurso / Critério</th>
-                            <th class="p-3.5 text-blue-400">Google Cloud (GCP)</th>
-                            <th class="p-3.5 text-amber-400">AWS</th>
-                            <th class="p-3.5 text-sky-400">Microsoft Azure</th>
+                            <th class="p-4">Recurso / Critério</th>
+                            <th class="p-4 text-blue-400">Google Cloud (GCP)</th>
+                            <th class="p-4 text-amber-400">AWS</th>
+                            <th class="p-4 text-sky-400">Microsoft Azure</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-800/60 text-slate-300">
+                    <tbody class="divide-y border-slate-800/60 text-slate-300">
                         <tr>
-                            <td class="p-3.5 font-bold text-white">Computação Perpétua (Always Free)</td>
-                            <td class="p-3.5 text-emerald-400">✅ e2-micro permanente (EUA)</td>
-                            <td class="p-3.5 text-slate-400">❌ Expira em 12 meses (t2/t3.micro)</td>
-                            <td class="p-3.5 text-slate-400">❌ Expira em 12 meses (B1s)</td>
+                            <td class="p-4 font-bold text-white">Computação Perpétua (Always Free)</td>
+                            <td class="p-4 text-emerald-400">✅ e2-micro permanente (EUA)</td>
+                            <td class="p-4 text-slate-400">❌ Expira em 12 meses (t2/t3.micro)</td>
+                            <td class="p-4 text-slate-400">❌ Expira em 12 meses (B1s)</td>
                         </tr>
                         <tr>
-                            <td class="p-3.5 font-bold text-white">Acesso Sem Cartão de Crédito</td>
-                            <td class="p-3.5 text-emerald-400">✅ BigQuery Sandbox (sem cartão)</td>
-                            <td class="p-3.5 text-rose-400">❌ Cartão obrigatório na criação</td>
-                            <td class="p-3.5 text-emerald-400">✅ Azure for Students (e-mail .edu)</td>
+                            <td class="p-4 font-bold text-white">Acesso Sem Cartão de Crédito</td>
+                            <td class="p-4 text-emerald-400">✅ BigQuery Sandbox (sem cartão)</td>
+                            <td class="p-4 text-rose-400">❌ Cartão obrigatório na criação</td>
+                            <td class="p-4 text-emerald-400">✅ Azure for Students (e-mail .edu)</td>
                         </tr>
                         <tr>
-                            <td class="p-3.5 font-bold text-white">Vilão Financeiro Principal</td>
-                            <td class="p-3.5 text-rose-300">Cloud NAT & Cloud SQL</td>
-                            <td class="p-3.5 text-rose-300">NAT Gateway (~$32/mês) & ALBs</td>
-                            <td class="p-3.5 text-rose-300">Azure Bastion (~$28/mês)</td>
+                            <td class="p-4 font-bold text-white">Vilão Financeiro Principal</td>
+                            <td class="p-4 text-rose-300">Cloud NAT & Cloud SQL</td>
+                            <td class="p-4 text-rose-300">NAT Gateway (~$32/mês) & ALBs</td>
+                            <td class="p-4 text-rose-300">Azure Bastion (~$28/mês)</td>
                         </tr>
                         <tr>
-                            <td class="p-3.5 font-bold text-white">Trava Automática de Fatura</td>
-                            <td class="p-3.5 text-slate-400">Alertas por e-mail + Cloud Functions</td>
-                            <td class="p-3.5 text-slate-400">AWS Budgets (apenas envia e-mail)</td>
-                            <td class="p-3.5 text-emerald-400">✅ Spending Limit nativo de $0.00</td>
+                            <td class="p-4 font-bold text-white">Trava Automática de Fatura</td>
+                            <td class="p-4 text-slate-400">Alertas por e-mail + Cloud Functions</td>
+                            <td class="p-4 text-slate-400">AWS Budgets (apenas envia e-mail)</td>
+                            <td class="p-4 text-emerald-400">✅ Spending Limit nativo de $0.00</td>
                         </tr>
                     </tbody>
                 </table>
@@ -529,7 +658,7 @@
         <!-- ========================================== -->
         <section id="blueprints-view" class="hidden space-y-6">
             
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/70 border border-slate-800 p-5 rounded-3xl">
                 <div>
                     <h2 class="text-base font-bold text-white flex items-center gap-2">
                         <span>🚀</span> Blueprints de Projetos Seguros
@@ -539,19 +668,19 @@
                 
                 <!-- Filter by Level -->
                 <div class="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-                    <button onclick="filterBlueprints('all')" id="bp-filter-all" class="bp-pill active px-3 py-1 text-xs font-semibold rounded-lg bg-slate-800 text-white transition">Todos</button>
-                    <button onclick="filterBlueprints('junior')" id="bp-filter-junior" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🟢 Júnior ($0.00)</button>
-                    <button onclick="filterBlueprints('mid')" id="bp-filter-mid" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🟡 Pleno (FinOps)</button>
-                    <button onclick="filterBlueprints('senior')" id="bp-filter-senior" class="bp-pill px-3 py-1 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">🔴 Sênior</button>
+                    <button onclick="filterBlueprints('all')" id="bp-filter-all" class="bp-pill active px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 text-white transition cursor-pointer">Todos</button>
+                    <button onclick="filterBlueprints('junior')" id="bp-filter-junior" class="bp-pill px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition cursor-pointer">🟢 Júnior ($0.00)</button>
+                    <button onclick="filterBlueprints('mid')" id="bp-filter-mid" class="bp-pill px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition cursor-pointer">🟡 Pleno (FinOps)</button>
+                    <button onclick="filterBlueprints('senior')" id="bp-filter-senior" class="bp-pill px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition cursor-pointer">🔴 Sênior</button>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="blueprints-grid">
                 
                 <!-- Blueprint 1: Bot 24/7 GCP -->
-                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-3xl p-5 space-y-3 transition shadow-lg" data-level="junior">
                     <div class="flex items-center justify-between">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
                         <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Garantido</span>
                     </div>
                     <h3 class="text-sm font-bold text-white">Bot Telegram / Discord 24/7 com Docker</h3>
@@ -559,15 +688,15 @@
                     <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
                         <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Não ative Cloud NAT nem suba Cloud SQL. Instale o Postgres via Docker na própria VM.
                     </div>
-                    <button onclick="loadBlueprint('gcp_bot')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                    <button onclick="loadBlueprint('gcp_bot')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
                         Simular no Calculador 🧪
                     </button>
                 </div>
 
                 <!-- Blueprint 2: Jamstack AWS -->
-                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-3xl p-5 space-y-3 transition shadow-lg" data-level="junior">
                     <div class="flex items-center justify-between">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Júnior</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Júnior</span>
                         <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Garantido</span>
                     </div>
                     <h3 class="text-sm font-bold text-white">Site Portfólio Jamstack Global com CDN</h3>
@@ -575,15 +704,15 @@
                     <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
                         <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Nunca coloque um Application Load Balancer (ALB) na frente de arquivos estáticos.
                     </div>
-                    <button onclick="loadBlueprint('aws_jamstack')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                    <button onclick="loadBlueprint('aws_jamstack')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
                         Simular no Calculador 🧪
                     </button>
                 </div>
 
                 <!-- Blueprint 3: BigQuery GCP -->
-                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-2xl p-5 space-y-3 transition" data-level="junior">
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-blue-500/40 rounded-3xl p-5 space-y-3 transition shadow-lg" data-level="junior">
                     <div class="flex items-center justify-between">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30">Google Cloud • Júnior</span>
                         <span class="text-xs font-mono font-bold text-emerald-400">$0.00 Sem Cartão</span>
                     </div>
                     <h3 class="text-sm font-bold text-white">Pipeline de Dados & Análise com BigQuery</h3>
@@ -591,31 +720,31 @@
                     <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
                         <strong class="text-rose-400">⚠️ O que NUNCA fazer:</strong> Limite as consultas com partições para não estourar a cota de 1 TB/mês.
                     </div>
-                    <button onclick="loadBlueprint('gcp_bigquery')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                    <button onclick="loadBlueprint('gcp_bigquery')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
                         Simular no Calculador 🧪
                     </button>
                 </div>
 
                 <!-- Blueprint 4: EKS Spot (Pleno) -->
-                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-2xl p-5 space-y-3 transition" data-level="mid">
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-amber-500/40 rounded-3xl p-5 space-y-3 transition shadow-lg" data-level="mid">
                     <div class="flex items-center justify-between">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Pleno / FinOps</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">AWS • Pleno / FinOps</span>
                         <span class="text-xs font-mono font-bold text-amber-400">&lt; $15.00 / mês</span>
                     </div>
                     <h3 class="text-sm font-bold text-white">Kubernetes EKS com Karpenter & Instâncias Spot</h3>
                     <p class="text-xs text-slate-300">Cluster corporativo com escalonamento automático agressivo em nós Spot, reduzindo até 80% do custo computacional.</p>
                     <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
-                        <strong class="text-rose-400">⚠️ Erro clássico de Plenos:</strong> Subir 3 NAT Gateways em Multi-AZ para ambiente de testes. Use 1 único gateway ou NAT instance.
+                        <strong class="text-rose-400">⚠️ Erro clássico:</strong> Subir 3 NAT Gateways em Multi-AZ para testes. Use 1 único gateway ou NAT instance econômica.
                     </div>
-                    <button onclick="loadBlueprint('aws_eks_spot')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                    <button onclick="loadBlueprint('aws_eks_spot')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
                         Simular no Calculador 🧪
                     </button>
                 </div>
 
                 <!-- Blueprint 5: Multi-Cloud Zero-Egress (Sênior) -->
-                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 rounded-2xl p-5 space-y-3 transition" data-level="senior">
+                <div class="bp-card bg-slate-900/80 border border-slate-800 hover:border-purple-500/40 rounded-3xl p-5 space-y-3 transition shadow-lg" data-level="senior">
                     <div class="flex items-center justify-between">
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Multi-Cloud • Sênior</span>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-purple-500/20 text-purple-400 border border-purple-500/30">Multi-Cloud • Sênior</span>
                         <span class="text-xs font-mono font-bold text-purple-400">Alta Resiliência</span>
                     </div>
                     <h3 class="text-sm font-bold text-white">Disaster Recovery Ativo-Ativo com Zero Egress</h3>
@@ -623,7 +752,7 @@
                     <div class="text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80">
                         <strong class="text-rose-400">⚠️ Ponto Crítico FinOps:</strong> Monitorar replicação cross-cloud para evitar cobranças de transferências intercontinentais.
                     </div>
-                    <button onclick="loadBlueprint('multi_cloud_senior')" class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
+                    <button onclick="loadBlueprint('multi_cloud_senior')" class="w-full py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 text-xs font-semibold transition cursor-pointer">
                         Simular no Calculador 🧪
                     </button>
                 </div>
@@ -637,7 +766,7 @@
         <!-- ========================================== -->
         <section id="career-view" class="hidden space-y-6">
             
-            <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl">
+            <div class="bg-slate-900/70 border border-slate-800 p-5 rounded-3xl">
                 <h2 class="text-base font-bold text-white flex items-center gap-2">
                     <span>🎓</span> Trilha de Entrada em Nuvem & Certificações
                 </h2>
@@ -713,7 +842,7 @@
             </div>
 
             <!-- Interactive Study Checklist -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4 shadow-lg">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-800">
                     <div>
                         <h3 class="text-sm font-bold text-white">Checklist de Competências para Entrevistas</h3>
@@ -762,10 +891,10 @@
         <!-- ========================================== -->
         <section id="ai-view" class="hidden space-y-6">
             
-            <div class="rounded-2xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-slate-900 p-6 relative overflow-hidden">
+            <div class="rounded-3xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-slate-900 p-6 relative overflow-hidden shadow-2xl">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-bold mb-2">
                             <span>✨</span> Motor FinOps Inteligente
                         </span>
                         <h2 class="text-xl font-extrabold text-white">Sentinela FinOps Inteligente</h2>
@@ -786,42 +915,42 @@
 
             <!-- Quick Questions Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                <button onclick="askSentinel('Como hospedar Docker de graça para projetos da faculdade?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                <button onclick="askSentinel('Como hospedar Docker de graça para projetos da faculdade?')" class="text-left p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1 shadow-md">
                     <span class="font-bold text-white block">🐳 Docker sem Custo</span>
                     <span class="text-slate-400 text-[11px] block">Como rodar APIs e bots 24/7 sem pagar nada.</span>
                 </button>
-                <button onclick="askSentinel('Posso usar GPU na nuvem para treinar modelo de IA do TCC sem risco no cartão?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                <button onclick="askSentinel('Posso usar GPU na nuvem para treinar modelo de IA do TCC sem risco no cartão?')" class="text-left p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1 shadow-md">
                     <span class="font-bold text-white block">🧠 GPUs & TCC de IA</span>
                     <span class="text-slate-400 text-[11px] block">Alternativas gratuitas seguras para Deep Learning.</span>
                 </button>
-                <button onclick="askSentinel('Por que o Amazon RDS e Cloud SQL são perigosos para estudantes?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                <button onclick="askSentinel('Por que o Amazon RDS e Cloud SQL são perigosos para estudantes?')" class="text-left p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1 shadow-md">
                     <span class="font-bold text-white block">🗄️ O perigo do RDS / SQL</span>
                     <span class="text-slate-400 text-[11px] block">A armadilha da computação contínua de bancos.</span>
                 </button>
-                <button onclick="askSentinel('Como funciona a nova cobrança de IPv4 público na AWS e GCP?')" class="text-left p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1">
+                <button onclick="askSentinel('Como funciona a nova cobrança de IPv4 público na AWS e GCP?')" class="text-left p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition cursor-pointer text-xs space-y-1 shadow-md">
                     <span class="font-bold text-white block">🌐 Multas de IPv4</span>
                     <span class="text-slate-400 text-[11px] block">Taxas por endereços estáticos desvinculados.</span>
                 </button>
             </div>
 
             <!-- Query Input Box -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
                 <div class="flex gap-2">
                     <input type="text" id="ai-query-input" placeholder="Pergunte sobre serviços, certificações ou armadilhas de faturamento..." class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 font-sans" onkeydown="if(event.key === 'Enter') submitAiQuery()">
-                    <button onclick="submitAiQuery()" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5">
+                    <button onclick="submitAiQuery()" class="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl transition cursor-pointer flex items-center gap-1.5 shadow-md">
                         <span>Enviar</span> ➔
                     </button>
                 </div>
             </div>
 
             <!-- AI Response Box -->
-            <div id="ai-response-wrapper" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <div id="ai-response-wrapper" class="hidden bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-4 shadow-xl">
                 <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                     <div class="flex items-center gap-2">
                         <span class="text-base" id="ai-status-icon">🤖</span>
                         <h3 class="text-xs font-bold text-white uppercase tracking-wider" id="ai-response-title">Diagnóstico do Sentinela</h3>
                     </div>
-                    <span id="ai-mode-badge" class="px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Motor FinOps Local</span>
+                    <span id="ai-mode-badge" class="px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Motor FinOps Local</span>
                 </div>
 
                 <!-- Markdown Content Target -->
@@ -836,13 +965,13 @@
     <!-- MODAL 1: CHAVE GEMINI API COM TESTADOR     -->
     <!-- ========================================== -->
     <div id="api-key-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div class="flex items-center gap-2">
                     <span>🔑</span>
                     <h3 class="text-sm font-bold text-white">Chave Gemini API (Google AI Studio)</h3>
                 </div>
-                <button onclick="toggleApiKeyModal(false)" class="text-slate-400 hover:text-white font-bold">&times;</button>
+                <button onclick="toggleApiKeyModal(false)" class="text-slate-400 hover:text-white font-bold cursor-pointer text-lg">&times;</button>
             </div>
 
             <p class="text-xs text-slate-300 leading-relaxed">
@@ -853,7 +982,7 @@
                 <label class="block text-xs font-semibold text-slate-300">Chave de API (começa com AIzaSy...):</label>
                 <div class="flex gap-2">
                     <input type="password" id="input-gemini-key" placeholder="AIzaSy..." class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
-                    <button onclick="testCurrentApiKey()" id="btn-test-key" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer">
+                    <button onclick="testCurrentApiKey()" id="btn-test-key" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 rounded-xl text-xs font-semibold whitespace-nowrap transition cursor-pointer">
                         🧪 Testar
                     </button>
                 </div>
@@ -881,13 +1010,13 @@
     <!-- MODAL 2: AJUSTE DE CÂMBIO & DÓLAR CARTÃO   -->
     <!-- ========================================== -->
     <div id="dollar-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-2xl p-6 shadow-2xl space-y-4">
+        <div class="w-full max-w-md bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl space-y-4">
             <div class="flex items-center justify-between pb-3 border-b border-slate-800">
                 <div class="flex items-center gap-2">
                     <span>💵</span>
                     <h3 class="text-sm font-bold text-white">Configuração da Cotação do Dólar</h3>
                 </div>
-                <button onclick="toggleDollarModal(false)" class="text-slate-400 hover:text-white font-bold">&times;</button>
+                <button onclick="toggleDollarModal(false)" class="text-slate-400 hover:text-white font-bold cursor-pointer text-lg">&times;</button>
             </div>
 
             <div class="text-xs text-slate-300 space-y-2">
@@ -968,7 +1097,7 @@
     </div>
 
     <!-- ========================================== -->
-    <!-- JAVASCRIPT LOGIC & RESILIENT AUDIO ENGINE  -->
+    <!-- JAVASCRIPT LOGIC & RESILIENT ARCHITECTURE  -->
     <!-- ========================================== -->
     <script>
         // Core State
@@ -980,6 +1109,7 @@
         let alarmOscillator = null;
         let geminiApiKey = localStorage.getItem('gemini_user_api_key') || "";
         let activeGeminiModel = localStorage.getItem('gemini_active_model') || "gemini-3.8-flash";
+        let currentTopologyMode = 'reactive'; // 'reactive' | 'reference'
 
         // Fallback priority cascade for models to handle high demand / capacity spikes
         const FALLBACK_MODEL_POOL = [
@@ -1105,6 +1235,7 @@
 
         // Cloud Filtering in Simulator
         function filterCloud(cloud) {
+            switchMainView('calc-view');
             const pills = ['all', 'gcp', 'aws', 'azure'];
             pills.forEach(p => {
                 const btn = document.getElementById('cloud-filter-' + p);
@@ -1156,43 +1287,33 @@
             });
         }
 
-        // CCOE Architecture Diagram Engine State
-        let currentTopologyMode = 'reactive'; // 'reactive' | 'reference'
-
+        // Topology Mode Switcher
         function setTopologyMode(mode) {
             currentTopologyMode = mode;
             const btnReactive = document.getElementById('topo-btn-reactive');
             const btnReference = document.getElementById('topo-btn-reference');
-            const labSelect = document.getElementById('ccoe-lab-selector');
+            const labSelect = document.getElementById('ref-lab-selector');
             const scopeBadge = document.getElementById('diagram-scope-badge');
 
             if (mode === 'reactive') {
-                if (btnReactive) {
-                    btnReactive.className = "px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300";
-                }
-                if (btnReference) {
-                    btnReference.className = "px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white";
-                }
+                if (btnReactive) btnReactive.className = "px-3 py-1.5 rounded-lg font-bold transition bg-slate-800 text-cyan-300 cursor-pointer";
+                if (btnReference) btnReference.className = "px-3 py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white cursor-pointer";
                 if (labSelect) labSelect.classList.add('hidden');
                 if (scopeBadge) scopeBadge.innerText = "Perímetro: Cesta Dinâmica Selecionada";
                 renderArchitectureTopology();
             } else {
-                if (btnReference) {
-                    btnReference.className = "px-2.5 py-1 rounded-lg font-bold transition bg-slate-800 text-cyan-300";
-                }
-                if (btnReactive) {
-                    btnReactive.className = "px-2.5 py-1 rounded-lg font-bold transition text-slate-400 hover:text-white";
-                }
+                if (btnReference) btnReference.className = "px-3 py-1.5 rounded-lg font-bold transition bg-slate-800 text-cyan-300 cursor-pointer";
+                if (btnReactive) btnReactive.className = "px-3 py-1.5 rounded-lg font-bold transition text-slate-400 hover:text-white cursor-pointer";
                 if (labSelect) labSelect.classList.remove('hidden');
-                renderCcoeSelectedLab();
+                renderSelectedReferenceLab();
             }
             playTone(490, 'sine', 0.08);
         }
 
-        // Dynamic Architecture Topology Visualizer
+        // RENDER: Dynamic Architecture Flow (Cesta Atual)
         function renderArchitectureTopology() {
             if (currentTopologyMode === 'reference') {
-                renderCcoeSelectedLab();
+                renderSelectedReferenceLab();
                 return;
             }
 
@@ -1204,7 +1325,7 @@
             if (checkedBoxes.length === 0) {
                 container.innerHTML = `
                     <div class="w-full py-10 px-4 rounded-2xl border-2 border-dashed border-slate-800 bg-slate-950/40 text-center flex flex-col items-center justify-center space-y-2">
-                        <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-400 text-xl border border-slate-800">
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-slate-400 text-xl border border-slate-800 animate-pulse">
                             📐
                         </div>
                         <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Aguardando Componentes da Arquitetura</span>
@@ -1230,16 +1351,16 @@
                 else tiers.compute.push(nodeData);
             });
 
-            const renderNodeCard = (node) => {
-                const borderColor = node.isDanger ? 'border-rose-500/50 bg-rose-950/20' : 'border-emerald-500/40 bg-slate-900/90';
-                const badgeColor = node.isDanger ? 'text-rose-400 bg-rose-500/10' : 'text-emerald-400 bg-emerald-500/10';
-                const priceLabel = node.isDanger ? `+$${node.price}/m` : '$0.00';
+            const renderCard = (node) => {
+                const border = node.isDanger ? 'border-rose-500/50 bg-rose-950/30' : 'border-emerald-500/40 bg-slate-900/90';
+                const badge = node.isDanger ? 'text-rose-400 bg-rose-500/10' : 'text-emerald-400 bg-emerald-500/10';
+                const priceText = node.isDanger ? `+$${node.price}/m` : '$0.00';
 
                 return `
-                    <div class="p-2.5 rounded-xl border ${borderColor} shadow-lg transition-transform hover:-translate-y-0.5 space-y-1.5 min-w-[150px]">
-                        <div class="flex items-center justify-between gap-1 text-[10px]">
-                            <span class="font-mono uppercase font-bold px-1.5 py-0.2 rounded ${badgeColor}">${node.cloud}</span>
-                            <span class="font-mono font-bold ${node.isDanger ? 'text-rose-400' : 'text-emerald-400'}">${priceLabel}</span>
+                    <div class="p-2.5 rounded-xl border ${border} shadow-lg arch-card space-y-1 min-w-[140px]">
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="font-mono uppercase font-bold px-1.5 py-0.2 rounded ${badge}">${node.cloud}</span>
+                            <span class="font-mono font-bold ${node.isDanger ? 'text-rose-400' : 'text-emerald-400'}">${priceText}</span>
                         </div>
                         <div class="text-xs font-bold text-white truncate" title="${node.name}">${node.name}</div>
                     </div>
@@ -1247,98 +1368,99 @@
             };
 
             container.innerHTML = `
-                <div class="w-full space-y-4">
-                    <!-- Main Cloud Boundary (CCOE Style) -->
-                    <div class="rounded-2xl border-2 border-slate-800 bg-slate-950/80 p-4 relative shadow-2xl">
-                        <!-- Cloud Badge Header -->
-                        <div class="flex items-center justify-between pb-3 border-b border-slate-800/80 text-[11px]">
+                <div class="w-full space-y-3 font-sans">
+                    <div class="rounded-3xl border-2 border-slate-800 bg-slate-950/90 p-4 relative shadow-2xl space-y-4">
+                        <div class="flex items-center justify-between pb-2.5 border-b border-slate-800/80 text-[11px]">
                             <div class="flex items-center gap-2">
-                                <span class="px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 font-mono font-bold uppercase">Cloud VPC Boundary</span>
-                                <span class="text-slate-400 text-[10px]">Ambiente Acadêmico Isolado</span>
+                                <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono font-bold uppercase">Cloud VPC Perímetro</span>
+                                <span class="text-slate-400 text-[10px]">Topologia do Seu Laboratório</span>
                             </div>
                             <span class="text-[10px] font-mono text-slate-500">10.0.0.0/16</span>
                         </div>
 
-                        <!-- Architecture Grid with Data Flow -->
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 items-stretch">
+                        <!-- 4 Connected Columns with Visual Direction Arrows -->
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-stretch relative">
                             
-                            <!-- Subnet 1: External & Ingress -->
-                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                            <!-- Col 1: Internet & Ingress -->
+                            <div class="rounded-2xl border border-slate-800/90 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between text-[11px] font-bold text-cyan-400 pb-2 border-b border-slate-800">
-                                        <span>Sub-rede Pública</span>
+                                        <span>Borda & Usuários</span>
                                         <span>🌐</span>
                                     </div>
                                     <div class="mt-2.5 space-y-2">
-                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 flex items-center gap-2">
-                                            <span>👤</span>
+                                        <div class="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-300 flex items-center gap-2">
+                                            <span class="text-base">👤</span>
                                             <div>
-                                                <div class="font-bold text-white">Usuário / Aluno</div>
-                                                <div class="text-[9px] text-slate-500">Tráfego HTTPS</div>
+                                                <div class="font-bold text-white">Aluno / Usuário</div>
+                                                <div class="text-[9px] text-slate-500">Requisições HTTPS</div>
                                             </div>
                                         </div>
-                                        ${tiers.ingress.map(renderNodeCard).join('')}
-                                        ${tiers.storage.map(renderNodeCard).join('')}
+                                        ${tiers.ingress.map(renderCard).join('')}
+                                        ${tiers.storage.map(renderCard).join('')}
                                     </div>
                                 </div>
-                                <div class="text-[10px] font-mono text-cyan-400/80 text-center pt-2 border-t border-slate-900">
-                                    -- Ingress (Porta 443/80) ➔
+                                <div class="text-[10px] font-mono text-cyan-400/90 text-center pt-2 border-t border-slate-900 flex items-center justify-center gap-1">
+                                    <span>Ingresso</span>
+                                    <span class="text-xs">➔</span>
                                 </div>
                             </div>
 
-                            <!-- Subnet 2: Routing & Gateways -->
-                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                            <!-- Col 2: Routing & Gateways -->
+                            <div class="rounded-2xl border border-slate-800/90 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between text-[11px] font-bold text-amber-400 pb-2 border-b border-slate-800">
-                                        <span>Perímetro de Roteamento</span>
+                                        <span>Roteamento & Gateways</span>
                                         <span>🔀</span>
                                     </div>
                                     <div class="mt-2.5 space-y-2">
                                         ${tiers.network.length > 0 
-                                            ? tiers.network.map(renderNodeCard).join('') 
-                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Roteamento nativo direto sem gateways pagos (Custo $0.00)</div>'
+                                            ? tiers.network.map(renderCard).join('') 
+                                            : '<div class="p-3.5 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Roteamento nativo direto sem gateways pagos ($0.00)</div>'
                                         }
                                     </div>
                                 </div>
-                                <div class="text-[10px] font-mono text-amber-400/80 text-center pt-2 border-t border-slate-900">
-                                    -- Roteamento Interno ➔
+                                <div class="text-[10px] font-mono text-amber-400/90 text-center pt-2 border-t border-slate-900 flex items-center justify-center gap-1">
+                                    <span>Encaminhamento</span>
+                                    <span class="text-xs">➔</span>
                                 </div>
                             </div>
 
-                            <!-- Subnet 3: Compute -->
-                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                            <!-- Col 3: Compute -->
+                            <div class="rounded-2xl border border-slate-800/90 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between text-[11px] font-bold text-blue-400 pb-2 border-b border-slate-800">
-                                        <span>Sub-rede Privada (App)</span>
+                                        <span>Computação (App / API)</span>
                                         <span>⚡</span>
                                     </div>
                                     <div class="mt-2.5 space-y-2">
                                         ${tiers.compute.length > 0 
-                                            ? tiers.compute.map(renderNodeCard).join('') 
-                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Nenhuma instância computacional ativa</div>'
+                                            ? tiers.compute.map(renderCard).join('') 
+                                            : '<div class="p-3.5 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Nenhuma VM ou container ativo</div>'
                                         }
                                     </div>
                                 </div>
-                                <div class="text-[10px] font-mono text-blue-400/80 text-center pt-2 border-t border-slate-900">
-                                    -- Chamadas SQL / RPC ➔
+                                <div class="text-[10px] font-mono text-blue-400/90 text-center pt-2 border-t border-slate-900 flex items-center justify-center gap-1">
+                                    <span>Persistência SQL / Objeto</span>
+                                    <span class="text-xs">➔</span>
                                 </div>
                             </div>
 
-                            <!-- Subnet 4: Data & Storage -->
-                            <div class="rounded-xl border border-slate-800/80 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
+                            <!-- Col 4: Data & Analytics -->
+                            <div class="rounded-2xl border border-slate-800/90 bg-slate-900/40 p-3 space-y-3 flex flex-col justify-between">
                                 <div>
                                     <div class="flex items-center justify-between text-[11px] font-bold text-purple-400 pb-2 border-b border-slate-800">
-                                        <span>Dados & Persistência</span>
+                                        <span>Dados & Armazenamento</span>
                                         <span>🗄️</span>
                                     </div>
                                     <div class="mt-2.5 space-y-2">
                                         ${tiers.data.length > 0 
-                                            ? tiers.data.map(renderNodeCard).join('') 
-                                            : '<div class="p-4 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Armazenamento local efêmero na VM</div>'
+                                            ? tiers.data.map(renderCard).join('') 
+                                            : '<div class="p-3.5 rounded-xl border border-dashed border-slate-800 text-[11px] text-slate-500 text-center italic">Sem banco gerenciado (armazenamento local)</div>'
                                         }
                                     </div>
                                 </div>
-                                <div class="text-[10px] font-mono text-emerald-400/80 text-center pt-2 border-t border-slate-900">
+                                <div class="text-[10px] font-mono text-emerald-400 text-center pt-2 border-t border-slate-900">
                                     ✓ Camada de Dados Isolada
                                 </div>
                             </div>
@@ -1349,153 +1471,224 @@
             `;
         }
 
-        // CCOE Reference Architecture Diagram Renderer
-        function renderCcoeSelectedLab() {
+        // RENDER: High-Fidelity Flow Diagram (Baseado no seu modelo visual)
+        function renderSelectedReferenceLab() {
             const container = document.getElementById('architecture-diagram-container');
-            const labKey = document.getElementById('ccoe-lab-selector')?.value || 'data_streaming';
+            const labKey = document.getElementById('ref-lab-selector')?.value || 'data_streaming';
             const scopeBadge = document.getElementById('diagram-scope-badge');
             if (!container) return;
 
             if (labKey === 'data_streaming') {
-                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Data Streaming & Analytics CCOE";
+                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Data Streaming & Analytics (Pipeline Completo)";
                 container.innerHTML = `
                     <div class="w-full space-y-3 font-sans">
-                        <div class="rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 relative shadow-2xl space-y-5">
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+                        <div class="rounded-3xl border-2 border-slate-800 bg-slate-950 p-5 relative shadow-2xl space-y-6">
+                            
+                            <!-- Header Diagram Box -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800 text-xs">
                                 <div class="flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS CLOUD</span>
-                                    <span class="text-xs font-bold text-white">Arquitetura de Solução CCOE: Pipeline Streaming & Lakehouse</span>
+                                    <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS CLOUD</span>
+                                    <span class="font-bold text-white">Arquitetura de Solução: Pipeline Streaming & Lakehouse</span>
                                 </div>
-                                <div class="flex items-center gap-3 text-[10px] font-mono">
-                                    <span class="text-blue-400">--- Escrita/Ingestão</span>
-                                    <span class="text-emerald-400">--- Leitura/BI</span>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-center">
-                                <div class="space-y-2">
-                                    <div class="text-[10px] font-mono uppercase text-slate-400">1. Produtor</div>
-                                    <div class="p-3 rounded-xl border border-amber-500/40 bg-slate-900 space-y-1">
-                                        <div class="text-lg">🐇</div>
-                                        <div class="text-xs font-bold text-white">RabbitMQ</div>
-                                        <div class="text-[10px] text-slate-400">Fila de Mensagens</div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="text-[10px] font-mono uppercase text-blue-400">2. Ingestão Real-Time</div>
-                                    <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-white">Kinesis DataStream</span>
-                                            <span class="text-[9px] font-mono text-cyan-300">Shards</span>
-                                        </div>
-                                        <div class="text-[10px] text-slate-400">Buffer contínuo de eventos</div>
-                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-blue-300 font-mono">
-                                            ➔ Kinesis Firehose
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="text-[10px] font-mono uppercase text-purple-400">3. Armazenamento S3</div>
-                                    <div class="p-3 rounded-xl border border-purple-500/40 bg-slate-900 space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-white">Bucket S3 Parquet</span>
-                                            <span class="text-[9px] font-mono text-emerald-400">$0.00 Free</span>
-                                        </div>
-                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-slate-400">
-                                            Particionamento YYYY/MM/DD
-                                        </div>
-                                        <div class="text-[10px] text-cyan-400 font-mono">Glue Crawler + Catalog</div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="text-[10px] font-mono uppercase text-emerald-400">4. Processamento Serverless</div>
-                                    <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-2">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-white">AWS Athena</span>
-                                            <span class="text-[9px] font-mono text-emerald-400">Pay-per-Query</span>
-                                        </div>
-                                        <div class="text-[10px] text-slate-400">Consultas SQL direto no S3</div>
-                                        <div class="p-2 rounded-lg bg-slate-950 border border-slate-800 text-[10px] text-amber-300 font-mono">
-                                            ⚡ AWS Lambda (ETL)
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="text-[10px] font-mono uppercase text-slate-400">5. Consumidores</div>
-                                    <div class="p-3 rounded-xl border border-slate-700 bg-slate-900 space-y-2">
-                                        <div class="flex items-center gap-2 text-xs font-bold text-white">
-                                            <span>👤</span> Dev Team / Debug
-                                        </div>
-                                        <div class="flex items-center gap-2 text-xs font-bold text-white">
-                                            <span>👥</span> Operador / SAC
-                                        </div>
-                                        <div class="p-1.5 rounded-lg bg-blue-500/10 text-blue-300 text-[10px] text-center font-mono">
-                                            OpenSearch / Dashboard
-                                        </div>
-                                    </div>
+                                <div class="flex items-center gap-4 text-[11px] font-mono">
+                                    <span class="flex items-center gap-1.5 text-blue-400 font-semibold">
+                                        <span class="w-4 h-0.5 border-t-2 border-dashed border-blue-400"></span> Escrita
+                                    </span>
+                                    <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                                        <span class="w-4 h-0.5 border-t-2 border-dashed border-emerald-400"></span> Leitura
+                                    </span>
                                 </div>
                             </div>
 
-                            <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between text-xs">
+                            <!-- Top Ingestion Tier -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                                
+                                <!-- Step 1: RabbitMQ -->
+                                <div class="p-3.5 rounded-2xl border border-amber-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🐇</span>
+                                        <span class="text-[9px] font-mono text-amber-400 px-1.5 py-0.2 rounded bg-amber-500/10">Mensageria</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">RabbitMQ</div>
+                                    <div class="text-[10px] text-slate-400">Produtor de mensagens & eventos</div>
+                                </div>
+
+                                <!-- Step 2: Kinesis DataStream -->
+                                <div class="p-3.5 rounded-2xl border border-blue-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🌊</span>
+                                        <span class="text-[9px] font-mono text-blue-400 px-1.5 py-0.2 rounded bg-blue-500/10">Real-Time</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">Kinesis DataStream</div>
+                                    <div class="text-[10px] text-slate-400">Buffer contínuo de eventos</div>
+                                </div>
+
+                                <!-- Step 3: Kinesis Firehose -->
+                                <div class="p-3.5 rounded-2xl border border-blue-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🚿</span>
+                                        <span class="text-[9px] font-mono text-blue-400 px-1.5 py-0.2 rounded bg-blue-500/10">Ingestão</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">Kinesis Firehose</div>
+                                    <div class="text-[10px] text-slate-400">Compactação e entrega contínua</div>
+                                </div>
+
+                                <!-- Step 4: OpenSearch & Dev Team -->
+                                <div class="p-3.5 rounded-2xl border border-purple-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🔍</span>
+                                        <span class="text-[9px] font-mono text-emerald-400 px-1.5 py-0.2 rounded bg-emerald-500/10">Leitura Debug</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">OpenSearch</div>
+                                    <div class="text-[10px] text-slate-400">👤 Dev Team (Análise de Logs)</div>
+                                </div>
+
+                            </div>
+
+                            <!-- Flow Connector Bar (Visual Dashed Lines) -->
+                            <div class="relative py-1 flex items-center justify-center">
+                                <div class="w-full border-t border-dashed border-blue-500/60"></div>
+                                <span class="absolute px-3 py-0.5 rounded-full bg-slate-900 border border-blue-500/40 text-[10px] font-mono text-blue-400">
+                                    ▼ Ingestão Contínua em Parquet (Escrita)
+                                </span>
+                            </div>
+
+                            <!-- Middle & Storage Tier: S3 Parquet, Glue Catalog & Lambda -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
+                                
+                                <!-- Glue Catalog & Table -->
+                                <div class="p-3.5 rounded-2xl border border-cyan-500/30 bg-slate-900/80 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">📋</span>
+                                        <span class="text-[9px] font-mono text-cyan-400">Schema</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">Glue Crawler & Table</div>
+                                    <div class="text-[10px] text-slate-400">Catalogação de esquema para Athena</div>
+                                </div>
+
+                                <!-- Bucket S3 Parquet -->
+                                <div class="p-3.5 rounded-2xl border-2 border-emerald-500/40 bg-slate-900 space-y-2 arch-card shadow-lg">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🪣</span>
+                                        <span class="text-[9px] font-mono text-emerald-400 font-bold">$0.00 Free Tier</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">S3 Parquet (Data Lake)</div>
+                                    <div class="text-[10px] text-slate-400">Armazenamento particionado por data</div>
+                                </div>
+
+                                <!-- AWS Lambda ETL -->
+                                <div class="p-3.5 rounded-2xl border border-amber-500/40 bg-slate-900/80 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">λ</span>
+                                        <span class="text-[9px] font-mono text-amber-400">Serverless</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">AWS Lambda (ETL)</div>
+                                    <div class="text-[10px] text-slate-400">Transformação sob demanda para CSV</div>
+                                </div>
+
+                            </div>
+
+                            <!-- Flow Connector Bar 2 -->
+                            <div class="relative py-1 flex items-center justify-center">
+                                <div class="w-full border-t border-dashed border-emerald-500/60"></div>
+                                <span class="absolute px-3 py-0.5 rounded-full bg-slate-900 border border-emerald-500/40 text-[10px] font-mono text-emerald-400">
+                                    ▲ Consultas Analíticas SQL / BI (Leitura)
+                                </span>
+                            </div>
+
+                            <!-- Bottom Consumer Tier: Athena, CloudFront & Operador SAC -->
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                                
+                                <!-- Athena -->
+                                <div class="p-3.5 rounded-2xl border border-emerald-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🔎</span>
+                                        <span class="text-[9px] font-mono text-emerald-400">Pay-Per-Query</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">AWS Athena (SQL Serverless)</div>
+                                    <div class="text-[10px] text-slate-400">Consulta SQL direto no bucket S3</div>
+                                </div>
+
+                                <!-- S3 CSV + CloudFront CDN -->
+                                <div class="p-3.5 rounded-2xl border border-cyan-500/40 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">🌐</span>
+                                        <span class="text-[9px] font-mono text-cyan-400">Edge Cache</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">S3 CSV + CloudFront CDN</div>
+                                    <div class="text-[10px] text-slate-400">Distribuição com Presigned URL</div>
+                                </div>
+
+                                <!-- Operadores SAC -->
+                                <div class="p-3.5 rounded-2xl border border-slate-700 bg-slate-900/90 space-y-2 arch-card">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xl">👥</span>
+                                        <span class="text-[9px] font-mono text-slate-400">Consumidor</span>
+                                    </div>
+                                    <div class="text-xs font-bold text-white">Operador SAC & SAC-CM</div>
+                                    <div class="text-[10px] text-slate-400">Acesso a relatórios e dashboards</div>
+                                </div>
+
+                            </div>
+
+                            <!-- FinOps Architecture Guidance -->
+                            <div class="p-3.5 rounded-2xl bg-slate-900/90 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-emerald-400 font-bold">💡 Diretriz FinOps CCOE:</span>
-                                    <span class="text-slate-300 text-[11px]">Sem NAT Gateway provisionado. Todo o pipeline utiliza endpoints VPC de Gateway (S3) com tráfego 100% gratuito.</span>
+                                    <span class="text-emerald-400 font-bold">💡 Diretriz FinOps de Arquitetura:</span>
+                                    <span class="text-slate-300 text-[11px]">Zero NAT Gateways provisionados. Todo o fluxo interno de Lambda e S3 utiliza <strong>VPC Gateway Endpoints</strong> com tráfego 100% gratuito.</span>
                                 </div>
-                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">Arquitetura Zero-NAT</span>
+                                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold whitespace-nowrap">Arquitetura Zero-NAT</span>
                             </div>
+
                         </div>
                     </div>
                 `;
             } else if (labKey === 'serverless_analytics') {
-                if (scopeBadge) scopeBadge.innerText = "Referência: GCP BigQuery Sandbox CCOE";
+                if (scopeBadge) scopeBadge.innerText = "Referência: Google Cloud BigQuery Sandbox (Sem Cartão)";
                 container.innerHTML = `
-                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                    <div class="w-full rounded-3xl border-2 border-slate-800 bg-slate-950 p-5 space-y-4">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                            <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
-                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Pipeline de Analytics Sem Cartão de Crédito</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
+                            <span class="text-xs font-bold text-white">Arquitetura: Pipeline de Analytics com Custo Zero</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
-                                <div class="text-xs font-bold text-white">1. Origem de Dados</div>
-                                <div class="text-[11px] text-slate-400">Upload CSV / JSON no Cloud Storage ou Webhook API.</div>
+                            <div class="p-3 rounded-2xl border border-slate-800 bg-slate-900 space-y-1 arch-card">
+                                <div class="text-xs font-bold text-white">1. Ingestão</div>
+                                <div class="text-[11px] text-slate-400">Upload de arquivos CSV/JSON via Cloud Storage ou Webhook.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-1">
-                                <div class="text-xs font-bold text-blue-300">2. Ingestão BigQuery</div>
-                                <div class="text-[11px] text-slate-400">Sandbox gratuito (1 TB/mês) com tabelas particionadas.</div>
+                            <div class="p-3 rounded-2xl border border-blue-500/40 bg-slate-900 space-y-1 arch-card">
+                                <div class="text-xs font-bold text-blue-300">2. BigQuery Sandbox</div>
+                                <div class="text-[11px] text-slate-400">10 GB de dados + 1 TB/mês de consultas SQL sem pedir cartão de crédito.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-emerald-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-emerald-300">3. Modelagem SQL</div>
-                                <div class="text-[11px] text-slate-400">Views e agregações analíticas sem provisionar VMs 24/7.</div>
+                                <div class="text-[11px] text-slate-400">Views particionadas e agregações sem necessidade de manter instâncias ligadas.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-purple-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-purple-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-purple-300">4. Looker Studio</div>
-                                <div class="text-[11px] text-slate-400">Dashboards interativos executivos com custo $0.00.</div>
+                                <div class="text-[11px] text-slate-400">Dashboards interativos executivos consumindo direto do BigQuery ($0.00).</div>
                             </div>
                         </div>
                     </div>
                 `;
             } else if (labKey === 'jamstack_cdn') {
-                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Jamstack S3 + CloudFront CCOE";
+                if (scopeBadge) scopeBadge.innerText = "Referência: AWS Jamstack S3 + CloudFront CDN";
                 container.innerHTML = `
-                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                    <div class="w-full rounded-3xl border-2 border-slate-800 bg-slate-950 p-5 space-y-4">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                            <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS & CLOUDFRONT</span>
-                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Portfólio Jamstack com Borda Global</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-mono text-[10px] font-bold">AWS & CLOUDFRONT</span>
+                            <span class="text-xs font-bold text-white">Arquitetura: Portfólio Jamstack Global Seguro</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-slate-800 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-white">1. Usuários Globais</div>
-                                <div class="text-[11px] text-slate-400">Resolução via Route 53 e terminação SSL/TLS com AWS ACM gratuito.</div>
+                                <div class="text-[11px] text-slate-400">Resolução via DNS e terminação SSL/TLS com AWS ACM gratuito.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-cyan-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-cyan-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-cyan-300">2. CloudFront CDN</div>
-                                <div class="text-[11px] text-slate-400">1 TB de tráfego grátis mensal via cashing de borda (Edge Locations).</div>
+                                <div class="text-[11px] text-slate-400">1 TB de tráfego grátis mensal via cache de borda (Edge Locations).</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-emerald-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-emerald-300">3. S3 Bucket Privado</div>
                                 <div class="text-[11px] text-slate-400">Acesso via Origin Access Control (OAC). Sem ALB e sem IP público.</div>
                             </div>
@@ -1503,25 +1696,25 @@
                     </div>
                 `;
             } else {
-                if (scopeBadge) scopeBadge.innerText = "Referência: GCP Compute Engine Always Free CCOE";
+                if (scopeBadge) scopeBadge.innerText = "Referência: GCP Compute Engine Always Free (Bot 24/7)";
                 container.innerHTML = `
-                    <div class="w-full rounded-2xl border-2 border-slate-800 bg-slate-950/90 p-5 space-y-4">
+                    <div class="w-full rounded-3xl border-2 border-slate-800 bg-slate-950 p-5 space-y-4">
                         <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-                            <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
-                            <span class="text-xs font-bold text-white">Arquitetura CCOE: Bot 24/7 com Docker na e2-micro Perpétua</span>
+                            <span class="px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 font-mono text-[10px] font-bold">GOOGLE CLOUD</span>
+                            <span class="text-xs font-bold text-white">Arquitetura: Bot 24/7 com Docker na VM Perpétua</span>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div class="p-3 rounded-xl border border-slate-800 bg-slate-900 space-y-1">
-                                <div class="text-xs font-bold text-white">1. Internet & Webhooks</div>
-                                <div class="text-[11px] text-slate-400">Telegram / Discord enviando eventos HTTP para a porta da aplicação.</div>
+                            <div class="p-3 rounded-2xl border border-slate-800 bg-slate-900 space-y-1 arch-card">
+                                <div class="text-xs font-bold text-white">1. Webhooks Externos</div>
+                                <div class="text-[11px] text-slate-400">Telegram / Discord enviando eventos HTTP para a aplicação.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-blue-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-blue-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-blue-300">2. VM e2-micro (us-central1)</div>
                                 <div class="text-[11px] text-slate-400">1 vCPU, 1 GB RAM e 30 GB de disco persistente padrão 100% grátis.</div>
                             </div>
-                            <div class="p-3 rounded-xl border border-emerald-500/40 bg-slate-900 space-y-1">
+                            <div class="p-3 rounded-2xl border border-emerald-500/40 bg-slate-900 space-y-1 arch-card">
                                 <div class="text-xs font-bold text-emerald-300">3. Docker Compose</div>
-                                <div class="text-[11px] text-slate-400">Container de API + Postgres local sem contratar instâncias de Cloud SQL.</div>
+                                <div class="text-[11px] text-slate-400">Container de API + Postgres local sem contratar instâncias pagas de Cloud SQL.</div>
                             </div>
                         </div>
                     </div>
@@ -1539,11 +1732,11 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Arquitetura da Solucao - CCOE Export</title>
+    <title>Diagrama de Arquitetura da Solucao</title>
     <script src="https://cdn.tailwindcss.com"><\/script>
 </head>
 <body class="bg-slate-950 text-slate-100 p-8 font-sans">
-    <h2 class="text-lg font-bold text-white mb-4">Diagrama de Arquitetura de Solução — FinOps & CCOE</h2>
+    <h2 class="text-lg font-bold text-white mb-4">Diagrama de Arquitetura da Solução — FinOps & Cloud</h2>
     ${htmlContent}
 </body>
 </html>`;
@@ -1552,7 +1745,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `arquitetura-solucao-ccoe-${Date.now()}.html`;
+            a.download = `arquitetura-solucao-${Date.now()}.html`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1594,19 +1787,19 @@
 
             if (checkedDangerCount >= 2) {
                 if (riskBadge) {
-                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
+                    riskBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-500/20 text-rose-400 border border-rose-500/30";
                     riskBadge.innerText = "CRÍTICO / ALTO RISCO 🔴";
                 }
                 if (riskBox) riskBox.innerHTML = "<strong class='text-rose-400'>Atenção Imediata:</strong> Múltiplos serviços com cobrança horária fixa selecionados. Se esquecidos ativos no fim de semana, a cobrança no cartão de crédito é garantida!";
             } else if (hasDanger || totalUsd > 0) {
                 if (riskBadge) {
-                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
+                    riskBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/30";
                     riskBadge.innerText = "Atenção Moderada 🟡";
                 }
                 if (riskBox) riskBox.innerHTML = "<strong class='text-amber-400'>Aviso FinOps:</strong> Você marcou recursos pagos. Certifique-se de configurar Budget Alerts e desligar o laboratório assim que terminar.";
             } else {
                 if (riskBadge) {
-                    riskBadge.className = "px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+                    riskBadge.className = "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
                     riskBadge.innerText = "Risco Zero 🟢";
                 }
                 if (riskBox) riskBox.innerHTML = "Nenhum serviço pago marcado. Todos os itens selecionados contam com cota Always Free ou franquia de boas-vindas.";
@@ -1824,21 +2017,18 @@
                         const errMsg = data?.error?.message || `HTTP ${response.status}`;
                         lastErrorMessage = errMsg;
 
-                        // Check if Google suggested another model
                         const suggested = extractSuggestedModelFromError(errMsg);
                         if (suggested && !candidateList.includes(suggested)) {
                             candidateList.splice(i + 1, 0, suggested);
                         }
 
-                        // High demand or temporary spike on this model
                         if (errMsg.toLowerCase().includes('high demand') || errMsg.toLowerCase().includes('spikes in demand') || response.status === 503 || response.status === 429) {
                             highDemandEncountered = true;
-                            console.warn(`[Sentinela FinOps] Modelo ${model} sob alta demanda momentânea. Tentando modelo alternativo...`);
-                            await new Promise(r => setTimeout(r, 600)); // Brief respite
+                            console.warn(`[Sentinela FinOps] Modelo ${model} sob alta demanda. Tentando modelo alternativo...`);
+                            await new Promise(r => setTimeout(r, 600));
                             continue;
                         }
 
-                        // Model deprecated or not found
                         if (response.status === 404 || errMsg.toLowerCase().includes('not found') || errMsg.toLowerCase().includes('no longer available')) {
                             console.warn(`[Sentinela FinOps] Modelo ${model} indisponível. Tentando próximo da fila...`);
                             continue;
@@ -1856,12 +2046,11 @@
 
                 } catch (err) {
                     lastErrorMessage = err.message;
-                    // If network completely failed or not capacity error, try next candidate
                 }
             }
 
             if (highDemandEncountered) {
-                throw new Error("Alta demanda global temporária no Free Tier do Google Gemini. O Sentinela tentou os modelos disponíveis e ativou o Motor FinOps Integrado de segurança.");
+                throw new Error("Alta demanda global temporária no Free Tier do Google Gemini. O Sentinela acionou o Motor FinOps Integrado de segurança.");
             }
 
             throw new Error(lastErrorMessage || "Falha na comunicação com a API.");
@@ -1964,7 +2153,7 @@
                     outputMarkdown = result.text;
 
                     if (badgeEl) {
-                        badgeEl.className = "px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                        badgeEl.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
                         badgeEl.innerText = `Google Gemini (${result.modelUsed}) 🟢`;
                     }
                     if (iconEl) iconEl.innerText = "✨";
@@ -1977,14 +2166,14 @@
                     
                     if (badgeEl) {
                         badgeEl.className = isHighDemand 
-                            ? "px-2 py-0.5 rounded text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                            : "px-2 py-0.5 rounded text-[10px] font-mono bg-rose-500/10 text-rose-400 border border-rose-500/20";
+                            ? "px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/10 text-rose-400 border border-rose-500/20";
                         badgeEl.innerText = isHighDemand ? "Alta Demanda no Google 🟡" : "Falha na Chave / API 🔴";
                     }
                 }
             } else {
                 if (badgeEl) {
-                    badgeEl.className = "px-2 py-0.5 rounded text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+                    badgeEl.className = "px-2.5 py-0.5 rounded-full text-[10px] font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
                     badgeEl.innerText = "Motor FinOps Integrado (Offline)";
                 }
                 if (iconEl) iconEl.innerText = "🤖";
