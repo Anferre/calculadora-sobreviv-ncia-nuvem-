@@ -3,21 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://economia.awesomeapi.com.br; img-src 'self' data:; font-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://economia.awesomeapi.com.br https://prices.azure.com; img-src 'self' data:; font-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
 <title>Calculadora de Sobrevivência na Nuvem</title>
 <meta name="description" content="Veja quanto sua fatura de nuvem cresce dia a dia, compare AWS, GCP e Azure e gere teardown seguro.">
 <meta name="color-scheme" content="light dark">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--mute:#475569;--line:#e2e8f0;--acc:#0891b2;--acc2:#0e7490;--ok:#059669;--bad:#dc2626;--warn:#d97706;--chip:#eef2f7;--r:18px}
-:root[data-theme=dark]{--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438}}
+:root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--mute:#475569;--line:#e2e8f0;--acc:#0891b2;--acc2:#0e7490;--ok:#059669;--bad:#dc2626;--warn:#d97706;--chip:#eef2f7;--r:18px;--live:#0d9488}
+:root[data-theme=dark]{--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}}
 *{box-sizing:border-box}
 html{scroll-padding-top:70px}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom)}
-button,input,select{font:inherit;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 code{background:var(--chip);padding:1px 6px;border-radius:6px;font-size:.85em}
 a{color:var(--acc2)}
+textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;resize:vertical;min-height:140px}
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
 header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap}
@@ -28,6 +29,7 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 8
 .btn.pri{background:var(--acc);border-color:var(--acc);color:#04222b}
 .btn.warn{background:var(--warn);border-color:var(--warn);color:#2a1700}
 .btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.live{background:var(--live);border-color:var(--live);color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
 nav button{border:0;background:none;padding:7px 14px;border-radius:999px;font-weight:600;font-size:13px;color:var(--mute);white-space:nowrap}
@@ -47,6 +49,7 @@ h3{font-size:15px;margin:0 0 8px}
 .p-ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
 .p-warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
 .p-bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.p-live{background:color-mix(in srgb,var(--live) 20%,transparent);color:var(--live)}
 svg text{fill:var(--mute);font-size:11px}
 .svc{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;transition:border-color .2s,transform .2s}
 .svc:hover{border-color:var(--acc);transform:translateY(-1px)}
@@ -59,6 +62,7 @@ svg text{fill:var(--mute);font-size:11px}
 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:6px;background:var(--chip)}
 .tag.paid{color:var(--bad)}
 .tag.free{color:var(--ok)}
+.tag.live{background:color-mix(in srgb,var(--live) 20%,transparent);color:var(--live)}
 input[type=range]{width:100%;accent-color:var(--acc)}
 input[type=number],input[type=password],input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .bars{display:grid;gap:8px;margin-top:8px}
@@ -97,10 +101,26 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
 .recovery h3{color:var(--bad)}
 .callout{background:color-mix(in srgb,var(--warn) 12%,var(--card));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-radius:12px;padding:12px 14px;font-size:13px}
 .callout b{color:var(--warn)}
+.callout.info{background:color-mix(in srgb,var(--acc) 10%,var(--card));border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+.callout.info b{color:var(--acc2)}
 .row-note{font-size:12px;color:var(--mute);margin-top:6px}
 .step-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--mute)}
 .tabpanel:focus{outline:none}
 kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.cmp-badge{display:inline-block;font-size:10.5px;font-weight:700;color:var(--mute);background:var(--chip);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.tco-row{display:none}
+.tco-row.on{display:table-row}
+.finops-map{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.finops-map th,.finops-map td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.finops-map th{font-weight:700;background:var(--chip);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.finops-map td:first-child{font-weight:600;white-space:nowrap}
+.badge-lvl{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--mute)}
+.badge-lvl.practitioner{background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--acc2)}
+.badge-lvl.professional{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.usage-bar{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin-top:6px}
+.usage-bar>div{height:100%;background:var(--ok);transition:width .4s}
+.usage-bar.warn>div{background:var(--warn)}
+.usage-bar.bad>div{background:var(--bad)}
 </style>
 </head>
 <body>
@@ -109,6 +129,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
     <div class="brand">Sobrevivência na Nuvem<small>Estime custos, proteja sua conta e destrua o que criou</small></div>
     <div class="row">
       <button class="btn" id="b-fx" aria-label="Ajustar câmbio">USD <b id="fx-l"></b></button>
+      <button class="btn" id="b-live" aria-label="Preços ao vivo" title="Buscar preços reais das APIs públicas"><span id="live-l">Preços ao vivo</span></button>
       <button class="btn" id="b-key"><span id="key-l">Chave Gemini</span></button>
       <button class="btn" id="b-theme" aria-label="Alternar tema">Tema</button>
     </div>
@@ -119,6 +140,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 <main class="wrap">
 <!-- SIMULADOR -->
 <section id="v-sim" role="tabpanel" aria-labelledby="t-0" tabindex="-1" class="tabpanel"><div class="stagebar" data-s="0"></div>
+  <div id="stale-banner"></div>
   <div class="hero">
     <div class="card">
       <div class="row" style="justify-content:space-between">
@@ -137,6 +159,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
         <div class="seg" id="scen"><button data-d="1">Desligo após a aula</button><button data-d="3">Esqueço no fim de semana</button><button data-d="30">Esqueço o mês inteiro</button></div>
       </div>
       <details><summary>Ver dados em tabela</summary><div id="tbl"></div></details>
+      <div id="billing-real" hidden style="margin-top:14px"></div>
     </div>
     <div class="card" style="display:grid;gap:12px;align-content:start">
       <div class="row" style="justify-content:space-between"><span class="mute">Total do mês (30 dias)</span><span id="risk" class="pill"></span></div>
@@ -147,6 +170,12 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
       <div class="row">
         <button class="btn warn" id="b-td">Script de teardown</button>
         <button class="btn pri" id="b-ai">Auditar com IA</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="b-export">Exportar .md</button>
+        <button class="btn" id="b-import">Importar gasto real</button>
+      </div>
+      <div class="row">
         <button class="btn" id="b-share">Copiar link</button>
         <button class="btn" id="b-clear">Limpar</button>
       </div>
@@ -154,7 +183,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
   </div>
 
   <div class="row" style="justify-content:space-between;margin:28px 0 12px">
-    <div><h2>Monte seu laboratório</h2><div class="mute">Itens de outras nuvens ficam esmaecidos, mas continuam somando. Cada item aponta para a página oficial de preço.</div></div>
+    <div><h2>Monte seu laboratório</h2><div class="mute">Itens de outras nuvens ficam esmaecidos, mas continuam somando. Cada item aponta para a calculadora oficial daquele serviço.</div></div>
     <div class="seg" id="cf" role="group" aria-label="Filtrar por nuvem"></div>
   </div>
   <div id="hid" class="card" style="display:none;margin-bottom:12px;border-color:var(--warn)"></div>
@@ -173,12 +202,17 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
     <a href="https://azure.microsoft.com/pricing/calculator/" target="_blank" rel="noopener">Azure</a>.</p>
   <div class="grid g3" id="sl"></div>
   <div class="row" style="justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:12px">
-    <div class="seg" id="cmp-disc" role="group" aria-label="Desconto de reserva">
-      <button data-d="0" aria-pressed="true">Sob demanda</button>
-      <button data-d="30" aria-pressed="false">Reserva 1 ano (~30% off)</button>
+    <div class="seg" id="cmp-disc" role="group" aria-label="Modelo de preço">
+      <button data-m="onDemand" aria-pressed="true">Sob demanda</button>
+      <button data-m="ri1" aria-pressed="false">Reserva 1 ano</button>
+      <button data-m="ri3" aria-pressed="false">Reserva 3 anos</button>
     </div>
-    <span class="mute">Descontos de reserva variam por serviço e região; servem só para você enxergar a diferença.</span>
+    <div class="seg" id="cmp-tco" role="group" aria-label="Escopo do custo">
+      <button data-t="direct" aria-pressed="true">Custo direto</button>
+      <button data-t="total" aria-pressed="false">TCO completo</button>
+    </div>
   </div>
+  <div class="card" id="cmp-note" style="margin-top:12px;font-size:12.5px;color:var(--mute)"></div>
   <div class="grid g3" id="cc" style="margin-top:16px"></div>
   <div class="card" id="cv" style="margin-top:16px"></div>
 </section>
@@ -215,6 +249,7 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
     <div class="row" style="justify-content:space-between"><span class="mute">Marque o que você já praticou. Útil para entrevistas e portfólio.</span><b id="skills-pct">0%</b></div>
     <div style="height:8px;border-radius:6px;background:var(--chip);margin:8px 0;overflow:hidden"><div id="skills-bar" style="height:100%;background:var(--acc);width:0;transition:width .3s"></div></div>
     <div id="skills-list"></div>
+    <div id="finops-level" style="margin-top:16px"></div>
   </div>
 </section>
 
@@ -261,11 +296,24 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
   <p class="mute">Ferramenta educacional e independente para quem está começando em nuvem.</p>
   <details class="card" id="d-sobre" open><summary>O que é e para quem serve</summary>
     <p>A Calculadora de Sobrevivência na Nuvem ajuda iniciantes a estimar custos, configurar travas de orçamento, criar laboratórios com Terraform e Terragrunt e destruir tudo ao final. O fluxo tem quatro etapas: Planejar, Proteger, Provisionar e Destruir.</p></details>
+  <details class="card" id="d-finops"><summary>Onde você está no framework FinOps</summary>
+    <p>O <a href="https://www.finops.org/framework/" target="_blank" rel="noopener">FinOps Framework</a> da FinOps Foundation organiza a prática em seis domínios. Esta ferramenta cobre quatro deles:</p>
+    <table class="finops-map">
+      <thead><tr><th>Etapa aqui</th><th>Domínio FinOps</th><th>O que você pratica</th></tr></thead>
+      <tbody>
+        <tr><td>Planejar<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Forecasting &amp; Planning</td><td>Estimar custo antes de criar. Comparar provedores e modelos de preço.</td></tr>
+        <tr><td>Proteger<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Anomaly Management</td><td>Definir budgets e alertas. Detectar desvios cedo.</td></tr>
+        <tr><td>Provisionar<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Cloud Financial Management</td><td>Criar com tagging, policies e infraestrutura como código.</td></tr>
+        <tr><td>Destruir<br><span class="badge-lvl professional">Professional</span></td><td>Performance Tracking &amp; Allocation</td><td>Confirmar que nada sobrou. Documentar custo por projeto.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px">Os domínios <b>Understanding Cloud Usage</b> e <b>Allocation</b> aparecem transversalmente em todas as etapas — você usa os dados de gasto para decidir. Ao completar as quatro etapas, você praticou o essencial da disciplina.</p></details>
   <details class="card" id="d-metodo"><summary>Como as estimativas são feitas</summary>
     <ul><li>Custo mensal = preço por hora x 24 horas x dias ligados, em um mês de 30 dias.</li>
     <li>Os valores são aproximados (região US East), compilados manualmente e não incluem impostos nem todos os itens de rede, como tráfego e processamento de dados.</li>
-    <li>Itens de free tier aparecem como zero, mas têm condições de região, tempo e uso que mudam com frequência.</li>
-    <li>O comparador usa fórmulas lineares didáticas. Não é cotação.</li>
+    <li>Itens de free tier aparecem como zero, mas têm condições de região, tempo e uso que mudam com frequência. O free tier da AWS para contas novas mudou para um modelo de créditos: confirme sempre o que ainda está valendo no seu caso.</li>
+    <li>O comparador usa fórmulas lineares didáticas, com um multiplicador médio de desconto de reserva por provedor. Não é cotação: cada serviço tem seus próprios números de Savings Plans, CUDs e Reservations.</li>
+    <li>Quando o botão "Preços ao vivo" está ativo, alguns itens do Azure são atualizados em tempo real pela <a href="https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" rel="noopener">Azure Retail Prices API</a>. Os demais continuam vindo do catálogo hardcoded.</li>
     <li>Data de referência dos valores: <b id="ref-date"></b>. Se a data estiver distante de hoje, trate os números como ordem de grandeza, não como preço.</li></ul>
     <p>Confirme sempre nas fontes oficiais:
     <a href="https://aws.amazon.com/pricing/" target="_blank" rel="noopener">preços AWS</a>,
@@ -278,12 +326,16 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
     <ul><li>Não há contas, cookies de rastreamento nem ferramentas de análise nesta página.</li>
     <li>Ficam salvos apenas no seu navegador (localStorage): cesta, orçamento, ajuste de câmbio, tema, progresso das trilhas e, se você informar, a chave da API Gemini.</li>
     <li>A cotação do dólar é consultada em <code>economia.awesomeapi.com.br</code>.</li>
+    <li>Preços ao vivo do Azure são consultados em <code>prices.azure.com</code>. Nenhum dado seu é enviado, é uma requisição anônima de leitura.</li>
     <li>Se você usar a IA com chave própria, o texto da pergunta ou da cesta é enviado à API do Google Gemini. Sem chave, tudo é respondido localmente.</li>
+    <li>Ao colar o JSON de billing, os dados ficam apenas na memória da página. Nada é enviado para servidor nenhum.</li>
     <li>Não use a chave em computador compartilhado. Você pode removê-la a qualquer momento.</li></ul></details>
   <details class="card" id="d-aviso"><summary>Aviso importante</summary>
     <p>As informações são educacionais e podem estar desatualizadas. Este projeto não tem vínculo com AWS, Google ou Microsoft, e os nomes pertencem aos respectivos donos. Scripts e códigos de infraestrutura podem criar ou apagar recursos: leia, rode <code>plan</code> ou dry-run primeiro e use uma conta de laboratório. Você é responsável pelos custos da sua conta.</p></details>
   <details class="card" id="d-log"><summary>Histórico de versões</summary>
-    <ul><li><b>v13:</b> revisão de confiança: gráfico corrigido, teardown real (CloudFront, EKS), links de preço por item, plano de recuperação, cópia de todos os arquivos, comparação com desconto de reserva, navegação por teclado nas abas e ARIA completa.</li>
+    <ul><li><b>v15:</b> preços ao vivo do Azure via Retail Prices API, aviso de desatualização, TCO completo no comparador, exportação em markdown, mapa do framework FinOps e importação de fatura real.</li>
+    <li><b>v14:</b> comparador com descontos reais por provedor (Savings Plan, CUD, Reservations), deep links para as calculadoras oficiais por item, aviso do modelo de créditos do free tier AWS, data de verificação atualizada.</li>
+    <li><b>v13:</b> revisão de confiança: gráfico corrigido, teardown real (CloudFront, EKS), links de preço por item, plano de recuperação, cópia de todos os arquivos, navegação por teclado nas abas e ARIA completa.</li>
     <li><b>v12:</b> quiz na etapa Proteger, checklist de competências na etapa Provisionar e validação sintática dos códigos de infraestrutura.</li>
     <li><b>v11:</b> navegação por etapas, página Destruir, páginas de apoio e revisão do tom dos textos.</li>
     <li><b>v10:</b> trilhas de infraestrutura como código para GCP e Azure.</li>
@@ -344,6 +396,21 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
   <label class="mute">Spread + IOF do cartão (%)<input id="fx-e" type="number" step="0.1" min="0"></label>
   <div class="row" style="justify-content:flex-end"><button class="btn pri" id="fx-ok">Aplicar</button></div>
 </div></div>
+<div class="modal" id="m-import" hidden role="dialog" aria-modal="true" aria-labelledby="mt4"><div>
+  <div class="row" style="justify-content:space-between"><h3 id="mt4">Importar gasto real</h3><button class="btn" data-x aria-label="Fechar">✕</button></div>
+  <p class="mute">Cole o JSON exportado do console de custos. Nada é enviado para servidor nenhum. Formatos aceitos:</p>
+  <ul class="mute" style="margin:0;padding-left:18px;font-size:12.5px">
+    <li><b>AWS Cost Explorer:</b> <code>aws ce get-cost-and-usage --output json</code> (resultado completo)</li>
+    <li><b>Formato simples:</b> <code>{"provider":"aws","amount_usd":12.34,"period":"2026-10"}</code></li>
+    <li><b>Azure Cost Management:</b> exportação JSON padrão</li>
+  </ul>
+  <textarea id="imp-in" placeholder='{"provider":"aws","amount_usd":12.34,"period":"2026-10"}'></textarea>
+  <div id="imp-fb" class="mute" role="status"></div>
+  <div class="row" style="justify-content:space-between">
+    <button class="btn" id="imp-clr">Limpar</button>
+    <div class="row"><button class="btn" id="imp-ex">Exemplo</button><button class="btn pri" id="imp-ok">Importar</button></div>
+  </div>
+</div></div>
 <div id="toast" hidden role="status" aria-live="polite"></div>
 
 <script>
@@ -359,33 +426,113 @@ const store={
   set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){if(!storeWarned){storeWarned=true;try{toast('⚠ Não consegui salvar neste navegador. O progresso não será mantido.')}catch{}}return false}},
   del(k){try{localStorage.removeItem(k)}catch{}}
 };
-const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2800)};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)};
 const DAYS=30;
 
-/* Data de referência: ajuste aqui quando revisar preços. */
-const VERIFIED='2025-01';
+/* Data de referência dos preços. Atualize ao revisar o catálogo. */
+const VERIFIED='2026-10';
 
 const S={fx:5.65,extra:store.get('fx_e',0),off:DAYS,budget:store.get('budget',50),cloud:'all',sel:new Set(store.get('sel',[])),key:store.get('gk',''),model:store.get('gm',''),upto:DAYS};
 
-/* Catálogo único. hourly = USD/h. Link = página oficial de preço para conferência. */
+/* ===== Preços ao vivo (Azure Retail Prices API, sem autenticação) ===== */
+const LIVE={azure:{},status:'idle',lastFetch:0,error:null};
+const LIVE_QUERIES=[
+  {id:'az_b1s', filter:"armRegionName eq 'eastus' and armSkuName eq 'Standard_B1s' and priceType eq 'Consumption'"},
+  {id:'ipv4', filter:"armRegionName eq 'eastus' and serviceName eq 'Virtual Network' and skuName eq 'Standard' and contains(meterName, 'Static Public IP')"},
+  {id:'az_bastion', filter:"armRegionName eq 'eastus' and serviceName eq 'Azure Bastion' and skuName eq 'Basic'"}
+];
+async function fetchLiveAzure(){
+  const out={};
+  for(const q of LIVE_QUERIES){
+    try{
+      const url='https://prices.azure.com/api/retail/prices?$filter='+encodeURIComponent(q.filter);
+      const r=await fetch(url);
+      if(!r.ok)continue;
+      const d=await r.json();
+      const item=(d.Items||[]).find(x=>x.retailPrice>0&&x.unitOfMeasure==='1 Hour')||(d.Items||[]).find(x=>x.retailPrice>0);
+      if(item&&item.retailPrice>0)out[q.id]=item.retailPrice;
+    }catch(e){/* silencioso: cai no catálogo */}
+  }
+  return out;
+}
+async function loadLive(opts={}){
+  if(LIVE.status==='loading')return;
+  LIVE.status='loading';LIVE.error=null;
+  renderLive();
+  try{
+    const prices=await fetchLiveAzure();
+    LIVE.azure=prices;
+    LIVE.lastFetch=Date.now();
+    LIVE.status=Object.keys(prices).length?'ok':'error';
+    if(LIVE.status==='error')LIVE.error='Nenhum preço retornado.';
+    if(!opts.silent){
+      if(LIVE.status==='ok')toast('Preços ao vivo carregados ('+Object.keys(prices).length+' itens)');
+      else toast('Sem resposta da API do Azure. Usando catálogo de referência.');
+    }
+    catalog();calc();
+  }catch(e){
+    LIVE.status='error';LIVE.error=e.message;
+    if(!opts.silent)toast('Falha ao buscar preços ao vivo: '+e.message);
+  }
+  renderLive();
+}
+function renderLive(){
+  const b=$('#live-l');
+  if(!b)return;
+  if(LIVE.status==='loading')b.textContent='Buscando...';
+  else if(LIVE.status==='ok')b.textContent='Ao vivo · '+Object.keys(LIVE.azure).length+' itens';
+  else if(LIVE.status==='error')b.textContent='Preços ao vivo (indisponível)';
+  else b.textContent='Preços ao vivo';
+  $('#b-live').classList.toggle('live',LIVE.status==='ok');
+}
+const rateOf=c=>(LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined)?LIVE.azure[c.id]:c.hourly;
+const isLive=c=>LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined;
+
+/* Catálogo único. hourly = USD/h. Link = calculadora oficial do serviço. */
 const C=[
-{id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,link:'https://cloud.google.com/free/docs/free-cloud-features#compute',desc:'Always Free só em us-central1, us-east1 e us-west1; 30 GB de disco padrão. IPv4 externo e egress extra podem cobrar.'},
-{id:'aws_ec2',cloud:'aws',paid:0,name:'AWS: EC2 t3.micro',hourly:0,link:'https://aws.amazon.com/ec2/pricing/',desc:'Free tier de conta nova (hoje baseado em créditos/tempo limitado). Confira seu plano. IPv4 público é cobrado à parte, inclusive quando a VM está parada.'},
-{id:'az_b1s',cloud:'azure',paid:0,name:'Azure: VM B1s',hourly:0,link:'https://azure.microsoft.com/pricing/details/virtual-machines/linux/',desc:'Free tier de 12 meses para contas elegíveis, com limite de horas. Confira a oferta atual.'},
-{id:'gcp_bq',cloud:'gcp',paid:0,name:'GCP: BigQuery Sandbox',hourly:0,link:'https://cloud.google.com/bigquery/pricing',desc:'Sandbox sem cartão, com limites de armazenamento e consulta; tabelas expiram.'},
-{id:'aws_s3cf',cloud:'aws',paid:0,name:'AWS: S3 + CloudFront',hourly:0,link:'https://aws.amazon.com/cloudfront/pricing/',desc:'CloudFront tem franquia mensal recorrente; o S3 gratuito pode ser limitado no tempo. Defina budget.'},
-{id:'gcp_run',cloud:'gcp',paid:0,name:'GCP: Cloud Run',hourly:0,link:'https://cloud.google.com/run/pricing',desc:'Franquia mensal de requisições; escala a zero. Evite "min instances" > 0.'},
-{id:'aws_nat',cloud:'aws',paid:1,name:'AWS: NAT Gateway',hourly:.045,link:'https://aws.amazon.com/vpc/pricing/',desc:'~$0,045/h (~$33/mês) + ~$0,045/GB processado, mesmo ocioso. É o item que mais aparece em faturas de estudante.'},
-{id:'gcp_nat',cloud:'gcp',paid:1,name:'GCP: Cloud NAT',hourly:.0014,link:'https://cloud.google.com/nat/pricing',desc:'~$0,0014/h por VM + ~$0,045/GB processado. O GB é o que dói, não a hora.'},
-{id:'az_bastion',cloud:'azure',paid:1,name:'Azure: Bastion (Basic)',hourly:.19,link:'https://azure.microsoft.com/pricing/details/azure-bastion/',desc:'~$0,19/h (~$139/mês). Existe SKU Developer sem custo fixo, com limitações. Evite em estudos.'},
-{id:'ipv4',cloud:'all',paid:1,name:'IPv4 público',hourly:.005,link:'https://aws.amazon.com/vpc/pricing/',desc:'~$0,005/h (~$3,65/mês) por IPv4, em uso OU ocioso. Mesmo com a VM parada, o IP associado continua sendo cobrado. Libere ao destruir o lab.'},
-{id:'gcp_sql',cloud:'gcp',paid:1,name:'GCP: Cloud SQL (micro)',hourly:.015,link:'https://cloud.google.com/sql/pricing',desc:'Instância dedicada por hora, sem Always Free. Prefira Postgres via Docker na VM.'},
-{id:'aws_alb',cloud:'aws',paid:1,name:'AWS: Application Load Balancer',hourly:.0225,link:'https://aws.amazon.com/elasticloadbalancing/pricing/',desc:'~$0,0225/h (~$16/mês) + LCUs. Para arquivos estáticos é desnecessário.'},
-{id:'aws_eks',cloud:'aws',paid:1,name:'AWS: EKS (control plane)',hourly:.10,link:'https://aws.amazon.com/eks/pricing/',desc:'~$0,10/h só pelo cluster, antes de nós, NAT ou balanceadores.'}];
+{id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Always Free só em us-central1, us-east1 e us-west1; 30 GB de disco padrão. IPv4 externo e egress extra podem cobrar.'},
+{id:'aws_ec2',cloud:'aws',paid:0,name:'AWS: EC2 t3.micro',hourly:0,
+ link:'https://calculator.aws/#/createCalculator/ec2-enhancement',
+ desc:'Contas novas recebem créditos (modelo atual da AWS) válidos por tempo limitado, em vez do antigo "12 meses de t2.micro". Confira o que sobrou antes de deixar rodando. IPv4 público é cobrado à parte, mesmo com a VM parada.'},
+{id:'az_b1s',cloud:'azure',paid:0,name:'Azure: VM B1s',hourly:0,
+ link:'https://azure.microsoft.com/pt-br/pricing/calculator/',
+ desc:'Free tier de 12 meses para contas elegíveis, com limite de horas. Confira a oferta atual.'},
+{id:'gcp_bq',cloud:'gcp',paid:0,name:'GCP: BigQuery Sandbox',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Sandbox sem cartão, com limites de armazenamento e consulta; tabelas expiram.'},
+{id:'aws_s3cf',cloud:'aws',paid:0,name:'AWS: S3 + CloudFront',hourly:0,
+ link:'https://calculator.aws/#/createCalculator/CloudFront',
+ desc:'CloudFront tem franquia mensal recorrente; o S3 gratuito pode ser limitado no tempo. Defina budget.'},
+{id:'gcp_run',cloud:'gcp',paid:0,name:'GCP: Cloud Run',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Franquia mensal de requisições; escala a zero. Evite "min instances" > 0.'},
+{id:'aws_nat',cloud:'aws',paid:1,name:'AWS: NAT Gateway',hourly:.045,
+ link:'https://calculator.aws/#/createCalculator/NATGateway',
+ desc:'~$0,045/h (~$33/mês) + ~$0,045/GB processado, mesmo ocioso. É o item que mais aparece em faturas de estudante.'},
+{id:'gcp_nat',cloud:'gcp',paid:1,name:'GCP: Cloud NAT',hourly:.0014,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'~$0,0014/h por VM + ~$0,045/GB processado. O GB é o que dói, não a hora.'},
+{id:'az_bastion',cloud:'azure',paid:1,name:'Azure: Bastion (Basic)',hourly:.19,
+ link:'https://azure.microsoft.com/pt-br/pricing/calculator/',
+ desc:'~$0,19/h (~$139/mês). Existe SKU Developer sem custo fixo, com limitações. Evite em estudos.'},
+{id:'ipv4',cloud:'all',paid:1,name:'IPv4 público',hourly:.005,
+ link:'https://calculator.aws/#/createCalculator/VPC',
+ desc:'~$0,005/h (~$3,65/mês) por IPv4, em uso OU ocioso. Mesmo com a VM parada, o IP associado continua sendo cobrado. Libere ao destruir o lab.'},
+{id:'gcp_sql',cloud:'gcp',paid:1,name:'GCP: Cloud SQL (micro)',hourly:.015,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Instância dedicada por hora, sem Always Free. Prefira Postgres via Docker na VM.'},
+{id:'aws_alb',cloud:'aws',paid:1,name:'AWS: Application Load Balancer',hourly:.0225,
+ link:'https://calculator.aws/#/createCalculator/ElasticLoadBalancing',
+ desc:'~$0,0225/h (~$16/mês) + LCUs. Para arquivos estáticos é desnecessário.'},
+{id:'aws_eks',cloud:'aws',paid:1,name:'AWS: EKS (control plane)',hourly:.10,
+ link:'https://calculator.aws/#/createCalculator/EKS',
+ desc:'~$0,10/h só pelo cluster, antes de nós, NAT ou balanceadores.'}];
 const byId=Object.fromEntries(C.map(c=>[c.id,c]));
 const items=()=>[...S.sel].map(i=>byId[i]).filter(Boolean);
 const fx=()=>S.fx*(1+S.extra/100);
-const dayRate=()=>items().reduce((s,c)=>s+c.hourly*24,0);
+const dayRate=()=>items().reduce((s,c)=>s+rateOf(c)*24,0);
 const cum=(d,off=S.off)=>dayRate()*Math.min(d,off);
 
 /* Navegação por etapas */
@@ -411,7 +558,6 @@ function stagebars(cur){
     $$('[data-go]',el).forEach(b=>b.onclick=()=>show(b.dataset.go));
   });
 }
-/* Navegação entre painéis: atualiza ARIA, tabindex e só rola ao topo quando faz sentido. */
 function show(id,opts={}){
   NAV.forEach(([,ps],i)=>{
     ps.forEach(p=>{const el=$('#'+p);el.hidden=p!==id});
@@ -433,6 +579,26 @@ function downInit(){
   $('#b-td3').onclick=teardown;
   $('#ref-date').textContent=VERIFIED;$('#foot-date').textContent=VERIFIED;
   document.addEventListener('click',e=>{const a=e.target.closest('[data-about]');if(!a)return;show('v-about');const d=$('#'+a.dataset.about);if(d){d.open=true;d.scrollIntoView({block:'start'})}});
+}
+
+/* ===== Aviso de desatualização ===== */
+function checkStaleness(){
+  const ref=new Date(VERIFIED+'-01T00:00:00Z');
+  const diffDays=Math.round((Date.now()-ref.getTime())/86400000);
+  const el=$('#stale-banner');
+  if(!el)return;
+  el.innerHTML='';
+  if(diffDays>90){
+    const cls=LIVE.status==='ok'?'callout info':'callout';
+    el.innerHTML=`<div class="${cls}" style="margin-bottom:16px">
+      <b>⚠ Preços de referência verificados há ${diffDays} dias.</b>
+      Os valores hardcoded podem estar desatualizados. ${LIVE.status==='ok'?'Os itens com selo "ao vivo" já estão corrigidos pelo Azure Retail Prices API.':'Clique em "Preços ao vivo" para buscar valores atuais, ou confira nas calculadoras oficiais.'}
+    </div>`;
+  } else if(diffDays>60){
+    el.innerHTML=`<div class="callout info" style="margin-bottom:16px">
+      <b>Preços verificados em ${VERIFIED}.</b> Revisão recomendada a cada 90 dias.
+    </div>`;
+  }
 }
 
 /* Gráfico SVG: eixo começa em 0 para o aluno ver o custo acumular desde o dia zero. */
@@ -480,19 +646,20 @@ function calc(){
   $('#tot-day').textContent=dayRate()>0?`Esquecido ligado: ~${usd(dayRate())}/dia (${BRL.format(dayRate()*fx())}).`:'Sem custo por hora na cesta.';
   const rk=$('#risk'),lv=brl>S.budget&&S.budget>0?2:brl>S.budget*.5&&brl>5?1:0;
   rk.className='pill '+['p-ok','p-warn','p-bad'][lv];rk.textContent=['Risco baixo','Atenção','Alto risco'][lv];
-  const paid=it.filter(c=>c.hourly>0).map(c=>[c,c.hourly*24*Math.min(DAYS,S.off)]).sort((a,b)=>b[1]-a[1]),mx=paid[0]?paid[0][1]:1;
+  const paid=it.filter(c=>rateOf(c)>0).map(c=>[c,rateOf(c)*24*Math.min(DAYS,S.off)]).sort((a,b)=>b[1]-a[1]),mx=paid[0]?paid[0][1]:1;
   $('#bars').innerHTML=paid.length?paid.map(([c,v])=>`<div class="bar-r"><span>${esc(c.name)}</span><span><i style="width:${Math.max(4,v/mx*100)}%"></i></span><b>${usd(v)}</b></div>`).join(''):'<span class="mute">Marque itens da zona de risco para ver o peso de cada um.</span>';
   const hid=it.filter(c=>S.cloud!=='all'&&c.cloud!=='all'&&c.cloud!==S.cloud),h=$('#hid');
   h.style.display=hid.length?'block':'none';h.textContent=`⚠ ${hid.length} item(ns) de outra nuvem estão esmaecidos, mas continuam no total.`;
   chart();
 }
 function card(c){
-  const p=c.hourly>0;
-  const link=c.link?`<a class="svc-link" href="${esc(c.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Ver preço oficial ↗</a>`:'';
+  const r=rateOf(c),live=isLive(c),p=r>0;
+  const link=c.link?`<a class="svc-link" href="${esc(c.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir na calculadora oficial ↗</a>`:'';
+  const liveTag=live?' <span class="tag live" title="Preço atualizado pela Azure Retail Prices API">ao vivo</span>':'';
   return `<label class="svc ${p?'paid':''}" data-cloud="${c.cloud}">
     <input type="checkbox" data-id="${c.id}" aria-label="${esc(c.name)}">
     <span style="flex:1">
-      <span class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(c.name)}</b><span class="tag ${p?'paid':'free'}">${p?usd(c.hourly*24*DAYS)+'/mês':'$0.00'}</span></span>
+      <span class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(c.name)}</b><span class="tag ${p?'paid':'free'}">${p?usd(r*24*DAYS)+'/mês':'$0.00'}${liveTag}</span></span>
       <p>${esc(c.desc)}</p>${link}
     </span></label>`;
 }
@@ -531,7 +698,6 @@ if aws eks describe-cluster --region "$REGION" --name "$CLUSTER" >/dev/null 2>&1
     echo "Aguardando nodegroup $ng sumir..."
     aws eks wait nodegroup-deleted --region "$REGION" --cluster-name "$CLUSTER" --nodegroup-name "$ng" || true
   done
-  # VPC/CNI ficam pendurados; remova antes de apagar o cluster em si
   run aws eks delete-cluster --region "$REGION" --name "$CLUSTER"
 else
   echo "EKS: cluster $CLUSTER não encontrado"
@@ -586,35 +752,206 @@ echo "AWS conta: $(aws sts get-caller-identity --query Account --output text 2>/
   $('#td').textContent=s;open('#m-td');
 }
 
-/* Comparador multi-cloud com toggle de reserva */
+/* ===== Comparador multi-cloud com descontos por provedor e TCO completo ===== */
 const SL=[['vcpu','vCPU',1,16,1,2],['ram','RAM (GB)',1,64,1,4],['disk','Disco SSD (GB)',20,1000,10,50],['egr','Egress (GB)',10,2000,50,100]];
-let cmpDisc=0;
+const DISCOUNTS={
+  aws:   {onDemand:0, ri1:30, ri3:66,
+          note:'AWS: Compute Savings Plans chegam a ~66% com compromisso de 1 ou 3 anos em computação.'},
+  gcp:   {onDemand:0, ri1:37, ri3:57,
+          note:'GCP: CUDs (Committed Use Discounts) chegam a ~37% em 1 ano e ~57% em 3 anos em Compute Engine.'},
+  azure: {onDemand:0, ri1:40, ri3:72,
+          note:'Azure: Reservations chegam a ~40% em 1 ano e até ~72% em 3 anos em máquinas virtuais.'}
+};
+/* Componentes indiretos que só aparecem no TCO completo */
+const INDIRECT={support:0.10, snapshots:0.05, iops:0.005};
+let cmpModel='onDemand';
+let cmpScope='direct';
+
 function cmpBuild(){
   $('#sl').innerHTML=SL.map(([k,l,a,b,s,d])=>`<label class="card mute">${l}: <b id="o-${k}" style="color:var(--ink)">${d}</b><input id="s-${k}" type="range" min="${a}" max="${b}" step="${s}" value="${d}" aria-label="${l}"></label>`).join('');
   $$('#sl input').forEach(i=>i.oninput=cmp);
-  $$('#cmp-disc button').forEach(b=>b.onclick=()=>{cmpDisc=+b.dataset.d;$$('#cmp-disc button').forEach(x=>x.setAttribute('aria-pressed',x===b));cmp()});
+  $$('#cmp-disc button').forEach(b=>b.onclick=()=>{
+    cmpModel=b.dataset.m;
+    $$('#cmp-disc button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    cmp();
+  });
+  $$('#cmp-tco button').forEach(b=>b.onclick=()=>{
+    cmpScope=b.dataset.t;
+    $$('#cmp-tco button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    cmp();
+  });
+  cmp();
 }
 function cmp(){
   const g=k=>+$('#s-'+k).value,v=g('vcpu'),r=g('ram'),d=g('disk'),e=g('egr'),H=DAYS*24;
   SL.forEach(([k])=>$('#o-'+k).textContent=g(k));
-  const f=1-cmpDisc/100; // desconto didático de reserva
+  const D=DISCOUNTS;
+  const fa=1-(D.aws[cmpModel]||0)/100;
+  const fg=1-(D.gcp[cmpModel]||0)/100;
+  const fz=1-(D.azure[cmpModel]||0)/100;
+  const build=(n,c,k,x,discPct)=>{
+    const sup=c*INDIRECT.support;
+    const snap=k*INDIRECT.snapshots;
+    const iops=k*INDIRECT.iops;
+    const ipv4=.005*H;
+    const total=c+k+x+ipv4+sup+snap+iops;
+    return {n,c,k,x,ipv4,sup,snap,iops,discPct,total};
+  };
   const P=[
-    ['AWS',(v*.0125+r*.0035)*H*f,d*.08,Math.max(0,e-100)*.09],
-    ['Google Cloud',(v*.0142+r*.0038)*H*f,d*.10,e*.11],
-    ['Azure',(v*.0135+r*.0036)*H*f,d*.09,Math.max(0,e-100)*.087]
-  ].map(([n,c,k,x])=>({n,c,k,x,t:c+k+x+.005*H}));
-  const mn=Math.min(...P.map(p=>p.t)),mx=Math.max(...P.map(p=>p.t));
-  $('#cc').innerHTML=P.map(p=>`<div class="card" style="${p.t===mn?'border-color:var(--ok)':''}"><h3>${p.n} ${p.t===mn?'★':''}</h3><table>${[['Computação',p.c],['Disco',p.k],['Egress',p.x],['IPv4',.005*H]].map(([l,x])=>`<tr><td>${l}</td><td>${usd(x)}</td></tr>`).join('')}</table><div class="big" style="font-size:28px;margin-top:8px">${usd(p.t)}</div><div class="mute">≈ ${BRL.format(p.t*fx())}/mês${cmpDisc?' (com reserva)':''}</div></div>`).join('');
-  const w=P.find(p=>p.t===mn);
-  $('#cv').innerHTML=`Na estimativa${cmpDisc?` com desconto de reserva de ${cmpDisc}%`:''}, <b>${w.n}</b> é a mais barata, cerca de <b>${Math.round((mx-mn)/mx*100)}%</b> abaixo da mais cara. Com egress alto a rede pesa mais que a máquina; free tier, região e suporte também mudam a conta real. Comparação didática, não é cotação.`;
+    build('AWS',(v*.0125+r*.0035)*H*fa,d*.08,Math.max(0,e-100)*.09,D.aws[cmpModel]),
+    build('Google Cloud',(v*.0142+r*.0038)*H*fg,d*.10,e*.11,D.gcp[cmpModel]),
+    build('Azure',(v*.0135+r*.0036)*H*fz,d*.09,Math.max(0,e-100)*.087,D.azure[cmpModel])
+  ];
+  const key=p=>cmpScope==='total'?p.total:p.c+p.k+p.x+p.ipv4;
+  const mn=Math.min(...P.map(key)),mx=Math.max(...P.map(key));
+  const label=cmpModel==='onDemand'?'sob demanda':cmpModel==='ri1'?'com reserva de 1 ano':'com reserva de 3 anos';
+  const scopeLabel=cmpScope==='total'?'TCO completo':'custo direto';
+  $('#cc').innerHTML=P.map(p=>{
+    const disc=p.discPct?`<span class="cmp-badge">${p.discPct}% off</span>`:'';
+    const isBest=key(p)===mn;
+    const indRows=cmpScope==='total'?`
+      <tr class="tco-row on"><td>Snapshots</td><td>${usd(p.snap)}</td></tr>
+      <tr class="tco-row on"><td>IOPS provisionadas</td><td>${usd(p.iops)}</td></tr>
+      <tr class="tco-row on"><td>Suporte Business</td><td>${usd(p.sup)}</td></tr>
+    `:'';
+    const totalShown=cmpScope==='total'?p.total:(p.c+p.k+p.x+p.ipv4);
+    return `<div class="card" style="${isBest?'border-color:var(--ok)':''}">
+      <h3>${p.n} ${isBest?'★':''}${disc}</h3>
+      <table>
+        <tr><td>Computação</td><td>${usd(p.c)}</td></tr>
+        <tr><td>Disco</td><td>${usd(p.k)}</td></tr>
+        <tr><td>Egress</td><td>${usd(p.x)}</td></tr>
+        <tr><td>IPv4</td><td>${usd(p.ipv4)}</td></tr>
+        ${indRows}
+      </table>
+      <div class="big" style="font-size:28px;margin-top:8px">${usd(totalShown)}</div>
+      <div class="mute">≈ ${BRL.format(totalShown*fx())}/mês (${label}, ${scopeLabel})</div>
+    </div>`;
+  }).join('');
+  const w=P.reduce((a,b)=>key(b)<key(a)?b:a);
+  $('#cv').innerHTML=`Na estimativa ${label}, com escopo de <b>${scopeLabel}</b>, <b>${w.n}</b> é a mais barata, cerca de <b>${Math.round((mx-mn)/mx*100)}%</b> abaixo da mais cara. Com egress alto a rede pesa mais que a máquina; free tier, região e suporte também mudam a conta real. Comparação didática, não é cotação.`;
+  $('#cmp-note').innerHTML=`<b>Como interpretar:</b> ${D.aws.note} ${D.gcp.note} ${D.azure.note} A estimativa aplica o desconto só na linha de <i>Computação</i> — é onde a maior parte dos compromissos realmente incide. No modo <b>TCO completo</b>, somamos snapshots (5% do disco), IOPS provisionadas e suporte Business (10% da computação). São faixas médias, não valores exatos.`;
 }
 
-/* IA: motor local com lookup no catálogo + Gemini opcional */
-const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).']];
+/* ===== Exportar relatório em markdown ===== */
+function exportReport(){
+  const it=items(),day=dayRate(),month=cum(DAYS);
+  const downDone=store.get('down_done',[]);
+  const tcoDirect=(()=>{try{const g=k=>+$('#s-'+k).value;const v=g('vcpu'),r=g('ram'),d=g('disk'),e=g('egr'),H=DAYS*24;return [
+    ['AWS',(v*.0125+r*.0035)*H+d*.08+Math.max(0,e-100)*.09],
+    ['Google Cloud',(v*.0142+r*.0038)*H+d*.10+e*.11],
+    ['Azure',(v*.0135+r*.0036)*H+d*.09+Math.max(0,e-100)*.087]
+  ]}catch{return []}})();
+  const md=`# Relatório FinOps — Laboratório na Nuvem
+
+**Gerado em:** ${new Date().toLocaleString('pt-BR')}
+**Ferramenta:** Calculadora de Sobrevivência na Nuvem (referência de preços: ${VERIFIED})
+**Modo de preços:** ${LIVE.status==='ok'?`ao vivo (Azure Retail Prices API · ${Object.keys(LIVE.azure).length} itens)${LIVE.lastFetch?' · '+new Date(LIVE.lastFetch).toLocaleString('pt-BR'):''}`:'catálogo de referência'}
+
+## 1. Cesta selecionada
+${it.length ? it.map(c=>`- **${c.name}** — ${rateOf(c)>0?usd(rateOf(c)*24*DAYS)+'/mês'+(isLive(c)?' _ao vivo_':''):'$0 (free tier / sob condições)'}${c.link?' · [calculadora oficial]('+c.link+')':''}`).join('\n') : '_Nenhum item selecionado._'}
+
+## 2. Custo estimado
+| Métrica | Valor |
+|---|---|
+| Custo por dia | ${usd(day)} |
+| Custo mensal (30 dias) | ${usd(month)} |
+| Em reais (c/ spread e IOF) | ${BRL.format(month*fx())} |
+| Orçamento definido | ${BRL.format(S.budget)} |
+| Nível de risco | ${$('#risk').textContent} |
+
+## 3. Teardown seguro
+\`\`\`bash
+${$('#td').textContent || '# Gere o script primeiro no simulador'}
+\`\`\`
+
+## 4. Checklist de encerramento
+${DOWN.map((t,i)=>`- [${downDone.includes(i)?'x':' '}] ${t}`).join('\n')}
+
+## 5. Comparador multi-cloud (referência rápida)
+${tcoDirect.length ? tcoDirect.map(([n,v])=>`- ${n}: ${usd(v)}/mês`).join('\n') : '_Ajuste os sliders do comparador para incluir esta seção._'}
+
+---
+_Estimativas didáticas. Confirme sempre nas calculadoras oficiais:
+[AWS](https://calculator.aws) · [GCP](https://cloud.google.com/products/calculator) · [Azure](https://azure.microsoft.com/pricing/calculator/)_
+`;
+  const blob=new Blob([md],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='finops-lab-'+new Date().toISOString().slice(0,10)+'.md';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Relatório exportado');
+}
+
+/* ===== Importar gasto real (JSON de billing) ===== */
+const BILLING={provider:null,amount_usd:null,period:null,importedAt:null};
+function parseBilling(raw){
+  let d;try{d=JSON.parse(raw)}catch{throw new Error('JSON inválido. Confira a sintaxe.')}
+  // 1) Formato simples
+  if(d.amount_usd!==undefined||d.amount!==undefined){
+    return {provider:d.provider||'desconhecido',amount_usd:+(d.amount_usd??d.amount),period:d.period||null};
+  }
+  // 2) AWS Cost Explorer (ResultsByTime[].Total.UnblendedCost.Amount OU Groups[].Metrics)
+  if(Array.isArray(d.ResultsByTime)){
+    let total=0;
+    for(const r of d.ResultsByTime){
+      if(r.Total?.UnblendedCost?.Amount){total+=parseFloat(r.Total.UnblendedCost.Amount)}
+      else if(Array.isArray(r.Groups)){for(const g of r.Groups){if(g.Metrics?.UnblendedCost?.Amount)total+=parseFloat(g.Metrics.UnblendedCost.Amount)}}
+    }
+    return {provider:'aws',amount_usd:total,period:d.ResultsByTime[0]?.TimePeriod?.Start||null};
+  }
+  // 3) Azure Cost Management (properties.rows / properties.columns)
+  if(d.properties?.rows&&Array.isArray(d.properties.rows)){
+    const cols=d.properties.columns.map(c=>c.name);
+    const idxCost=cols.indexOf('Cost')>=0?cols.indexOf('Cost'):cols.length-1;
+    let total=0;
+    for(const row of d.properties.rows){const v=row[idxCost];if(typeof v==='number')total+=v}
+    return {provider:'azure',amount_usd:total,period:d.properties.nextLink?null:null};
+  }
+  // 4) GCP Cost export
+  if(Array.isArray(d.costs)){let t=0;for(const c of d.costs)t+=+(c.cost||c.amount||0);return {provider:'gcp',amount_usd:t,period:null}}
+  throw new Error('Formato não reconhecido. Aceita AWS Cost Explorer, Azure Cost Management, GCP export ou {"amount_usd":...}.');
+}
+function renderBillingReal(){
+  const box=$('#billing-real');
+  if(!BILLING.amount_usd){box.hidden=true;box.innerHTML='';return}
+  const brl=BILLING.amount_usd*fx();
+  const pct=S.budget>0?brl/S.budget*100:0;
+  const cls=pct>=100?'bad':pct>=80?'warn':'';
+  const diff=BILLING.amount_usd-cum(DAYS);
+  const verb=diff>0?'acima':'abaixo';
+  box.hidden=false;
+  box.innerHTML=`<div class="callout ${cls==='bad'?'':cls==='warn'?'':'info'}" style="${cls==='bad'?'border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--card))':''}">
+    <div class="row" style="justify-content:space-between"><b>Gasto real importado ${BILLING.provider?'('+BILLING.provider.toUpperCase()+')':''}</b>
+      <button class="btn" id="billing-clear" style="padding:2px 10px;font-size:11px">Remover</button></div>
+    <div style="font-size:20px;font-weight:800;margin-top:6px">${BRL.format(brl)}</div>
+    <div class="mute">${usd(BILLING.amount_usd)} · ${pct.toFixed(0)}% do orçamento · ${Math.abs(diff).toFixed(2)} USD ${verb} da estimativa · importado em ${new Date(BILLING.importedAt).toLocaleString('pt-BR')}</div>
+    <div class="usage-bar ${cls}"><div style="width:${Math.min(100,pct)}%"></div></div>
+  </div>`;
+  $('#billing-clear').onclick=()=>{Object.assign(BILLING,{provider:null,amount_usd:null,period:null,importedAt:null});store.del('billing');renderBillingReal();toast('Importação removida')};
+}
+function openImport(){$('#imp-fb').textContent='';$('#imp-in').value='';open('#m-import')}
+function doImport(){
+  const raw=$('#imp-in').value.trim();if(!raw){$('#imp-fb').textContent='Cole um JSON primeiro.';return}
+  try{
+    const r=parseBilling(raw);
+    if(!isFinite(r.amount_usd)||r.amount_usd<0)throw new Error('Valor inválido.');
+    Object.assign(BILLING,r);BILLING.importedAt=Date.now();
+    store.set('billing',BILLING);
+    renderBillingReal();close();toast('Gasto real importado: '+usd(r.amount_usd));
+  }catch(e){$('#imp-fb').textContent='✗ '+e.message}
+}
+
+/* ===== IA: motor local com lookup no catálogo + Gemini opcional ===== */
+const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).'],[/reserva|savings plan|cud|compromisso/,'### Reservas e descontos\n* AWS **Savings Plans** e **Reservations**, GCP **CUDs**, Azure **Reservations**.\n* Chegam a 66-72% em 3 anos. Só faz sentido para carga estável.\n* Para laboratório, **não** faz sentido: você não quer compromisso.'],[/free tier|grátis|gratis/,'### Free tier hoje\n* AWS mudou: contas novas recebem **créditos** com validade limitada, não mais 12 meses fixos de t2.micro.\n* GCP Always Free permanece para e2-micro em regiões específicas.\n* Azure tem 12 meses para contas elegíveis + créditos de estudante.\n* Confira sempre o que ainda está de pé antes de confiar.']];
 function localLookup(q){
   const ql=q.toLowerCase();
-  const hit=C.find(c=>ql.includes(c.id.replace(/_/g,' '))||ql.includes(c.name.toLowerCase().split(': ')[1]?.split(' ')[0]||'__')||c.name.toLowerCase().split(' ').some(w=>w.length>3&&ql.includes(w)));
-  if(hit)return `### ${hit.name}\n${hit.desc}\n\nPreço de referência: ${hit.hourly>0?usd(hit.hourly*24*DAYS)+'/mês se ficar 30 dias ligado':'dentro da camada gratuita (com condições)'}\n\nVerifique sempre a página oficial antes de decidir.`;
+  const hit=C.find(c=>ql.includes(c.id.replace(/_/g,' '))||c.name.toLowerCase().split(' ').some(w=>w.length>3&&ql.includes(w)));
+  if(hit){
+    const r=rateOf(hit);
+    return `### ${hit.name}\n${hit.desc}\n\nPreço de referência: ${r>0?usd(r*24*DAYS)+'/mês se ficar 30 dias ligado':'dentro da camada gratuita (com condições)'}${isLive(hit)?' _(ao vivo pelo Azure Retail Prices API)_':''}\n\nVerifique sempre a página oficial antes de decidir.`;
+  }
   return null;
 }
 const local=q=>{q=q.toLowerCase();const m=LOCAL.find(([r])=>r.test(q));return m?m[1]:(localLookup(q)||'### Sentinela FinOps\n* Marque tudo com **Project=finops-lab** e destrua ao terminar.\n* Crie budget alerts de $1, $5 e $10 no primeiro dia.\n* Para respostas livres, conecte sua chave do Google AI Studio.')};
@@ -1015,7 +1352,7 @@ variable "limit_usd" {
  learn:['Computação: AMI via data source, IAM role e instance profile','Security Group sem entrada','Custos escondidos: IPv4 público e disco EBS'],
  delta:'Mesmo esqueleto. Entram IAM e rede; o aprendizado é pagar só o que usa.',
  never:'Não ligue NAT Gateway para "dar internet" à VM: use IP público ou endpoints. NAT custa ~$33/mês.',
- note:'No VPC padrão a instância recebe IPv4 público (cobrado por hora, mesmo com a VM parada). Free tier de contas novas mudou: confira seu plano. IMDSv2 exigido.',
+ note:'No VPC padrão a instância recebe IPv4 público (cobrado por hora, mesmo com a VM parada). Free tier de contas novas mudou para créditos com prazo: confira seu plano. IMDSv2 exigido.',
  nodes:[{id:'u',x:10,y:20,l:'Você',s:'SSM Session Manager',k:'ext'},{id:'vm',x:200,y:20,l:'EC2 t3.micro',s:'Docker, sem porta aberta',k:'ok'},{id:'eb',x:390,y:20,l:'EBS gp3 20 GB',s:'~$1,60/mês',k:'paid'},{id:'ip',x:200,y:110,l:'IPv4 público',s:'~$3,65/mês (mesmo parado)',k:'paid'},{id:'bad',x:390,y:110,l:'NAT Gateway',s:'evitar: ~$33/mês',k:'bad'}],
  edges:[['u','vm','SSM'],['vm','eb','disco'],['ip','vm','saída']],
  vars:`variable "instance_type" {
@@ -1344,7 +1681,7 @@ variable "limit_usd" {
 }
 variable "start_date" {
   type    = string
-  default = "2025-01-01T00:00:00Z" # 1º dia do mês atual
+  default = "2026-10-01T00:00:00Z" # 1º dia do mês atual
 }`,
  main:`resource "azurerm_consumption_budget_subscription" "lab" {
   name            = "finops-lab-mensal"
@@ -1518,4 +1855,276 @@ resource "azurerm_linux_virtual_machine" "vm" {
  learn:['Storage Gen2 (namespace hierárquico) para dados','Lifecycle policy: apagar dados após 30 dias','Resource Group: destruir tudo de uma vez'],
  delta:'Mesmo esqueleto. A trava de custo vive no código: a política de expiração.',
  never:'Não deixe dados crescerem sem expiração, e cuidado com serviços de consulta cobrados por TB lido.',
- note:'Para consultar, use Duck
+ note:'Para consultar, use DuckDB localmente ou Synapse serverless (cobra por TB lido): defina limites antes. Azure Data Explorer free não é provisionado por este código.',
+ nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},{id:'lk',x:200,y:20,l:'Storage Gen2',s:'container raw',k:'ok'},{id:'lc',x:390,y:20,l:'Lifecycle policy',s:'apaga após 30 dias',k:'ok'},{id:'q',x:200,y:110,l:'Consulta (DuckDB)',s:'local, sem custo',k:'ext'}],
+ edges:[['f','lk','carga'],['lk','lc','regra'],['lk','q','leitura']],
+ vars:'variable "storage_name" { type = string }',
+ main:rg('rg-finops-lab-lake')+`
+resource "azurerm_storage_account" "lake" {
+  name                     = var.storage_name
+  resource_group_name      = azurerm_resource_group.rg.name
+  location                 = azurerm_resource_group.rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+  is_hns_enabled           = true
+  min_tls_version          = "TLS1_2"
+  tags                     = azurerm_resource_group.rg.tags
+}
+
+resource "azurerm_storage_container" "raw" {
+  name                  = "raw"
+  storage_account_name  = azurerm_storage_account.lake.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_management_policy" "expire" {
+  storage_account_id = azurerm_storage_account.lake.id
+
+  rule {
+    name    = "expira-30d"
+    enabled = true
+    filters {
+      blob_types = ["blockBlob"]
+    }
+    actions {
+      base_blob {
+        delete_after_days_since_modification_greater_than = 30
+      }
+    }
+  }
+}`,
+ out:'output "storage" { value = azurerm_storage_account.lake.name }',
+ inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  storage_name    = "meulakelab12345"',
+ destroy:'az group delete --name rg-finops-lab-lake --yes --no-wait   # alternativa manual'}
+];
+const CLOUDS={
+  aws:{label:'AWS',vers:VERS,vc:VCOMMON,trail:TRAIL,title:'Do orçamento ao dado',key:'trail_done'},
+  gcp:{label:'GCP',vers:GVERS,vc:GVC,trail:GCP,title:'Do orçamento ao BigQuery',key:'trail_done_gcp'},
+  azure:{label:'Azure',vers:ZVERS,vc:ZVC,trail:AZURE,title:'Do orçamento ao data lake',key:'trail_done_azure'}
+};
+const P={cloud:store.get('trail_cloud','aws'),step:1,file:'main',done:new Set()};
+if(!CLOUDS[P.cloud])P.cloud='aws';
+P.done=new Set(store.get(CLOUDS[P.cloud].key,[]));
+
+function diagram(bp){
+  const W=700,H=190,nw=140,nh=56,N=Object.fromEntries(bp.nodes.map(n=>[n.id,n]));
+  const col={ok:'var(--ok)',ext:'var(--acc)',paid:'var(--warn)',bad:'var(--bad)'};
+  const nodes=bp.nodes.map(n=>`<g><rect x="${n.x}" y="${n.y}" width="${nw}" height="${nh}" rx="12" fill="var(--card)" stroke="${col[n.k]}" stroke-width="2"${n.k==='bad'?' stroke-dasharray="5 4"':''}/><text x="${n.x+nw/2}" y="${n.y+24}" text-anchor="middle" style="fill:var(--ink);font-weight:700;font-size:12px">${esc(n.l)}</text><text x="${n.x+nw/2}" y="${n.y+41}" text-anchor="middle" style="font-size:10.5px">${esc(n.s)}</text></g>`).join('');
+  const edges=bp.edges.map(([a,b,l])=>{const f=N[a],t=N[b];let x1,y1,x2,y2;
+    if(Math.abs(f.y-t.y)<10){x1=f.x+nw;y1=f.y+nh/2;x2=t.x;y2=t.y+nh/2}
+    else{x1=f.x+nw/2;x2=t.x+nw/2;y1=f.y<t.y?f.y+nh:f.y;y2=f.y<t.y?t.y:t.y+nh}
+    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--mute)" stroke-width="2" marker-end="url(#ar)"/><text x="${(x1+x2)/2+(y1===y2?0:6)}" y="${(y1+y2)/2-(y1===y2?6:0)}" text-anchor="${y1===y2?'middle':'start'}">${esc(l)}</text>`}).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Arquitetura: ${esc(bp.title)}"><title>Arquitetura: ${esc(bp.title)}</title><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker></defs>${edges}${nodes}</svg>
+  <div class="row mute" style="gap:14px;font-size:12px"><span style="color:var(--ok)">■ custo zero/baixo</span><span style="color:var(--acc)">■ externo</span><span style="color:var(--warn)">■ custo previsto</span><span style="color:var(--bad)">▢ evitar</span></div>`;
+}
+const FILES=[['versions','versions.tf'],['variables','variables.tf'],['main','main.tf'],['outputs','outputs.tf'],['tg','Terragrunt']];
+const CL=()=>CLOUDS[P.cloud],TR=()=>CL().trail;
+function fileText(st,f){
+  if(f==='versions')return '# versions.tf (igual em todos os passos)\n'+CL().vers;
+  if(f==='variables')return '# variables.tf\n'+CL().vc+'\n\n'+st.vars;
+  if(f==='main')return '# main.tf\n'+st.main;
+  if(f==='outputs')return '# outputs.tf\n'+st.out;
+  return tgFor(st.mod,st.inp);
+}
+function allFilesText(st){
+  const parts=[];
+  parts.push('### versions.tf\n\n'+CL().vers);
+  parts.push('### variables.tf\n\n'+CL().vc+'\n\n'+st.vars);
+  parts.push('### main.tf\n\n'+st.main);
+  parts.push('### outputs.tf\n\n'+st.out);
+  parts.push('### terragrunt.hcl (raiz)\n\n'+TG_ROOT);
+  parts.push('### live/lab/terragrunt.hcl\n\ninclude "root" {\n  path = find_in_parent_folders("root.hcl")\n}\n\nterraform {\n  source = "../../modules/'+st.mod+'"\n}\n\ninputs = {\n'+st.inp+'\n}');
+  return parts.join('\n\n---\n\n');
+}
+function setCloud(c){
+  P.cloud=c;P.step=1;P.file='main';store.set('trail_cloud',c);
+  P.done=new Set(store.get(CL().key,[]));prjRender();
+}
+function prjRender(){
+  const T=TR(),st=T[P.step-1],cl=CL();
+  $('#prj-title').textContent=`Trilha ${cl.label}: ${cl.title}`;
+  $$('#prj-cloud button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===P.cloud));
+  $('#prj-prog').textContent=`${P.done.size} de ${T.length} passos concluídos`;
+  $('#prj-bar').style.width=(P.done.size/T.length*100)+'%';
+  $('#prj-steps').innerHTML=T.map(t=>`<button data-n="${t.n}" aria-pressed="${t.n===P.step}">${P.done.has(t.n)?'✓':t.n} ${esc(t.title)}</button>`).join('');
+  $$('#prj-steps button').forEach(b=>b.onclick=()=>{P.step=+b.dataset.n;prjRender()});
+  $('#prj-head').innerHTML=`<div class="row" style="justify-content:space-between"><div><span class="tag">${cl.label} · Passo ${st.n} de ${T.length}</span> <b style="font-size:18px">${esc(st.title)}</b></div><span class="pill p-ok">${esc(st.cost)}</span></div>
+  <p style="margin:8px 0 0">${esc(st.goal)}</p>
+  <div class="grid g2" style="margin-top:12px"><div><h3>Você vai aprender</h3><ul class="mute" style="margin:0;padding-left:18px">${st.learn.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+  <div><h3>O que muda em relação ao passo anterior</h3><p class="mute" style="margin:0">${esc(st.delta)}</p></div></div>
+  <p class="mute" style="margin:12px 0 0"><b style="color:var(--bad)">O que nunca fazer:</b> ${esc(st.never)}</p><p class="mute" style="margin:6px 0 0">${esc(st.note)}</p>`;
+  $('#prj-diag').innerHTML=diagram(st);
+  $('#prj-ftabs').innerHTML=FILES.map(([k,l])=>`<button data-f="${k}" aria-pressed="${k===P.file}">${l}</button>`).join('');
+  $$('#prj-ftabs button').forEach(b=>b.onclick=()=>{P.file=b.dataset.f;prjRender()});
+  $('#prj-code').textContent=fileText(st,P.file);
+  $('#prj-destroy').textContent='terragrunt plan -destroy   # revise o que será removido\nterragrunt destroy\n'+st.destroy;
+  const dn=$('#prj-done');dn.textContent=P.done.has(st.n)?'↩ Desmarcar conclusão':'✓ Marcar como concluído';
+  dn.onclick=()=>{P.done.has(st.n)?P.done.delete(st.n):P.done.add(st.n);store.set(cl.key,[...P.done]);prjRender();renderFinOpsLevel()};
+  const sm=$('#prj-sim');sm.hidden=!st.sim.length;
+  sm.onclick=()=>{S.sel=new Set(st.sim);store.set('sel',st.sim);$$('.svc input').forEach(i=>i.checked=S.sel.has(i.dataset.id));calc();show('v-sim')};
+  const nx=$('#prj-next');nx.hidden=P.step>=T.length;
+  nx.onclick=()=>{P.step++;prjRender();$('#prj-head').scrollIntoView({behavior:'smooth',block:'start'})};
+}
+function prjInit(){
+  $$('#prj-cloud button').forEach(b=>b.onclick=()=>setCloud(b.dataset.c));
+  $('#prj-copy').onclick=()=>navigator.clipboard.writeText($('#prj-code').textContent).then(()=>toast('Código copiado'),()=>toast('Copie manualmente'));
+  $('#prj-copy-all').onclick=()=>{const st=TR()[P.step-1];navigator.clipboard.writeText(allFilesText(st)).then(()=>toast('Todos os arquivos copiados com cabeçalhos'),()=>toast('Copie manualmente'))};
+  prjRender();
+}
+
+/* ===== Nível FinOps do usuário ===== */
+function renderFinOpsLevel(){
+  const el=$('#finops-level');if(!el)return;
+  const done=store.get('skills_done',[]);
+  const trails=['trail_done','trail_done_gcp','trail_done_azure'];
+  let trailComplete=0;
+  for(const k of trails){if((store.get(k,[])||[]).length>=4)trailComplete++}
+  const skillPct=done.length/SK.length;
+  const quiz=store.get('quiz',{});
+  const quizOk=QZ.filter((x,i)=>quiz[i]===x[2]).length;
+  const total=(trailComplete>=1?1:0)+(skillPct>=0.6?1:0)+(quizOk>=4?1:0);
+  let level,desc;
+  if(total>=3){level='FinOps Professional (fundamentos)';desc='Você completou uma trilha inteira, domina o checklist e acertou o quiz. Próximos passos: alocação por tag, forense de anomalias, otimização de compromissos.'}
+  else if(total>=2){level='FinOps Practitioner';desc='Você já completou ao menos uma trilha e demonstrou domínio dos fundamentos. Continue praticando as outras nuvens para consolidar.'}
+  else if(total>=1){level='FinOps Iniciante';desc='Você começou a praticar. Foque em completar uma trilha, marcar o checklist de competências e acertar o quiz.'}
+  else{level='Ainda não avaliado';desc='Complete uma trilha e marque as competências para desbloquear seu nível.'}
+  const badgeClass=total>=3?'professional':total>=1?'practitioner':'';
+  el.innerHTML=`<div class="callout info">
+    <div class="row" style="justify-content:space-between"><b>Seu nível FinOps</b><span class="badge-lvl ${badgeClass}">${level}</span></div>
+    <p class="mute" style="margin:8px 0 0">${desc}</p>
+    <div class="mute" style="margin-top:8px;font-size:12px">
+      Trilhas completas: <b>${trailComplete}/3</b> · 
+      Competências: <b>${done.length}/${SK.length}</b> · 
+      Quiz: <b>${quizOk}/${QZ.length}</b>
+    </div>
+  </div>`;
+}
+
+/* Quiz com feedback progressivo */
+const QZ=[
+['Você parou a VM, mas esqueceu um IPv4 público reservado. O que acontece?',['Fica gratuito, pois a VM está parada.','O provedor continua cobrando pelo IPv4.','O IP é liberado automaticamente em 1 hora.'],1,'IPv4 público é cobrado por hora enquanto existir, associado ou não. Libere-o ao destruir o lab.'],
+['Qual destes costuma gerar cobrança contínua, sem cota gratuita permanente?',['Cloud Run dentro da franquia','Banco gerenciado (RDS / Cloud SQL)','BigQuery Sandbox'],1,'Bancos gerenciados reservam uma instância dedicada, cobrada por hora mesmo sem consultas.'],
+['Por que o NAT Gateway é um vilão para estudantes?',['Cobra por hora e por GB, mesmo ocioso.','Bloqueia o acesso ao GitHub.','Exige cartão corporativo.'],0,'A taxa horária corre o mês todo, e o tráfego processado soma por GB.'],
+['O que um budget alert faz por padrão?',['Desliga os recursos ao atingir o limite.','Avisa que o limite foi atingido.','Impede novas criações.'],1,'Budgets avisam. Para agir automaticamente é preciso configurar ações (Budget Actions, Pub/Sub, Action Groups).'],
+['Por que o script de teardown deve filtrar por tag ou label?',['Para rodar mais rápido.','Para não apagar recursos de outras pessoas na mesma conta.','Porque a CLI exige.'],1,'Sem filtro, o comando atinge tudo da conta, inclusive trabalho de terceiros.']];
+const qs=store.get('quiz',{});
+function quizInit(){
+  const draw=()=>{
+    $('#quiz').innerHTML=QZ.map(([q,o,c,why],i)=>{
+      const a=qs[i];
+      return `<div class="card"><b>${i+1}. ${esc(q)}</b>${o.map((t,j)=>{
+        let style='display:block;width:100%;text-align:left;margin-top:8px;';
+        if(a!==undefined){if(j===c)style+='border-color:var(--ok);';if(a===j&&j!==c)style+='border-color:var(--bad);'}
+        return `<button class="btn" data-q="${i}" data-o="${j}" ${a!==undefined?'disabled':''} style="${style}">${'ABC'[j]}) ${esc(t)}</button>`}).join('')}
+        ${a!==undefined?`<p class="mute" style="margin:10px 0 0"><b style="color:var(--${a===c?'ok':'bad'})">${a===c?'Correto.':'Não foi dessa vez.'}</b> ${esc(why)}</p>`:''}</div>`}).join('');
+    const n=QZ.filter((x,i)=>qs[i]===x[2]).length,resp=Object.keys(qs).length,all=resp===QZ.length;
+    $('#quiz-score').textContent=`${n} / ${QZ.length}`;
+    const e=$('#quiz-end');e.hidden=false;
+    if(!all)e.textContent=`Você respondeu ${resp} de ${QZ.length}. Faltam ${QZ.length-resp}.`;
+    else e.textContent=n===QZ.length?'Você acertou todas. Siga para a etapa Provisionar.':`Você acertou ${n} de ${QZ.length}. Releia as explicações em vermelho e tente novamente.`;
+    $$('#quiz button').forEach(b=>b.onclick=()=>{qs[+b.dataset.q]=+b.dataset.o;store.set('quiz',qs);draw();renderFinOpsLevel()});
+  };
+  $('#quiz-reset').onclick=()=>{Object.keys(qs).forEach(k=>delete qs[k]);store.set('quiz',qs);draw();renderFinOpsLevel()};
+  draw();
+}
+const SK=['Diferenciar região e zona de disponibilidade','Configurar um alerta de orçamento','Criar uma VM e conectar com segurança (SSM ou chave SSH)','Subir um container Docker e expor a porta necessária','Hospedar um site estático em bucket','Aplicar o menor privilégio no IAM','Documentar o laboratório e o teardown em um repositório (README)'];
+function skillsInit(){
+  const done=new Set(store.get('skills_done',[]));
+  const upd=()=>{const p=Math.round(done.size/SK.length*100);$('#skills-pct').textContent=p+'%';$('#skills-bar').style.width=p+'%';renderFinOpsLevel()};
+  $('#skills-list').innerHTML=SK.map((t,i)=>`<label class="chk"><input type="checkbox" data-i="${i}" ${done.has(i)?'checked':''}><span>${esc(t)}</span></label>`).join('');
+  $$('#skills-list input').forEach(c=>c.onchange=()=>{c.checked?done.add(+c.dataset.i):done.delete(+c.dataset.i);store.set('skills_done',[...done]);upd()});
+  upd();
+}
+
+/* Modais, tema, câmbio, link, modo aula */
+let lf=null;
+const open=id=>{lf=document.activeElement;const m=$(id);m.hidden=false;(m.querySelector('input,button,textarea')||m).focus()};
+const close=()=>{$$('.modal').forEach(m=>m.hidden=true);lf&&lf.focus&&lf.focus()};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')close();
+  if(e.key==='Tab'){
+    const m=$$('.modal').find(x=>!x.hidden);if(!m)return;
+    const f=$$('button,input,textarea',m);if(!f.length)return;
+    const a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}
+    else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
+  }
+});
+const theme=t=>{document.documentElement.dataset.theme=t;store.set('theme',t)};
+const fxUI=()=>{$('#fx-l').textContent=BRL.format(fx());$('#fx-in').value=S.fx.toFixed(2);$('#fx-e').value=S.extra;calc();cmp();renderBillingReal()};
+function share(){
+  const p=new URLSearchParams();
+  if(S.sel.size)p.set('s',[...S.sel].join(','));
+  p.set('o',S.off);p.set('b',S.budget);
+  const u=location.origin+location.pathname+'#'+p;
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));
+}
+function fromHash(){
+  const p=new URLSearchParams(location.hash.slice(1));
+  if(p.get('s'))S.sel=new Set(p.get('s').split(',').filter(i=>byId[i]));
+  if(p.get('o'))S.off=Math.min(DAYS,Math.max(1,parseInt(p.get('o'))||DAYS));
+  if(p.get('b'))S.budget=Math.max(0,parseFloat(p.get('b'))||0);
+}
+function classroomMode(){
+  const p=new URLSearchParams(location.search);
+  const t=p.get('trilha');if(t&&CLOUDS[t])setCloud(t);
+  const s=parseInt(p.get('step'));if(s>=1&&s<=TR().length)P.step=s;
+  const a=p.get('aba');
+  const allPaineis=NAV.flatMap(([,ps])=>ps);
+  if(a&&allPaineis.includes(a))show(a,{silent:true});
+  return !!a||!!s||!!t;
+}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  const th=store.get('theme',null);if(th)document.documentElement.dataset.theme=th;
+  fromHash();tabs();catalog();cmpBuild();
+  // carrega billing salvo
+  const bl=store.get('billing',null);if(bl&&bl.amount_usd){Object.assign(BILLING,bl);}
+  $('#budget').value=S.budget;$('#budget').oninput=e=>{S.budget=Math.max(0,+e.target.value||0);store.set('budget',S.budget);calc();renderBillingReal()};
+  $('#off').oninput=e=>setOff(+e.target.value);
+  $$('#scen button').forEach(b=>b.onclick=()=>setOff(+b.dataset.d));
+  $('#b-replay').onclick=replay;
+  $('#b-theme').onclick=()=>theme((document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))==='dark'?'light':'dark');
+  $('#b-live').onclick=()=>loadLive();
+  $('#b-td').onclick=teardown;$('#b-td2').onclick=teardown;
+  $('#td-c').onclick=()=>navigator.clipboard.writeText($('#td').textContent).then(()=>toast('Copiado'),()=>toast('Copie manualmente'));
+  $('#b-share').onclick=share;
+  $('#b-export').onclick=exportReport;
+  $('#b-import').onclick=openImport;
+  $('#imp-ok').onclick=doImport;
+  $('#imp-clr').onclick=()=>{$('#imp-in').value='';$('#imp-fb').textContent=''};
+  $('#imp-ex').onclick=()=>{$('#imp-in').value=JSON.stringify({provider:'aws',amount_usd:12.34,period:new Date().toISOString().slice(0,7)},null,2);$('#imp-fb').textContent='Exemplo preenchido. Edite antes de importar.'};
+  $('#b-clear').onclick=()=>{
+    if(S.sel.size&&!confirm(`Limpar ${S.sel.size} itens da cesta?`))return;
+    S.sel.clear();$$('.svc input').forEach(i=>i.checked=false);store.set('sel',[]);calc();toast('Cesta limpa');
+  };
+  $('#b-ai').onclick=()=>ask(`Audite esta cesta de um estudante: [${items().map(c=>c.name).join(', ')||'vazia'}]. Desliga no dia ${S.off} de ${DAYS}. Custo estimado: ${$('#tot').textContent}. Orçamento: R$ ${S.budget}. Dê nível de risco, armadilhas e plano de teardown por tags.`);
+  $('#a-send').onclick=()=>{const q=$('#aq').value.trim();if(q)ask(q)};
+  $('#aq').onkeydown=e=>{if(e.key==='Enter')$('#a-send').click()};
+  $('#b-fx').onclick=()=>open('#m-fx');
+  $('#fx-ok').onclick=()=>{const v=parseFloat($('#fx-in').value),x=parseFloat($('#fx-e').value);if(v>0)S.fx=v;S.extra=x>=0?x:0;store.set('fx_e',S.extra);fxUI();close()};
+  $('#b-key').onclick=()=>{$('#k-in').value=S.key;$('#k-fb').textContent='';open('#m-key')};
+  $('#k-s').onclick=()=>{S.key=$('#k-in').value.trim();S.key?store.set('gk',S.key):store.del('gk');S.model='';store.del('gm');$('#key-l').textContent=S.key?'Conectado':'Chave Gemini';close()};
+  $('#k-rm').onclick=()=>{S.key='';store.del('gk');store.del('gm');$('#k-in').value='';$('#key-l').textContent='Chave Gemini';toast('Chave removida deste navegador');close()};
+  $('#k-t').onclick=async()=>{
+    const k=$('#k-in').value.trim(),f=$('#k-fb');if(!k){f.textContent='Cole a chave.';return}
+    f.textContent='⏳ Testando...';
+    try{f.textContent='✓ Válida. Modelos sugeridos: '+(await models(k)).slice(0,3).join(', ')}
+    catch(e){f.textContent='✗ '+e.message}
+  };
+  $$('[data-x]').forEach(b=>b.onclick=close);
+  $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)close()}));
+  $('#key-l').textContent=S.key?'Conectado':'Chave Gemini';
+  prjInit();downInit();quizInit();skillsInit();
+  const opened=classroomMode();
+  if(!opened)show('v-sim',{silent:true});
+  setOff(S.off);fxUI();
+  checkStaleness();
+  // tenta carregar preços ao vivo silenciosamente após 1.2s
+  setTimeout(()=>loadLive({silent:true}),1200);
+  fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r=>r.ok?r.json():null).then(d=>{const v=parseFloat(d&&d.USDBRL&&d.USDBRL.bid);if(v>0){S.fx=v;fxUI()}}).catch(()=>{});
+  window.addEventListener('hashchange',()=>{fromHash();catalog();$('#budget').value=S.budget;setOff(S.off)});
+});
+</script>
+</body>
+</html>
