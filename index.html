@@ -12,15 +12,16 @@
 :root[data-theme=dark]{--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}
 @media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}}
 *{box-sizing:border-box}
-html{scroll-padding-top:70px}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom)}
+html{scroll-padding-top:70px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 code{background:var(--chip);padding:1px 6px;border-radius:6px;font-size:.85em}
 a{color:var(--acc2)}
 textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;resize:vertical;min-height:140px}
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
-header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap}
 .brand{font-weight:800;font-size:17px;letter-spacing:-.02em}
 .brand small{display:block;font-weight:500;font-size:12px;color:var(--mute)}
@@ -70,23 +71,25 @@ input[type=number],input[type=password],input[type=text]{width:100%;background:v
 .bar-r i{display:block;height:10px;border-radius:6px;background:var(--bad);transition:width .4s}
 pre{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;font-size:12px;max-height:50vh}
 .seg{flex-wrap:wrap;display:flex;background:var(--chip);border-radius:12px;padding:3px}
-.seg button{border:0;background:none;padding:6px 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--mute)}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--mute);transition:background .2s,color .2s}
 .seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px #0002}
-.modal{position:fixed;inset:0;background:#020617cc;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{position:fixed;inset:0;background:#020617cc;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:modalIn .18s ease both}
 .modal[hidden]{display:none}
 .modal>div{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:640px;width:100%;max-height:92vh;overflow:auto;display:grid;gap:12px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;z-index:60;max-width:min(90vw,480px);text-align:center}
+@keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;z-index:60;max-width:min(90vw,480px);text-align:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);animation:toastIn .24s ease both}
 #toast[hidden]{display:none}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}
 details summary{cursor:pointer;color:var(--mute);font-size:12.5px;margin-top:8px}
 .dock{display:none}
 @media(max-width:820px){.dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-between;align-items:center;background:var(--card);border-top:1px solid var(--line);padding:10px 20px calc(10px + env(safe-area-inset-bottom))}body{padding-bottom:70px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important}}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .stagebar{margin-bottom:16px}
 .sb-steps{display:flex;gap:6px;list-style:none;margin:0 0 12px;padding:0;flex-wrap:wrap}
-.sb-steps button{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--mute)}
+.sb-steps button{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--mute);transition:all .2s}
 .sb-steps .on button{background:var(--acc);border-color:var(--acc);color:#04222b}
 .sb-steps .past button{color:var(--ink)}
 .sb-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -121,6 +124,81 @@ kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;
 .usage-bar>div{height:100%;background:var(--ok);transition:width .4s}
 .usage-bar.warn>div{background:var(--warn)}
 .usage-bar.bad>div{background:var(--bad)}
+
+/* ===== EFEITOS VISUAIS (v16) ===== */
+
+/* Glassmorphism nos cards: só em desktop com hover, sem prefers-reduced-motion */
+@media (min-width:821px) and (hover:hover) and (prefers-reduced-motion:no-preference){
+  .card{
+    background:color-mix(in srgb,var(--card) 80%,transparent);
+    backdrop-filter:blur(14px) saturate(150%);
+    -webkit-backdrop-filter:blur(14px) saturate(150%);
+    border-color:color-mix(in srgb,var(--line) 68%,transparent);
+    box-shadow:0 1px 0 color-mix(in srgb,#fff 6%,transparent) inset,0 14px 36px -18px color-mix(in srgb,#000 22%,transparent);
+  }
+}
+
+/* Scroll reveal: cards e itens entram com fadeUp quando entram na viewport */
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .svc,.card:not(.no-reveal){
+      animation:fadeUp linear both;
+      animation-timeline:view();
+      animation-range:entry 6% cover 30%;
+    }
+    .hero>.card{animation-range:entry 0% cover 20%}
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(26px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+  }
+}
+
+/* Gradiente ambiente animado no simulador */
+#v-sim{position:relative;isolation:isolate}
+#v-sim::before{
+  content:"";position:absolute;top:-120px;left:-10%;right:-10%;height:70vh;z-index:-1;
+  background:
+    radial-gradient(38% 48% at 20% 24%,color-mix(in srgb,var(--acc) 20%,transparent),transparent 66%),
+    radial-gradient(36% 44% at 82% 14%,color-mix(in srgb,var(--acc2) 16%,transparent),transparent 68%);
+  filter:blur(48px);animation:drift 28s ease-in-out infinite alternate;pointer-events:none;
+  will-change:transform;
+}
+@keyframes drift{
+  from{transform:translate3d(-3%,-1%,0) scale(1)}
+  to{transform:translate3d(3%,2%,0) scale(1.1)}
+}
+@media (max-width:820px),(prefers-reduced-motion:reduce){#v-sim::before{display:none}}
+
+/* Ripple nos botões */
+.btn{position:relative;overflow:hidden}
+.ripple{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:color-mix(in srgb,var(--acc) 45%,transparent);pointer-events:none;transform:scale(0);animation:ripple .62s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes ripple{to{transform:scale(30);opacity:0}}
+
+/* Elevação dos botões primários no hover */
+.btn.pri{transition:transform .2s ease,box-shadow .3s ease,background .3s ease}
+.btn.pri:hover{transform:translateY(-1px);box-shadow:0 12px 26px -12px color-mix(in srgb,var(--acc) 70%,transparent)}
+
+/* Cursor glow: círculo sutil que segue o mouse com inércia */
+.cursor-glow{
+  position:fixed;top:0;left:0;width:220px;height:220px;margin-left:-110px;margin-top:-110px;
+  border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%);
+  pointer-events:none;z-index:1;mix-blend-mode:screen;opacity:0;
+  transition:opacity .4s ease;will-change:transform;
+}
+body:hover .cursor-glow{opacity:1}
+@media (hover:none),(prefers-reduced-motion:reduce){.cursor-glow{display:none}}
+
+/* View Transitions: transição suave entre abas */
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:fadeOut .18s ease both}
+::view-transition-new(root){animation:fadeIn .22s ease both}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes fadeIn{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
 </style>
 </head>
 <body>
@@ -333,16 +411,17 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
   <details class="card" id="d-aviso"><summary>Aviso importante</summary>
     <p>As informações são educacionais e podem estar desatualizadas. Este projeto não tem vínculo com AWS, Google ou Microsoft, e os nomes pertencem aos respectivos donos. Scripts e códigos de infraestrutura podem criar ou apagar recursos: leia, rode <code>plan</code> ou dry-run primeiro e use uma conta de laboratório. Você é responsável pelos custos da sua conta.</p></details>
   <details class="card" id="d-log"><summary>Histórico de versões</summary>
-    <ul><li><b>v15:</b> preços ao vivo do Azure via Retail Prices API, aviso de desatualização, TCO completo no comparador, exportação em markdown, mapa do framework FinOps e importação de fatura real.</li>
-    <li><b>v14:</b> comparador com descontos reais por provedor (Savings Plan, CUD, Reservations), deep links para as calculadoras oficiais por item, aviso do modelo de créditos do free tier AWS, data de verificação atualizada.</li>
-    <li><b>v13:</b> revisão de confiança: gráfico corrigido, teardown real (CloudFront, EKS), links de preço por item, plano de recuperação, cópia de todos os arquivos, navegação por teclado nas abas e ARIA completa.</li>
-    <li><b>v12:</b> quiz na etapa Proteger, checklist de competências na etapa Provisionar e validação sintática dos códigos de infraestrutura.</li>
-    <li><b>v11:</b> navegação por etapas, página Destruir, páginas de apoio e revisão do tom dos textos.</li>
+    <ul><li><b>v16:</b> efeitos visuais (scroll reveal, glassmorphism, gradiente animado, ripple, contador animado, view transitions e cursor glow) com progressive enhancement e respeito a prefers-reduced-motion.</li>
+    <li><b>v15:</b> preços ao vivo do Azure via Retail Prices API, aviso de desatualização, TCO completo no comparador, exportação em markdown, mapa do framework FinOps e importação de fatura real.</li>
+    <li><b>v14:</b> comparador com descontos reais por provedor, deep links para as calculadoras oficiais, aviso do modelo de créditos do free tier AWS.</li>
+    <li><b>v13:</b> revisão de confiança: gráfico corrigido, teardown real (CloudFront, EKS), plano de recuperação, cópia de todos os arquivos, ARIA completa.</li>
+    <li><b>v12:</b> quiz na etapa Proteger e checklist de competências.</li>
+    <li><b>v11:</b> navegação por etapas e página Destruir.</li>
     <li><b>v10:</b> trilhas de infraestrutura como código para GCP e Azure.</li>
-    <li><b>v9:</b> trilha AWS em quatro passos com esqueleto padrão de arquivos.</li>
-    <li><b>v8:</b> arquiteturas, Terraform e Terragrunt dos projetos.</li>
-    <li><b>v7:</b> gráfico de custo acumulado, orçamento e tema claro/escuro.</li>
-    <li><b>v6:</b> catálogo único de preços, teardown seguro por tag e correções de segurança.</li></ul></details>
+    <li><b>v9:</b> trilha AWS em quatro passos.</li>
+    <li><b>v8:</b> arquiteturas, Terraform e Terragrunt.</li>
+    <li><b>v7:</b> gráfico de custo acumulado, orçamento e tema.</li>
+    <li><b>v6:</b> catálogo único de preços e teardown seguro por tag.</li></ul></details>
 </section>
 
 <!-- TRAVAS -->
@@ -419,7 +498,7 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=n=>'$'+n.toFixed(2),BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
 
-/* Armazenamento seguro: avisa quando localStorage falha (modo privado, cota). */
+/* Armazenamento seguro */
 let storeWarned=false;
 const store={
   get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch{return d}},
@@ -428,13 +507,27 @@ const store={
 };
 const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)};
 const DAYS=30;
-
-/* Data de referência dos preços. Atualize ao revisar o catálogo. */
 const VERIFIED='2026-10';
-
 const S={fx:5.65,extra:store.get('fx_e',0),off:DAYS,budget:store.get('budget',50),cloud:'all',sel:new Set(store.get('sel',[])),key:store.get('gk',''),model:store.get('gm',''),upto:DAYS};
 
-/* ===== Preços ao vivo (Azure Retail Prices API, sem autenticação) ===== */
+/* ===== Contador animado (usado em #tot e #dock-t) ===== */
+function animateNumber(el,to,dur=650){
+  if(!el)return;
+  const from=parseFloat(el.dataset.v||'0');
+  if(Math.abs(from-to)<0.005){el.textContent=usd(to);el.dataset.v=to;return}
+  el.dataset.v=to;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=usd(to);return}
+  const start=performance.now();
+  const step=now=>{
+    const t=Math.min(1,(now-start)/dur);
+    const eased=1-Math.pow(1-t,3);
+    el.textContent=usd(from+(to-from)*eased);
+    if(t<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* ===== Preços ao vivo (Azure Retail Prices API) ===== */
 const LIVE={azure:{},status:'idle',lastFetch:0,error:null};
 const LIVE_QUERIES=[
   {id:'az_b1s', filter:"armRegionName eq 'eastus' and armSkuName eq 'Standard_B1s' and priceType eq 'Consumption'"},
@@ -451,7 +544,7 @@ async function fetchLiveAzure(){
       const d=await r.json();
       const item=(d.Items||[]).find(x=>x.retailPrice>0&&x.unitOfMeasure==='1 Hour')||(d.Items||[]).find(x=>x.retailPrice>0);
       if(item&&item.retailPrice>0)out[q.id]=item.retailPrice;
-    }catch(e){/* silencioso: cai no catálogo */}
+    }catch(e){}
   }
   return out;
 }
@@ -488,7 +581,6 @@ function renderLive(){
 const rateOf=c=>(LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined)?LIVE.azure[c.id]:c.hourly;
 const isLive=c=>LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined;
 
-/* Catálogo único. hourly = USD/h. Link = calculadora oficial do serviço. */
 const C=[
 {id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,
  link:'https://cloud.google.com/products/calculator?hl=pt-BR',
@@ -535,7 +627,6 @@ const fx=()=>S.fx*(1+S.extra/100);
 const dayRate=()=>items().reduce((s,c)=>s+rateOf(c)*24,0);
 const cum=(d,off=S.off)=>dayRate()*Math.min(d,off);
 
-/* Navegação por etapas */
 const STAGES=[['Planejar','Quanto isso pode custar?','v-sim'],['Proteger','Como garanto que não passo do limite?','v-lock'],['Provisionar','Como crio isso de forma repetível?','v-prj'],['Destruir','Como removo tudo e confirmo?','v-down']];
 const NAV=[['1. Planejar',['v-sim','v-cmp']],['2. Proteger',['v-lock']],['3. Provisionar',['v-prj']],['4. Destruir',['v-down']],['Sentinela IA',['v-ai']],['Sobre',['v-about']]];
 function tabs(){
@@ -551,14 +642,15 @@ function tabs(){
 function stagebars(cur){
   $$('.stagebar').forEach(el=>{
     const i=+el.dataset.s,[name,q]=STAGES[i],nx=STAGES[i+1];
-    el.innerHTML=`<div class="card"><ol class="sb-steps">${STAGES.map(([n,,p],k)=>`<li class="${k===i?'on':k<i?'past':''}"><button data-go="${p}"${k===i?' aria-current="step"':''}>${k+1}. ${n}</button></li>`).join('')}</ol>
+    el.innerHTML=`<div class="card no-reveal"><ol class="sb-steps">${STAGES.map(([n,,p],k)=>`<li class="${k===i?'on':k<i?'past':''}"><button data-go="${p}"${k===i?' aria-current="step"':''}>${k+1}. ${n}</button></li>`).join('')}</ol>
     <div class="sb-row"><div><b>Etapa ${i+1} de 4: ${name}</b><div class="mute">${q}</div></div>
     ${i===0?`<div class="seg" role="group" aria-label="Sub-página de Planejar"><button data-go="v-sim" aria-pressed="${cur==='v-sim'}">Simulador</button><button data-go="v-cmp" aria-pressed="${cur==='v-cmp'}">Comparador</button></div>`:''}
     ${nx?`<button class="btn pri" data-go="${nx[2]}">Próxima: ${nx[0]} ➜</button>`:''}</div></div>`;
     $$('[data-go]',el).forEach(b=>b.onclick=()=>show(b.dataset.go));
   });
 }
-function show(id,opts={}){
+/* show() com View Transitions */
+function _showInternal(id,opts){
   NAV.forEach(([,ps],i)=>{
     ps.forEach(p=>{const el=$('#'+p);el.hidden=p!==id});
     const sel=ps.includes(id);
@@ -570,6 +662,14 @@ function show(id,opts={}){
   if(!opts.keepScroll)window.scrollTo({top:0,behavior:opts.smooth?'smooth':'auto'});
   if(!opts.silent){const p=$('#'+id);if(p)p.focus({preventScroll:true})}
 }
+function show(id,opts={}){
+  const noMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(document.startViewTransition&&!noMotion&&!opts.instant){
+    document.startViewTransition(()=>_showInternal(id,opts));
+  }else{
+    _showInternal(id,opts);
+  }
+}
 
 const DOWN=['Executei plan -destroy e revisei o que seria removido','Executei destroy (ou o teardown por tag)','Conferi o console: discos, IPs, snapshots, logs e buckets órfãos','Mantive ou revisei o alerta de orçamento','Conferi o painel de custos no dia seguinte','Removi credenciais e chaves temporárias'];
 function downInit(){
@@ -580,28 +680,18 @@ function downInit(){
   $('#ref-date').textContent=VERIFIED;$('#foot-date').textContent=VERIFIED;
   document.addEventListener('click',e=>{const a=e.target.closest('[data-about]');if(!a)return;show('v-about');const d=$('#'+a.dataset.about);if(d){d.open=true;d.scrollIntoView({block:'start'})}});
 }
-
-/* ===== Aviso de desatualização ===== */
 function checkStaleness(){
   const ref=new Date(VERIFIED+'-01T00:00:00Z');
   const diffDays=Math.round((Date.now()-ref.getTime())/86400000);
-  const el=$('#stale-banner');
-  if(!el)return;
-  el.innerHTML='';
+  const el=$('#stale-banner');if(!el)return;el.innerHTML='';
   if(diffDays>90){
     const cls=LIVE.status==='ok'?'callout info':'callout';
-    el.innerHTML=`<div class="${cls}" style="margin-bottom:16px">
-      <b>⚠ Preços de referência verificados há ${diffDays} dias.</b>
-      Os valores hardcoded podem estar desatualizados. ${LIVE.status==='ok'?'Os itens com selo "ao vivo" já estão corrigidos pelo Azure Retail Prices API.':'Clique em "Preços ao vivo" para buscar valores atuais, ou confira nas calculadoras oficiais.'}
-    </div>`;
-  } else if(diffDays>60){
-    el.innerHTML=`<div class="callout info" style="margin-bottom:16px">
-      <b>Preços verificados em ${VERIFIED}.</b> Revisão recomendada a cada 90 dias.
-    </div>`;
+    el.innerHTML=`<div class="${cls}" style="margin-bottom:16px"><b>⚠ Preços de referência verificados há ${diffDays} dias.</b> Os valores hardcoded podem estar desatualizados. ${LIVE.status==='ok'?'Os itens com selo "ao vivo" já estão corrigidos pelo Azure Retail Prices API.':'Clique em "Preços ao vivo" para buscar valores atuais, ou confira nas calculadoras oficiais.'}</div>`;
+  }else if(diffDays>60){
+    el.innerHTML=`<div class="callout info" style="margin-bottom:16px"><b>Preços verificados em ${VERIFIED}.</b> Revisão recomendada a cada 90 dias.</div>`;
   }
 }
 
-/* Gráfico SVG: eixo começa em 0 para o aluno ver o custo acumular desde o dia zero. */
 function chart(){
   const W=640,H=250,L=52,R=14,Tp=14,B=30,w=W-L-R,h=H-Tp-B;
   const rate=dayRate(),bud=S.budget/fx(),full=rate*DAYS;
@@ -638,10 +728,10 @@ function replay(){
   S.upto=0;rp=requestAnimationFrame(step);
 }
 
-/* Cálculos e UI */
 function calc(){
   S.upto=DAYS;const it=items(),tot=cum(DAYS),brl=tot*fx();
-  $('#tot').textContent=usd(tot);$('#dock-t').textContent=usd(tot);
+  animateNumber($('#tot'),tot);
+  animateNumber($('#dock-t'),tot);
   $('#tot-brl').textContent='≈ '+BRL.format(brl)+(S.extra?' (c/ spread e IOF)':'');
   $('#tot-day').textContent=dayRate()>0?`Esquecido ligado: ~${usd(dayRate())}/dia (${BRL.format(dayRate()*fx())}).`:'Sem custo por hora na cesta.';
   const rk=$('#risk'),lv=brl>S.budget&&S.budget>0?2:brl>S.budget*.5&&brl>5?1:0;
@@ -677,7 +767,6 @@ function cloud(c){
 }
 function setOff(d){S.off=d;$('#off').value=d;$('#off-v').textContent=d;$$('#scen button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.d===d));calc()}
 
-/* Teardown seguro (tag + dry-run + casos que exigem paciência) */
 const TD={
 aws_ec2:`IDS=$(aws ec2 describe-instances --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" "Name=instance-state-name,Values=running,stopped" --query 'Reservations[].Instances[].InstanceId' --output text)
 [ -n "$IDS" ] && run aws ec2 terminate-instances --region "$REGION" --instance-ids $IDS || echo "EC2: nada encontrado"`,
@@ -690,8 +779,7 @@ done`,
 ipv4:`for a in $(aws ec2 describe-addresses --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" --query 'Addresses[].AllocationId' --output text); do
   run aws ec2 release-address --region "$REGION" --allocation-id "$a"
 done`,
-aws_eks:`# EKS não pode ser destruído de uma vez. Este bloco respeita a ordem.
-CLUSTER="\${CLUSTER:-meu-cluster-lab}"   # ajuste ou exporte antes
+aws_eks:`CLUSTER="\${CLUSTER:-meu-cluster-lab}"
 if aws eks describe-cluster --region "$REGION" --name "$CLUSTER" >/dev/null 2>&1; then
   for ng in $(aws eks list-nodegroups --region "$REGION" --cluster-name "$CLUSTER" --query nodegroups --output text 2>/dev/null); do
     run aws eks delete-nodegroup --region "$REGION" --cluster-name "$CLUSTER" --nodegroup-name "$ng"
@@ -702,8 +790,7 @@ if aws eks describe-cluster --region "$REGION" --name "$CLUSTER" >/dev/null 2>&1
 else
   echo "EKS: cluster $CLUSTER não encontrado"
 fi`,
-aws_s3cf:`# CloudFront exige desabilitar, esperar o status 'Deployed' e depois deletar com If-Match.
-BUCKET="\${BUCKET:-meu-bucket-lab}"   # ajuste ou exporte antes
+aws_s3cf:`BUCKET="\${BUCKET:-meu-bucket-lab}"
 if command -v jq >/dev/null 2>&1; then
   for ID in $(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?contains(DomainName,'$BUCKET')]].Id" --output text 2>/dev/null); do
     ETAG=$(aws cloudfront get-distribution-config --id "$ID" --query 'ETag' --output text)
@@ -738,7 +825,7 @@ function teardown(){
 set -euo pipefail
 REGION="\${AWS_REGION:-us-east-1}"
 TAG_KEY="Project"; TAG_VAL="finops-lab"
-DRY_RUN="\${DRY_RUN:-1}"   # 1 = só mostra; DRY_RUN=0 executa
+DRY_RUN="\${DRY_RUN:-1}"
 run() { if [ "$DRY_RUN" = 1 ]; then echo "[dry-run] $*"; else "$@"; fi; }
 echo "Modo: $([ "$DRY_RUN" = 1 ] && echo DRY-RUN || echo EXECUCAO REAL)"
 echo "AWS conta: $(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo n/a) | região: $REGION"
@@ -752,23 +839,18 @@ echo "AWS conta: $(aws sts get-caller-identity --query Account --output text 2>/
   $('#td').textContent=s;open('#m-td');
 }
 
-/* ===== Comparador multi-cloud com descontos por provedor e TCO completo ===== */
 const SL=[['vcpu','vCPU',1,16,1,2],['ram','RAM (GB)',1,64,1,4],['disk','Disco SSD (GB)',20,1000,10,50],['egr','Egress (GB)',10,2000,50,100]];
 const DISCOUNTS={
-  aws:   {onDemand:0, ri1:30, ri3:66,
-          note:'AWS: Compute Savings Plans chegam a ~66% com compromisso de 1 ou 3 anos em computação.'},
-  gcp:   {onDemand:0, ri1:37, ri3:57,
-          note:'GCP: CUDs (Committed Use Discounts) chegam a ~37% em 1 ano e ~57% em 3 anos em Compute Engine.'},
-  azure: {onDemand:0, ri1:40, ri3:72,
-          note:'Azure: Reservations chegam a ~40% em 1 ano e até ~72% em 3 anos em máquinas virtuais.'}
+  aws:   {onDemand:0, ri1:30, ri3:66, note:'AWS: Compute Savings Plans chegam a ~66% com compromisso de 1 ou 3 anos em computação.'},
+  gcp:   {onDemand:0, ri1:37, ri3:57, note:'GCP: CUDs (Committed Use Discounts) chegam a ~37% em 1 ano e ~57% em 3 anos em Compute Engine.'},
+  azure: {onDemand:0, ri1:40, ri3:72, note:'Azure: Reservations chegam a ~40% em 1 ano e até ~72% em 3 anos em máquinas virtuais.'}
 };
-/* Componentes indiretos que só aparecem no TCO completo */
 const INDIRECT={support:0.10, snapshots:0.05, iops:0.005};
 let cmpModel='onDemand';
 let cmpScope='direct';
 
 function cmpBuild(){
-  $('#sl').innerHTML=SL.map(([k,l,a,b,s,d])=>`<label class="card mute">${l}: <b id="o-${k}" style="color:var(--ink)">${d}</b><input id="s-${k}" type="range" min="${a}" max="${b}" step="${s}" value="${d}" aria-label="${l}"></label>`).join('');
+  $('#sl').innerHTML=SL.map(([k,l,a,b,s,d])=>`<label class="card mute no-reveal">${l}: <b id="o-${k}" style="color:var(--ink)">${d}</b><input id="s-${k}" type="range" min="${a}" max="${b}" step="${s}" value="${d}" aria-label="${l}"></label>`).join('');
   $$('#sl input').forEach(i=>i.oninput=cmp);
   $$('#cmp-disc button').forEach(b=>b.onclick=()=>{
     cmpModel=b.dataset.m;
@@ -815,7 +897,7 @@ function cmp(){
       <tr class="tco-row on"><td>Suporte Business</td><td>${usd(p.sup)}</td></tr>
     `:'';
     const totalShown=cmpScope==='total'?p.total:(p.c+p.k+p.x+p.ipv4);
-    return `<div class="card" style="${isBest?'border-color:var(--ok)':''}">
+    return `<div class="card no-reveal" style="${isBest?'border-color:var(--ok)':''}">
       <h3>${p.n} ${isBest?'★':''}${disc}</h3>
       <table>
         <tr><td>Computação</td><td>${usd(p.c)}</td></tr>
@@ -833,7 +915,6 @@ function cmp(){
   $('#cmp-note').innerHTML=`<b>Como interpretar:</b> ${D.aws.note} ${D.gcp.note} ${D.azure.note} A estimativa aplica o desconto só na linha de <i>Computação</i> — é onde a maior parte dos compromissos realmente incide. No modo <b>TCO completo</b>, somamos snapshots (5% do disco), IOPS provisionadas e suporte Business (10% da computação). São faixas médias, não valores exatos.`;
 }
 
-/* ===== Exportar relatório em markdown ===== */
 function exportReport(){
   const it=items(),day=dayRate(),month=cum(DAYS);
   const downDone=store.get('down_done',[]);
@@ -884,15 +965,12 @@ _Estimativas didáticas. Confirme sempre nas calculadoras oficiais:
   toast('Relatório exportado');
 }
 
-/* ===== Importar gasto real (JSON de billing) ===== */
 const BILLING={provider:null,amount_usd:null,period:null,importedAt:null};
 function parseBilling(raw){
   let d;try{d=JSON.parse(raw)}catch{throw new Error('JSON inválido. Confira a sintaxe.')}
-  // 1) Formato simples
   if(d.amount_usd!==undefined||d.amount!==undefined){
     return {provider:d.provider||'desconhecido',amount_usd:+(d.amount_usd??d.amount),period:d.period||null};
   }
-  // 2) AWS Cost Explorer (ResultsByTime[].Total.UnblendedCost.Amount OU Groups[].Metrics)
   if(Array.isArray(d.ResultsByTime)){
     let total=0;
     for(const r of d.ResultsByTime){
@@ -901,15 +979,13 @@ function parseBilling(raw){
     }
     return {provider:'aws',amount_usd:total,period:d.ResultsByTime[0]?.TimePeriod?.Start||null};
   }
-  // 3) Azure Cost Management (properties.rows / properties.columns)
   if(d.properties?.rows&&Array.isArray(d.properties.rows)){
     const cols=d.properties.columns.map(c=>c.name);
     const idxCost=cols.indexOf('Cost')>=0?cols.indexOf('Cost'):cols.length-1;
     let total=0;
     for(const row of d.properties.rows){const v=row[idxCost];if(typeof v==='number')total+=v}
-    return {provider:'azure',amount_usd:total,period:d.properties.nextLink?null:null};
+    return {provider:'azure',amount_usd:total,period:null};
   }
-  // 4) GCP Cost export
   if(Array.isArray(d.costs)){let t=0;for(const c of d.costs)t+=+(c.cost||c.amount||0);return {provider:'gcp',amount_usd:t,period:null}}
   throw new Error('Formato não reconhecido. Aceita AWS Cost Explorer, Azure Cost Management, GCP export ou {"amount_usd":...}.');
 }
@@ -943,7 +1019,6 @@ function doImport(){
   }catch(e){$('#imp-fb').textContent='✗ '+e.message}
 }
 
-/* ===== IA: motor local com lookup no catálogo + Gemini opcional ===== */
 const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).'],[/reserva|savings plan|cud|compromisso/,'### Reservas e descontos\n* AWS **Savings Plans** e **Reservations**, GCP **CUDs**, Azure **Reservations**.\n* Chegam a 66-72% em 3 anos. Só faz sentido para carga estável.\n* Para laboratório, **não** faz sentido: você não quer compromisso.'],[/free tier|grátis|gratis/,'### Free tier hoje\n* AWS mudou: contas novas recebem **créditos** com validade limitada, não mais 12 meses fixos de t2.micro.\n* GCP Always Free permanece para e2-micro em regiões específicas.\n* Azure tem 12 meses para contas elegíveis + créditos de estudante.\n* Confira sempre o que ainda está de pé antes de confiar.']];
 function localLookup(q){
   const ql=q.toLowerCase();
@@ -996,14 +1071,13 @@ async function ask(p){
   b.textContent='Motor FinOps local';md(local(p),o);
 }
 
-/* ===== Projetos + IaC (Terraform / Terragrunt) ===== */
 const TG_ROOT=`# root.hcl (raiz do repositório)
 locals {
   project_tag = "finops-lab"
 }
 
 remote_state {
-  backend = "local" # em equipe use s3 ou gcs
+  backend = "local"
   config = {
     path = format("%s/.state/%s/terraform.tfstate", get_parent_terragrunt_dir(), path_relative_to_include())
   }
@@ -1019,7 +1093,7 @@ inputs = {
 const tgFor=(mod,inp)=>`# Estrutura
 # repo/
 # ├── root.hcl
-# ├── modules/${mod}/main.tf   <- código da aba Terraform
+# ├── modules/${mod}/main.tf
 # └── live/lab/terragrunt.hcl
 
 ${TG_ROOT}
@@ -1036,15 +1110,7 @@ terraform {
 
 inputs = {
 ${inp}
-}
-
-# ---------------------------------------------
-# Uso (dentro de live/lab):
-#   terragrunt plan
-#   terragrunt apply
-#   terragrunt plan -destroy   # revise antes
-#   terragrunt destroy
-# Versões novas também aceitam "terragrunt run -- <comando>": confira com --help.`;
+}`;
 
 const OLD=[
 {id:'gcp_bot',cloud:'GCP',lvl:'Júnior',title:'Bot 24/7 com Docker',cost:'~$0 a ~$4/mês',sim:['gcp_e2'],mod:'gcp-bot',
@@ -1068,7 +1134,7 @@ variable "project_tag" {
 }
 variable "zone" {
   type    = string
-  default = "us-central1-a" # região elegível ao Always Free
+  default = "us-central1-a"
 }
 
 provider "google" {
@@ -1092,7 +1158,7 @@ resource "google_compute_instance" "bot" {
 
   network_interface {
     network = "default"
-    access_config {} # IPv4 efêmero: permite saída sem NAT (pode ter custo)
+    access_config {}
   }
 
   metadata_startup_script = <<-EOT
@@ -1134,7 +1200,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "site" {
   bucket        = var.bucket_name
-  force_destroy = true # facilita o teardown do lab
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -1168,7 +1234,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
   }
 
   restrictions {
@@ -1200,7 +1266,7 @@ resource "aws_s3_bucket_policy" "site" {
 }
 
 output "url" { value = format("https://%s", aws_cloudfront_distribution.cdn.domain_name) }`,
- inp:'  bucket_name = "meu-portfolio-lab-12345" # nome global único'},
+ inp:'  bucket_name = "meu-portfolio-lab-12345"'},
 
 {id:'gcp_bq',cloud:'GCP',lvl:'Júnior',title:'Pipeline de dados com BigQuery',cost:'~$0 (dentro da cota)',sim:['gcp_bq'],mod:'bigquery',
  never:'Particione tabelas e evite SELECT * para não estourar a cota mensal de consultas.',
@@ -1233,7 +1299,7 @@ provider "google" {
 resource "google_bigquery_dataset" "lab" {
   dataset_id                  = "finops_lab"
   location                    = var.location
-  default_table_expiration_ms = 5184000000 # 60 dias
+  default_table_expiration_ms = 5184000000
   delete_contents_on_destroy  = true
   labels                      = { project = var.project_tag }
 }
@@ -1308,7 +1374,7 @@ const VERS=`terraform {
 provider "aws" {
   region = var.region
   default_tags {
-    tags = { Project = var.project_tag } # base do teardown seguro
+    tags = { Project = var.project_tag }
   }
 }`;
 const VCOMMON=`variable "region" {
@@ -1345,7 +1411,7 @@ variable "limit_usd" {
  nodes:oldBp('aws_jamstack').nodes,edges:oldBp('aws_jamstack').edges,
  vars:'variable "bucket_name" { type = string }',
  main:cut(jam,'resource "aws_s3_bucket" "site"','output "url"'),out:cut(jam,'output "url"'),
- inp:'  bucket_name = "meu-portfolio-lab-12345" # nome global único',
+ inp:'  bucket_name = "meu-portfolio-lab-12345"',
  destroy:'# Console: S3 (bucket removido?) e CloudFront (distribuição deletada; leva minutos)'},
 {n:3,id:'vm',title:'VM com Docker (sem porta aberta)',cost:'~$5/mês (IPv4 + disco) após o free tier',sim:['aws_ec2','ipv4'],mod:'ec2-docker',
  goal:'Rodar containers numa EC2 acessada por SSM, sem abrir SSH.',
@@ -1406,7 +1472,7 @@ resource "aws_instance" "vm" {
   vpc_security_group_ids = [aws_security_group.vm.id]
 
   metadata_options {
-    http_tokens = "required" # IMDSv2
+    http_tokens = "required"
   }
   root_block_device {
     volume_size = 20
@@ -1471,7 +1537,7 @@ resource "aws_athena_workgroup" "lab" {
   force_destroy = true
   configuration {
     enforce_workgroup_configuration = true
-    bytes_scanned_cutoff_per_query  = 10737418240 # 10 GB
+    bytes_scanned_cutoff_per_query  = 10737418240
     result_configuration {
       output_location = format("s3://%s/", aws_s3_bucket.results.bucket)
     }
@@ -1479,11 +1545,10 @@ resource "aws_athena_workgroup" "lab" {
 }`,
  out:`output "workgroup" { value = aws_athena_workgroup.lab.name }
 output "database" { value = aws_glue_catalog_database.lab.name }`,
- inp:'  bucket_name = "meu-dados-lab-12345" # nome global único',
+ inp:'  bucket_name = "meu-dados-lab-12345"',
  destroy:'# Console: Athena (workgroup), Glue (database) e os dois buckets S3 removidos'}
 ];
 
-/* ===== Trilha GCP ===== */
 const GVERS=`terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -1497,12 +1562,12 @@ const GVERS=`terraform {
 provider "google" {
   project               = var.project_id
   region                = var.region
-  user_project_override = true # necessário para a API de budgets
+  user_project_override = true
   billing_project       = var.project_id
 }
 
 locals {
-  labels = { project = var.project_tag } # base do teardown seguro
+  labels = { project = var.project_tag }
 }`;
 const GVC=`variable "project_id" { type = string }
 variable "region" {
@@ -1573,7 +1638,7 @@ variable "limit_usd" {
 resource "google_storage_bucket_iam_member" "public" {
   bucket = google_storage_bucket.site.name
   role   = "roles/storage.objectViewer"
-  member = "allUsers" # público de propósito: é um site
+  member = "allUsers"
 }`,
  out:'output "url" { value = format("https://storage.googleapis.com/%s/index.html", google_storage_bucket.site.name) }',
  inp:'  project_id  = "meu-projeto-gcp"\n  bucket_name = "meu-site-lab-12345"',
@@ -1587,7 +1652,7 @@ resource "google_storage_bucket_iam_member" "public" {
  nodes:oldBp('gcp_bot').nodes,edges:oldBp('gcp_bot').edges,
  vars:`variable "zone" {
   type    = string
-  default = "us-central1-a" # região elegível ao Always Free
+  default = "us-central1-a"
 }`,
  main:cut(bot,'resource "google_compute_instance" "bot"','output "vm_name"'),out:cut(bot,'output "vm_name"'),
  inp:'  project_id = "meu-projeto-gcp"',
@@ -1607,7 +1672,7 @@ resource "google_storage_bucket_iam_member" "public" {
  main:`resource "google_bigquery_dataset" "lab" {
   dataset_id                  = "finops_lab"
   location                    = var.location
-  default_table_expiration_ms = 5184000000 # 60 dias
+  default_table_expiration_ms = 5184000000
   delete_contents_on_destroy  = true
   labels                      = local.labels
 }
@@ -1616,7 +1681,7 @@ resource "google_bigquery_table" "events" {
   dataset_id               = google_bigquery_dataset.lab.dataset_id
   table_id                 = "events"
   deletion_protection      = false
-  require_partition_filter = true # consulta sem filtro de data é recusada
+  require_partition_filter = true
   labels                   = local.labels
 
   time_partitioning {
@@ -1635,7 +1700,6 @@ resource "google_bigquery_table" "events" {
  destroy:'# Console: BigQuery (dataset removido?)'}
 ];
 
-/* ===== Trilha Azure ===== */
 const ZVERS=`terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -1662,7 +1726,7 @@ variable "project_tag" {
 const rg=n=>`resource "azurerm_resource_group" "rg" {
   name     = "${n}"
   location = var.location
-  tags     = { Project = var.project_tag } # base do teardown seguro
+  tags     = { Project = var.project_tag }
 }
 `;
 const AZURE=[
@@ -1681,7 +1745,7 @@ variable "limit_usd" {
 }
 variable "start_date" {
   type    = string
-  default = "2026-10-01T00:00:00Z" # 1º dia do mês atual
+  default = "2026-10-01T00:00:00Z"
 }`,
  main:`resource "azurerm_consumption_budget_subscription" "lab" {
   name            = "finops-lab-mensal"
@@ -1732,7 +1796,7 @@ resource "azurerm_storage_account" "site" {
 }`,
  out:'output "url" { value = azurerm_storage_account.site.primary_web_endpoint }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  storage_name    = "meusitelab12345"',
- destroy:'az group delete --name rg-finops-lab-site --yes --no-wait   # alternativa manual'},
+ destroy:'az group delete --name rg-finops-lab-site --yes --no-wait'},
 {n:3,title:'VM B1s com Docker',cost:'~$4/mês (IP) + disco após o free tier',sim:['az_b1s','ipv4'],mod:'vm-docker',
  goal:'Rodar containers numa VM com SSH restrito ao seu IP.',
  learn:['Rede: VNet, sub-rede, NIC e NSG','SSH só do seu IP, sem senha','Custos escondidos: IP público Standard e disco'],
@@ -1849,13 +1913,13 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }`,
  out:'output "public_ip" { value = azurerm_public_ip.ip.ip_address }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  my_ip           = "203.0.113.4/32"\n  ssh_public_key  = file("~/.ssh/id_ed25519.pub")',
- destroy:'az group delete --name rg-finops-lab-vm --yes --no-wait   # alternativa manual'},
+ destroy:'az group delete --name rg-finops-lab-vm --yes --no-wait'},
 {n:4,title:'Data lake com expiração',cost:'~$0 (centavos)',sim:[],mod:'datalake',
  goal:'Guardar dados em um data lake que se limpa sozinho.',
  learn:['Storage Gen2 (namespace hierárquico) para dados','Lifecycle policy: apagar dados após 30 dias','Resource Group: destruir tudo de uma vez'],
  delta:'Mesmo esqueleto. A trava de custo vive no código: a política de expiração.',
  never:'Não deixe dados crescerem sem expiração, e cuidado com serviços de consulta cobrados por TB lido.',
- note:'Para consultar, use DuckDB localmente ou Synapse serverless (cobra por TB lido): defina limites antes. Azure Data Explorer free não é provisionado por este código.',
+ note:'Para consultar, use DuckDB localmente ou Synapse serverless (cobra por TB lido): defina limites antes.',
  nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},{id:'lk',x:200,y:20,l:'Storage Gen2',s:'container raw',k:'ok'},{id:'lc',x:390,y:20,l:'Lifecycle policy',s:'apaga após 30 dias',k:'ok'},{id:'q',x:200,y:110,l:'Consulta (DuckDB)',s:'local, sem custo',k:'ext'}],
  edges:[['f','lk','carga'],['lk','lc','regra'],['lk','q','leitura']],
  vars:'variable "storage_name" { type = string }',
@@ -1895,7 +1959,7 @@ resource "azurerm_storage_management_policy" "expire" {
 }`,
  out:'output "storage" { value = azurerm_storage_account.lake.name }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  storage_name    = "meulakelab12345"',
- destroy:'az group delete --name rg-finops-lab-lake --yes --no-wait   # alternativa manual'}
+ destroy:'az group delete --name rg-finops-lab-lake --yes --no-wait'}
 ];
 const CLOUDS={
   aws:{label:'AWS',vers:VERS,vc:VCOMMON,trail:TRAIL,title:'Do orçamento ao dado',key:'trail_done'},
@@ -1972,7 +2036,6 @@ function prjInit(){
   prjRender();
 }
 
-/* ===== Nível FinOps do usuário ===== */
 function renderFinOpsLevel(){
   const el=$('#finops-level');if(!el)return;
   const done=store.get('skills_done',[]);
@@ -1993,14 +2056,13 @@ function renderFinOpsLevel(){
     <div class="row" style="justify-content:space-between"><b>Seu nível FinOps</b><span class="badge-lvl ${badgeClass}">${level}</span></div>
     <p class="mute" style="margin:8px 0 0">${desc}</p>
     <div class="mute" style="margin-top:8px;font-size:12px">
-      Trilhas completas: <b>${trailComplete}/3</b> · 
-      Competências: <b>${done.length}/${SK.length}</b> · 
+      Trilhas completas: <b>${trailComplete}/3</b> ·
+      Competências: <b>${done.length}/${SK.length}</b> ·
       Quiz: <b>${quizOk}/${QZ.length}</b>
     </div>
   </div>`;
 }
 
-/* Quiz com feedback progressivo */
 const QZ=[
 ['Você parou a VM, mas esqueceu um IPv4 público reservado. O que acontece?',['Fica gratuito, pois a VM está parada.','O provedor continua cobrando pelo IPv4.','O IP é liberado automaticamente em 1 hora.'],1,'IPv4 público é cobrado por hora enquanto existir, associado ou não. Libere-o ao destruir o lab.'],
 ['Qual destes costuma gerar cobrança contínua, sem cota gratuita permanente?',['Cloud Run dentro da franquia','Banco gerenciado (RDS / Cloud SQL)','BigQuery Sandbox'],1,'Bancos gerenciados reservam uma instância dedicada, cobrada por hora mesmo sem consultas.'],
@@ -2012,7 +2074,7 @@ function quizInit(){
   const draw=()=>{
     $('#quiz').innerHTML=QZ.map(([q,o,c,why],i)=>{
       const a=qs[i];
-      return `<div class="card"><b>${i+1}. ${esc(q)}</b>${o.map((t,j)=>{
+      return `<div class="card no-reveal"><b>${i+1}. ${esc(q)}</b>${o.map((t,j)=>{
         let style='display:block;width:100%;text-align:left;margin-top:8px;';
         if(a!==undefined){if(j===c)style+='border-color:var(--ok);';if(a===j&&j!==c)style+='border-color:var(--bad);'}
         return `<button class="btn" data-q="${i}" data-o="${j}" ${a!==undefined?'disabled':''} style="${style}">${'ABC'[j]}) ${esc(t)}</button>`}).join('')}
@@ -2036,7 +2098,6 @@ function skillsInit(){
   upd();
 }
 
-/* Modais, tema, câmbio, link, modo aula */
 let lf=null;
 const open=id=>{lf=document.activeElement;const m=$(id);m.hidden=false;(m.querySelector('input,button,textarea')||m).focus()};
 const close=()=>{$$('.modal').forEach(m=>m.hidden=true);lf&&lf.focus&&lf.focus()};
@@ -2071,15 +2132,48 @@ function classroomMode(){
   const s=parseInt(p.get('step'));if(s>=1&&s<=TR().length)P.step=s;
   const a=p.get('aba');
   const allPaineis=NAV.flatMap(([,ps])=>ps);
-  if(a&&allPaineis.includes(a))show(a,{silent:true});
+  if(a&&allPaineis.includes(a))_showInternal(a,{silent:true});
   return !!a||!!s||!!t;
+}
+
+/* ===== Efeitos: ripple nos botões e cursor glow ===== */
+function initRipple(){
+  document.addEventListener('pointerdown',e=>{
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const btn=e.target.closest('.btn');
+    if(!btn||btn.disabled)return;
+    const r=btn.getBoundingClientRect();
+    const span=document.createElement('span');
+    span.className='ripple';
+    span.style.left=(e.clientX-r.left)+'px';
+    span.style.top=(e.clientY-r.top)+'px';
+    btn.appendChild(span);
+    setTimeout(()=>span.remove(),640);
+  },{passive:true});
+}
+function initCursorGlow(){
+  if(matchMedia('(hover: none)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const glow=document.createElement('div');
+  glow.className='cursor-glow';
+  glow.setAttribute('aria-hidden','true');
+  document.body.appendChild(glow);
+  let gx=0,gy=0,tx=0,ty=0,active=false;
+  document.addEventListener('pointermove',e=>{
+    tx=e.clientX;ty=e.clientY;
+    if(!active){gx=tx;gy=ty;active=true}
+  },{passive:true});
+  (function loop(){
+    gx+=(tx-gx)*0.12;
+    gy+=(ty-gy)*0.12;
+    glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;
+    requestAnimationFrame(loop);
+  })();
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
   const th=store.get('theme',null);if(th)document.documentElement.dataset.theme=th;
   fromHash();tabs();catalog();cmpBuild();
-  // carrega billing salvo
-  const bl=store.get('billing',null);if(bl&&bl.amount_usd){Object.assign(BILLING,bl);}
+  const bl=store.get('billing',null);if(bl&&bl.amount_usd){Object.assign(BILLING,bl)}
   $('#budget').value=S.budget;$('#budget').oninput=e=>{S.budget=Math.max(0,+e.target.value||0);store.set('budget',S.budget);calc();renderBillingReal()};
   $('#off').oninput=e=>setOff(+e.target.value);
   $$('#scen button').forEach(b=>b.onclick=()=>setOff(+b.dataset.d));
@@ -2116,11 +2210,13 @@ window.addEventListener('DOMContentLoaded',()=>{
   $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)close()}));
   $('#key-l').textContent=S.key?'Conectado':'Chave Gemini';
   prjInit();downInit();quizInit();skillsInit();
+  /* Inicializa efeitos visuais */
+  initRipple();
+  initCursorGlow();
   const opened=classroomMode();
-  if(!opened)show('v-sim',{silent:true});
+  if(!opened)_showInternal('v-sim',{silent:true});
   setOff(S.off);fxUI();
   checkStaleness();
-  // tenta carregar preços ao vivo silenciosamente após 1.2s
   setTimeout(()=>loadLive({silent:true}),1200);
   fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r=>r.ok?r.json():null).then(d=>{const v=parseFloat(d&&d.USDBRL&&d.USDBRL.bid);if(v>0){S.fx=v;fxUI()}}).catch(()=>{});
   window.addEventListener('hashchange',()=>{fromHash();catalog();$('#budget').value=S.budget;setOff(S.off)});
