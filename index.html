@@ -3,21 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://generativelanguage.googleapis.com; style-src 'self' 'unsafe-inline'; connect-src 'self' https://generativelanguage.googleapis.com https://economia.awesomeapi.com.br https://prices.azure.com; img-src 'self' data:; font-src 'self' data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
 <title>Calculadora de Sobrevivência na Nuvem</title>
 <meta name="description" content="Veja quanto sua fatura de nuvem cresce dia a dia, compare AWS, GCP e Azure e gere teardown seguro.">
 <meta name="color-scheme" content="light dark">
 <style>
-:root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--mute:#475569;--line:#e2e8f0;--acc:#0891b2;--acc2:#0e7490;--ok:#059669;--bad:#dc2626;--warn:#d97706;--chip:#eef2f7;--r:18px}
-:root[data-theme=dark]{--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438}
-@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438}}
+:root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--mute:#475569;--line:#e2e8f0;--acc:#0891b2;--acc2:#0e7490;--ok:#059669;--bad:#dc2626;--warn:#d97706;--chip:#eef2f7;--r:18px;--live:#0d9488}
+:root[data-theme=dark]{--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0a0f1c;--card:#121a2b;--ink:#e8edf6;--mute:#a3b0c5;--line:#233049;--acc:#22d3ee;--acc2:#67e8f9;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--chip:#1a2438;--live:#2dd4bf}}
 *{box-sizing:border-box}
-html{scroll-padding-top:70px}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom)}
-button,input,select{font:inherit;color:inherit}
+html{scroll-padding-top:70px;scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding-bottom:env(safe-area-inset-bottom);overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 code{background:var(--chip);padding:1px 6px;border-radius:6px;font-size:.85em}
+a{color:var(--acc2)}
+textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;resize:vertical;min-height:140px}
 .wrap{max-width:1100px;margin:0 auto;padding:0 20px}
-header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
+header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top)}
 .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;flex-wrap:wrap}
 .brand{font-weight:800;font-size:17px;letter-spacing:-.02em}
 .brand small{display:block;font-weight:500;font-size:12px;color:var(--mute)}
@@ -25,6 +29,8 @@ header{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--bg) 8
 .btn:hover{border-color:var(--acc)}
 .btn.pri{background:var(--acc);border-color:var(--acc);color:#04222b}
 .btn.warn{background:var(--warn);border-color:var(--warn);color:#2a1700}
+.btn.bad{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.live{background:var(--live);border-color:var(--live);color:#fff}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 nav{display:flex;gap:4px;overflow-x:auto;padding-bottom:8px}
 nav button{border:0;background:none;padding:7px 14px;border-radius:999px;font-weight:600;font-size:13px;color:var(--mute);white-space:nowrap}
@@ -44,6 +50,7 @@ h3{font-size:15px;margin:0 0 8px}
 .p-ok{background:color-mix(in srgb,var(--ok) 18%,transparent);color:var(--ok)}
 .p-warn{background:color-mix(in srgb,var(--warn) 20%,transparent);color:var(--warn)}
 .p-bad{background:color-mix(in srgb,var(--bad) 18%,transparent);color:var(--bad)}
+.p-live{background:color-mix(in srgb,var(--live) 20%,transparent);color:var(--live)}
 svg text{fill:var(--mute);font-size:11px}
 .svc{display:flex;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--card);cursor:pointer;transition:border-color .2s,transform .2s}
 .svc:hover{border-color:var(--acc);transform:translateY(-1px)}
@@ -51,7 +58,12 @@ svg text{fill:var(--mute);font-size:11px}
 .svc input{margin-top:4px;width:18px;height:18px;accent-color:var(--acc)}
 .svc b{font-size:14px}
 .svc p{margin:4px 0 0;color:var(--mute);font-size:12.5px}
+.svc .svc-link{font-size:11.5px;color:var(--acc2);text-decoration:none;display:inline-block;margin-top:6px}
+.svc .svc-link:hover{text-decoration:underline}
 .tag{font-size:11px;font-weight:700;padding:1px 8px;border-radius:6px;background:var(--chip)}
+.tag.paid{color:var(--bad)}
+.tag.free{color:var(--ok)}
+.tag.live{background:color-mix(in srgb,var(--live) 20%,transparent);color:var(--live)}
 input[type=range]{width:100%;accent-color:var(--acc)}
 input[type=number],input[type=password],input[type=text]{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 12px}
 .bars{display:grid;gap:8px;margin-top:8px}
@@ -59,23 +71,25 @@ input[type=number],input[type=password],input[type=text]{width:100%;background:v
 .bar-r i{display:block;height:10px;border-radius:6px;background:var(--bad);transition:width .4s}
 pre{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:14px;overflow:auto;font-size:12px;max-height:50vh}
 .seg{flex-wrap:wrap;display:flex;background:var(--chip);border-radius:12px;padding:3px}
-.seg button{border:0;background:none;padding:6px 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--mute)}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:var(--mute);transition:background .2s,color .2s}
 .seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px #0002}
-.modal{position:fixed;inset:0;background:#020617cc;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{position:fixed;inset:0;background:#020617cc;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;animation:modalIn .18s ease both}
 .modal[hidden]{display:none}
 .modal>div{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px;max-width:640px;width:100%;max-height:92vh;overflow:auto;display:grid;gap:12px}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;z-index:60}
+@keyframes modalIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13px;z-index:60;max-width:min(90vw,480px);text-align:center;box-shadow:0 12px 30px -10px rgba(0,0,0,.4);animation:toastIn .24s ease both}
 #toast[hidden]{display:none}
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,20px)}to{opacity:1;transform:translate(-50%,0)}}
 table{width:100%;border-collapse:collapse;font-size:12.5px}
 td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}
 details summary{cursor:pointer;color:var(--mute);font-size:12.5px;margin-top:8px}
 .dock{display:none}
 @media(max-width:820px){.dock{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:20;justify-content:space-between;align-items:center;background:var(--card);border-top:1px solid var(--line);padding:10px 20px calc(10px + env(safe-area-inset-bottom))}body{padding-bottom:70px}}
-@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation-duration:.001ms!important;animation-iteration-count:1!important}}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .stagebar{margin-bottom:16px}
 .sb-steps{display:flex;gap:6px;list-style:none;margin:0 0 12px;padding:0;flex-wrap:wrap}
-.sb-steps button{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--mute)}
+.sb-steps button{border:1px solid var(--line);background:none;border-radius:999px;padding:4px 12px;font-size:12.5px;font-weight:600;color:var(--mute);transition:all .2s}
 .sb-steps .on button{background:var(--acc);border-color:var(--acc);color:#04222b}
 .sb-steps .past button{color:var(--ink)}
 .sb-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
@@ -86,6 +100,102 @@ details.card summary{font-weight:700;color:var(--ink);font-size:15px;margin:0}
 details.card p,details.card li{color:var(--mute);font-size:13.5px}
 .chk{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .chk input{margin-top:3px;width:18px;height:18px;accent-color:var(--acc)}
+.recovery{border-color:color-mix(in srgb,var(--bad) 40%,var(--line));background:color-mix(in srgb,var(--bad) 4%,var(--card))}
+.recovery h3{color:var(--bad)}
+.callout{background:color-mix(in srgb,var(--warn) 12%,var(--card));border:1px solid color-mix(in srgb,var(--warn) 40%,var(--line));border-radius:12px;padding:12px 14px;font-size:13px}
+.callout b{color:var(--warn)}
+.callout.info{background:color-mix(in srgb,var(--acc) 10%,var(--card));border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+.callout.info b{color:var(--acc2)}
+.row-note{font-size:12px;color:var(--mute);margin-top:6px}
+.step-badge{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:700;color:var(--mute)}
+.tabpanel:focus{outline:none}
+kbd{background:var(--chip);border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:0 6px;font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.cmp-badge{display:inline-block;font-size:10.5px;font-weight:700;color:var(--mute);background:var(--chip);border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.tco-row{display:none}
+.tco-row.on{display:table-row}
+.finops-map{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+.finops-map th,.finops-map td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.finops-map th{font-weight:700;background:var(--chip);font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute)}
+.finops-map td:first-child{font-weight:600;white-space:nowrap}
+.badge-lvl{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--mute)}
+.badge-lvl.practitioner{background:color-mix(in srgb,var(--acc) 20%,transparent);color:var(--acc2)}
+.badge-lvl.professional{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+.usage-bar{height:8px;background:var(--chip);border-radius:4px;overflow:hidden;margin-top:6px}
+.usage-bar>div{height:100%;background:var(--ok);transition:width .4s}
+.usage-bar.warn>div{background:var(--warn)}
+.usage-bar.bad>div{background:var(--bad)}
+
+/* Efeitos visuais */
+@media (min-width:821px) and (hover:hover) and (prefers-reduced-motion:no-preference){
+  .card{
+    background:color-mix(in srgb,var(--card) 80%,transparent);
+    backdrop-filter:blur(14px) saturate(150%);
+    -webkit-backdrop-filter:blur(14px) saturate(150%);
+    border-color:color-mix(in srgb,var(--line) 68%,transparent);
+    box-shadow:0 1px 0 color-mix(in srgb,#fff 6%,transparent) inset,0 14px 36px -18px color-mix(in srgb,#000 22%,transparent);
+  }
+}
+@supports (animation-timeline:view()){
+  @media (prefers-reduced-motion:no-preference){
+    .svc,.card:not(.no-reveal){
+      animation:fadeUp linear both;
+      animation-timeline:view();
+      animation-range:entry 6% cover 30%;
+    }
+    .hero>.card{animation-range:entry 0% cover 20%}
+    @keyframes fadeUp{
+      from{opacity:0;transform:translateY(26px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+  }
+}
+#v-sim{position:relative;isolation:isolate}
+#v-sim::before{
+  content:"";position:absolute;top:-120px;left:-10%;right:-10%;height:70vh;z-index:-1;
+  background:
+    radial-gradient(38% 48% at 20% 24%,color-mix(in srgb,var(--acc) 20%,transparent),transparent 66%),
+    radial-gradient(36% 44% at 82% 14%,color-mix(in srgb,var(--acc2) 16%,transparent),transparent 68%);
+  filter:blur(48px);animation:drift 28s ease-in-out infinite alternate;pointer-events:none;
+  will-change:transform;
+}
+@keyframes drift{
+  from{transform:translate3d(-3%,-1%,0) scale(1)}
+  to{transform:translate3d(3%,2%,0) scale(1.1)}
+}
+@media (max-width:820px),(prefers-reduced-motion:reduce){#v-sim::before{display:none}}
+.btn{position:relative;overflow:hidden}
+.ripple{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:color-mix(in srgb,var(--acc) 45%,transparent);pointer-events:none;transform:scale(0);animation:ripple .62s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes ripple{to{transform:scale(30);opacity:0}}
+.btn.pri{transition:transform .2s ease,box-shadow .3s ease,background .3s ease}
+.btn.pri:hover{transform:translateY(-1px);box-shadow:0 12px 26px -12px color-mix(in srgb,var(--acc) 70%,transparent)}
+.cursor-glow{
+  position:fixed;top:0;left:0;width:220px;height:220px;margin-left:-110px;margin-top:-110px;
+  border-radius:50%;
+  background:radial-gradient(circle,color-mix(in srgb,var(--acc) 16%,transparent),transparent 70%);
+  pointer-events:none;z-index:1;mix-blend-mode:screen;opacity:0;
+  transition:opacity .4s ease;will-change:transform;
+}
+body:hover .cursor-glow{opacity:1}
+@media (hover:none),(prefers-reduced-motion:reduce){.cursor-glow{display:none}}
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:fadeOut .18s ease both}
+::view-transition-new(root){animation:fadeIn .22s ease both}
+@keyframes fadeOut{to{opacity:0}}
+@keyframes fadeIn{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  ::view-transition-old(root),::view-transition-new(root){animation:none}
+}
+
+/* Diagramas de arquitetura */
+.diagram{width:100%}
+.diagram svg{display:block;max-width:100%;height:auto}
+.diagram svg .node{transition:transform .2s ease}
+.diagram svg .node>rect:first-of-type{transition:stroke-width .2s ease}
+.diagram svg .node:hover>rect:first-of-type{stroke-width:3}
+.diagram .legend{display:flex;gap:16px;font-size:12px;color:var(--mute);margin-top:10px;flex-wrap:wrap;align-items:center}
+.diagram .legend span{display:inline-flex;align-items:center}
+.diagram .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px}
+@media (prefers-reduced-motion:reduce){.diagram svg .node{transition:none}}
 </style>
 </head>
 <body>
@@ -93,17 +203,19 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
   <div class="bar">
     <div class="brand">Sobrevivência na Nuvem<small>Estime custos, proteja sua conta e destrua o que criou</small></div>
     <div class="row">
-      <button class="btn" id="b-fx">USD <b id="fx-l"></b></button>
-      <button class="btn" id="b-key"> <span id="key-l">Chave Gemini</span></button>
+      <button class="btn" id="b-fx" aria-label="Ajustar câmbio">USD <b id="fx-l"></b></button>
+      <button class="btn" id="b-live" aria-label="Preços ao vivo" title="Buscar preços reais das APIs públicas"><span id="live-l">Preços ao vivo</span></button>
+      <button class="btn" id="b-key"><span id="key-l">Chave Gemini</span></button>
       <button class="btn" id="b-theme" aria-label="Alternar tema">Tema</button>
     </div>
   </div>
-  <nav role="tablist" id="tabs"></nav>
+  <nav role="tablist" aria-label="Etapas e páginas" id="tabs"></nav>
 </div></header>
 
 <main class="wrap">
 <!-- SIMULADOR -->
-<section id="v-sim" role="tabpanel"><div class="stagebar" data-s="0"></div>
+<section id="v-sim" role="tabpanel" aria-labelledby="t-0" tabindex="-1" class="tabpanel"><div class="stagebar" data-s="0"></div>
+  <div id="stale-banner"></div>
   <div class="hero">
     <div class="card">
       <div class="row" style="justify-content:space-between">
@@ -114,7 +226,7 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
       <div id="chart-msg" style="font-size:14px;font-weight:600;margin:4px 0 10px"></div>
       <div class="grid g2">
         <label class="mute">Desligar no dia: <b id="off-v" style="color:var(--ink)">30</b>
-          <input id="off" type="range" min="1" max="30" value="30"></label>
+          <input id="off" type="range" min="1" max="30" value="30" aria-label="Dia do mês em que você desliga tudo"></label>
         <label class="mute">Orçamento mensal (R$)
           <input id="budget" type="number" min="0" step="5" value="50"></label>
       </div>
@@ -122,6 +234,7 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
         <div class="seg" id="scen"><button data-d="1">Desligo após a aula</button><button data-d="3">Esqueço no fim de semana</button><button data-d="30">Esqueço o mês inteiro</button></div>
       </div>
       <details><summary>Ver dados em tabela</summary><div id="tbl"></div></details>
+      <div id="billing-real" hidden style="margin-top:14px"></div>
     </div>
     <div class="card" style="display:grid;gap:12px;align-content:start">
       <div class="row" style="justify-content:space-between"><span class="mute">Total do mês (30 dias)</span><span id="risk" class="pill"></span></div>
@@ -132,6 +245,12 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
       <div class="row">
         <button class="btn warn" id="b-td">Script de teardown</button>
         <button class="btn pri" id="b-ai">Auditar com IA</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="b-export">Exportar .md</button>
+        <button class="btn" id="b-import">Importar gasto real</button>
+      </div>
+      <div class="row">
         <button class="btn" id="b-share">Copiar link</button>
         <button class="btn" id="b-clear">Limpar</button>
       </div>
@@ -139,33 +258,45 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
   </div>
 
   <div class="row" style="justify-content:space-between;margin:28px 0 12px">
-    <div><h2>Monte seu laboratório</h2><div class="mute">Itens de outras nuvens ficam esmaecidos, mas continuam somando.</div></div>
-    <div class="seg" id="cf"></div>
+    <div><h2>Monte seu laboratório</h2><div class="mute">Itens de outras nuvens ficam esmaecidos, mas continuam somando. Cada item aponta para a calculadora oficial daquele serviço.</div></div>
+    <div class="seg" id="cf" role="group" aria-label="Filtrar por nuvem"></div>
   </div>
   <div id="hid" class="card" style="display:none;margin-bottom:12px;border-color:var(--warn)"></div>
   <h3>Camada gratuita (com condições)</h3>
   <div class="grid g2" id="l-free"></div>
-  <h3 style="margin-top:20px;color:var(--bad)"> Zona de risco: cobrança por hora</h3>
+  <h3 style="margin-top:20px;color:var(--bad)">Zona de risco: cobrança por hora</h3>
   <div class="grid g2" id="l-paid"></div>
 </section>
 
 <!-- COMPARADOR -->
-<section id="v-cmp" role="tabpanel" hidden><div class="stagebar" data-s="0"></div>
+<section id="v-cmp" role="tabpanel" aria-labelledby="t-0" tabindex="-1" class="tabpanel" hidden><div class="stagebar" data-s="0"></div>
   <h2>Comparador multi-cloud</h2>
   <p class="mute">Estimativa didática (fórmulas lineares, US East, mês de 30 dias). Não é cotação: confira em
     <a href="https://calculator.aws" target="_blank" rel="noopener">AWS</a>,
     <a href="https://cloud.google.com/products/calculator" target="_blank" rel="noopener">GCP</a> e
     <a href="https://azure.microsoft.com/pricing/calculator/" target="_blank" rel="noopener">Azure</a>.</p>
   <div class="grid g3" id="sl"></div>
+  <div class="row" style="justify-content:space-between;margin-top:14px;flex-wrap:wrap;gap:12px">
+    <div class="seg" id="cmp-disc" role="group" aria-label="Modelo de preço">
+      <button data-m="onDemand" aria-pressed="true">Sob demanda</button>
+      <button data-m="ri1" aria-pressed="false">Reserva 1 ano</button>
+      <button data-m="ri3" aria-pressed="false">Reserva 3 anos</button>
+    </div>
+    <div class="seg" id="cmp-tco" role="group" aria-label="Escopo do custo">
+      <button data-t="direct" aria-pressed="true">Custo direto</button>
+      <button data-t="total" aria-pressed="false">TCO completo</button>
+    </div>
+  </div>
+  <div class="card" id="cmp-note" style="margin-top:12px;font-size:12.5px;color:var(--mute)"></div>
   <div class="grid g3" id="cc" style="margin-top:16px"></div>
   <div class="card" id="cv" style="margin-top:16px"></div>
 </section>
 
 <!-- PROJETOS -->
-<section id="v-prj" role="tabpanel" hidden><div class="stagebar" data-s="2"></div>
+<section id="v-prj" role="tabpanel" aria-labelledby="t-2" tabindex="-1" class="tabpanel" hidden><div class="stagebar" data-s="2"></div>
   <div class="row" style="justify-content:space-between">
     <div><h2 id="prj-title"></h2><div class="mute">Quatro passos por nuvem, com o mesmo esqueleto de arquivos. Cada passo muda pouco e ensina uma coisa nova.</div></div>
-    <div class="seg" id="prj-cloud" aria-label="Nuvem"><button data-c="aws">AWS</button><button data-c="gcp">GCP</button><button data-c="azure">Azure</button></div>
+    <div class="seg" id="prj-cloud" role="group" aria-label="Nuvem"><button data-c="aws">AWS</button><button data-c="gcp">GCP</button><button data-c="azure">Azure</button></div>
   </div>
   <div class="card" style="margin:14px 0">
     <div class="row" style="justify-content:space-between"><b id="prj-prog"></b><span class="mute">Progresso salvo neste navegador</span></div>
@@ -175,23 +306,30 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
   <div class="card" id="prj-head" style="margin-bottom:16px"></div>
   <div class="card" style="margin-bottom:16px"><h3>Arquitetura</h3><div id="prj-diag"></div></div>
   <div class="card" style="margin-bottom:16px">
-    <div class="row" style="justify-content:space-between;margin-bottom:10px"><div class="seg" id="prj-ftabs"></div><button class="btn pri" id="prj-copy"> Copiar</button></div>
+    <div class="row" style="justify-content:space-between;margin-bottom:10px;gap:8px">
+      <div class="seg" id="prj-ftabs" role="group" aria-label="Arquivo"></div>
+      <div class="row" style="gap:6px">
+        <button class="btn" id="prj-copy-all" title="Copiar todos os arquivos com cabeçalhos">Copiar tudo</button>
+        <button class="btn pri" id="prj-copy">Copiar aba</button>
+      </div>
+    </div>
     <pre id="prj-code" style="max-height:60vh"></pre>
     <p class="mute">Estrutura: <code>versions.tf</code> e a variável <code>project_tag</code> são iguais em todos os passos. Rode <code>plan</code> e revise antes de <code>apply</code>.</p>
   </div>
-  <div class="card" style="margin-bottom:16px"><h3> Destruir ao terminar</h3><pre id="prj-destroy"></pre></div>
-  <div class="row"><button class="btn pri" id="prj-done"></button><button class="btn" id="prj-sim"> Simular no calculador</button><button class="btn" id="prj-next">Próximo passo ➜</button></div>
+  <div class="card" style="margin-bottom:16px"><h3>Destruir ao terminar</h3><pre id="prj-destroy"></pre></div>
+  <div class="row"><button class="btn pri" id="prj-done"></button><button class="btn" id="prj-sim">Simular no calculador</button><button class="btn" id="prj-next">Próximo passo ➜</button></div>
 
   <h3 style="margin-top:28px">Checklist de competências</h3>
   <div class="card" style="margin-top:8px">
     <div class="row" style="justify-content:space-between"><span class="mute">Marque o que você já praticou. Útil para entrevistas e portfólio.</span><b id="skills-pct">0%</b></div>
     <div style="height:8px;border-radius:6px;background:var(--chip);margin:8px 0;overflow:hidden"><div id="skills-bar" style="height:100%;background:var(--acc);width:0;transition:width .3s"></div></div>
     <div id="skills-list"></div>
+    <div id="finops-level" style="margin-top:16px"></div>
   </div>
 </section>
 
 <!-- DESTRUIR -->
-<section id="v-down" role="tabpanel" hidden>
+<section id="v-down" role="tabpanel" aria-labelledby="t-3" tabindex="-1" class="tabpanel" hidden>
   <div class="stagebar" data-s="3"></div>
   <h2>Destruir e confirmar</h2>
   <p class="mute">A fatura costuma vir do que ficou ligado depois do estudo. Remova os recursos, confira o que sobrou e acompanhe os custos no dia seguinte.</p>
@@ -201,6 +339,20 @@ details.card p,details.card li{color:var(--mute);font-size:13.5px}
       <button class="btn warn" id="b-td3">Gerar script</button></div>
     <div class="card"><h3>Checklist de encerramento</h3><div id="down-list"></div></div>
   </div>
+
+  <div class="card recovery" style="margin-bottom:14px">
+    <h3>Se a fatura já chegou alta — plano de contenção em 30 minutos</h3>
+    <ol style="margin:8px 0 0;padding-left:20px;font-size:13.5px">
+      <li><b>Pare o sangramento primeiro.</b> Identifique o recurso mais caro no Cost Explorer / Billing Reports / Cost Management e destrua ou pare agora. Não espere "terminar de investigar".</li>
+      <li><b>Procure os suspeitos de sempre:</b> NAT Gateway, IP público ocioso, EBS/Disco órfão, RDS/Cloud SQL, load balancer, clusters Kubernetes, snapshots antigos.</li>
+      <li><b>No GCP</b>, se for laboratório, desvincular a conta de faturamento do projeto derruba tudo de uma vez. Use com consciência — é irreversível sem religar o billing.</li>
+      <li><b>Na AWS</b>, abra um caso em Support → Create case → Billing. Contas novas e primeiros incidentes costumam receber ajuste único. Seja honesto e mostre o que aprendeu.</li>
+      <li><b>No Azure</b>, o limite de gasto de assinaturas de estudante pode desativar recursos automaticamente ao atingir o teto. Verifique em Cost Management → Credit + spending limit.</li>
+      <li><b>Registre o ocorrido</b> em um README do repositório do lab: o que causou, quanto custou, o que você mudou. Isso vira portfólio e evita repetição.</li>
+    </ol>
+    <p class="mute" style="margin-top:10px">Este projeto não tem vínculo com AWS, Google ou Microsoft. Os passos acima são orientação geral — siga sempre a documentação oficial atualizada.</p>
+  </div>
+
   <h3>Onde conferir em cada nuvem</h3>
   <div class="grid g3">
     <div class="card"><h3>AWS</h3><p class="mute">Liste recursos por tag:</p><pre>aws resourcegroupstaggingapi get-resources \
@@ -214,17 +366,31 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
 </section>
 
 <!-- SOBRE -->
-<section id="v-about" role="tabpanel" hidden>
+<section id="v-about" role="tabpanel" aria-labelledby="t-5" tabindex="-1" class="tabpanel" hidden>
   <h2>Sobre este projeto</h2>
   <p class="mute">Ferramenta educacional e independente para quem está começando em nuvem.</p>
   <details class="card" id="d-sobre" open><summary>O que é e para quem serve</summary>
     <p>A Calculadora de Sobrevivência na Nuvem ajuda iniciantes a estimar custos, configurar travas de orçamento, criar laboratórios com Terraform e Terragrunt e destruir tudo ao final. O fluxo tem quatro etapas: Planejar, Proteger, Provisionar e Destruir.</p></details>
+  <details class="card" id="d-finops"><summary>Onde você está no framework FinOps</summary>
+    <p>O <a href="https://www.finops.org/framework/" target="_blank" rel="noopener">FinOps Framework</a> da FinOps Foundation organiza a prática em seis domínios. Esta ferramenta cobre quatro deles:</p>
+    <table class="finops-map">
+      <thead><tr><th>Etapa aqui</th><th>Domínio FinOps</th><th>O que você pratica</th></tr></thead>
+      <tbody>
+        <tr><td>Planejar<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Forecasting &amp; Planning</td><td>Estimar custo antes de criar. Comparar provedores e modelos de preço.</td></tr>
+        <tr><td>Proteger<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Anomaly Management</td><td>Definir budgets e alertas. Detectar desvios cedo.</td></tr>
+        <tr><td>Provisionar<br><span class="badge-lvl practitioner">Practitioner</span></td><td>Cloud Financial Management</td><td>Criar com tagging, policies e infraestrutura como código.</td></tr>
+        <tr><td>Destruir<br><span class="badge-lvl professional">Professional</span></td><td>Performance Tracking &amp; Allocation</td><td>Confirmar que nada sobrou. Documentar custo por projeto.</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px">Os domínios <b>Understanding Cloud Usage</b> e <b>Allocation</b> aparecem transversalmente em todas as etapas — você usa os dados de gasto para decidir. Ao completar as quatro etapas, você praticou o essencial da disciplina.</p></details>
   <details class="card" id="d-metodo"><summary>Como as estimativas são feitas</summary>
     <ul><li>Custo mensal = preço por hora x 24 horas x dias ligados, em um mês de 30 dias.</li>
     <li>Os valores são aproximados (região US East), compilados manualmente e não incluem impostos nem todos os itens de rede, como tráfego e processamento de dados.</li>
-    <li>Itens de free tier aparecem como zero, mas têm condições de região, tempo e uso que mudam com frequência.</li>
-    <li>O comparador usa fórmulas lineares didáticas. Não é cotação.</li>
-    <li>Data de referência dos valores: <b id="ref-date"></b>.</li></ul>
+    <li>Itens de free tier aparecem como zero, mas têm condições de região, tempo e uso que mudam com frequência. O free tier da AWS para contas novas mudou para um modelo de créditos: confirme sempre o que ainda está valendo no seu caso.</li>
+    <li>O comparador usa fórmulas lineares didáticas, com um multiplicador médio de desconto de reserva por provedor. Não é cotação: cada serviço tem seus próprios números de Savings Plans, CUDs e Reservations.</li>
+    <li>Quando o botão "Preços ao vivo" está ativo, alguns itens do Azure são atualizados em tempo real pela <a href="https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" rel="noopener">Azure Retail Prices API</a>. Os demais continuam vindo do catálogo hardcoded.</li>
+    <li>Os diagramas de arquitetura mostram o custo por nó quando o item tem correspondente no catálogo. O valor é o mesmo do simulador, então muda quando "Preços ao vivo" está ativo.</li>
+    <li>Data de referência dos valores: <b id="ref-date"></b>. Se a data estiver distante de hoje, trate os números como ordem de grandeza, não como preço.</li></ul>
     <p>Confirme sempre nas fontes oficiais:
     <a href="https://aws.amazon.com/pricing/" target="_blank" rel="noopener">preços AWS</a>,
     <a href="https://aws.amazon.com/free/" target="_blank" rel="noopener">free tier AWS</a>,
@@ -236,23 +402,30 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
     <ul><li>Não há contas, cookies de rastreamento nem ferramentas de análise nesta página.</li>
     <li>Ficam salvos apenas no seu navegador (localStorage): cesta, orçamento, ajuste de câmbio, tema, progresso das trilhas e, se você informar, a chave da API Gemini.</li>
     <li>A cotação do dólar é consultada em <code>economia.awesomeapi.com.br</code>.</li>
+    <li>Preços ao vivo do Azure são consultados em <code>prices.azure.com</code>. Nenhum dado seu é enviado, é uma requisição anônima de leitura.</li>
     <li>Se você usar a IA com chave própria, o texto da pergunta ou da cesta é enviado à API do Google Gemini. Sem chave, tudo é respondido localmente.</li>
+    <li>Ao colar o JSON de billing, os dados ficam apenas na memória da página. Nada é enviado para servidor nenhum.</li>
     <li>Não use a chave em computador compartilhado. Você pode removê-la a qualquer momento.</li></ul></details>
   <details class="card" id="d-aviso"><summary>Aviso importante</summary>
     <p>As informações são educacionais e podem estar desatualizadas. Este projeto não tem vínculo com AWS, Google ou Microsoft, e os nomes pertencem aos respectivos donos. Scripts e códigos de infraestrutura podem criar ou apagar recursos: leia, rode <code>plan</code> ou dry-run primeiro e use uma conta de laboratório. Você é responsável pelos custos da sua conta.</p></details>
   <details class="card" id="d-log"><summary>Histórico de versões</summary>
-    <ul><li><b>v12:</b> quiz na etapa Proteger, checklist de competências na etapa Provisionar e validação sintática dos códigos de infraestrutura.</li>
-    <li><b>v11:</b> navegação por etapas, página Destruir, páginas de apoio e revisão do tom dos textos.</li>
+    <ul><li><b>v17:</b> diagramas de arquitetura redesenhados com zona do provedor, curvas bezier, badges de custo e alerta, e custo por nó calculado em tempo real pelo catálogo (respeita "Preços ao vivo").</li>
+    <li><b>v16:</b> efeitos visuais (scroll reveal, glassmorphism, gradiente animado, ripple, contador animado, view transitions e cursor glow) com progressive enhancement e respeito a prefers-reduced-motion.</li>
+    <li><b>v15:</b> preços ao vivo do Azure via Retail Prices API, aviso de desatualização, TCO completo no comparador, exportação em markdown, mapa do framework FinOps e importação de fatura real.</li>
+    <li><b>v14:</b> comparador com descontos reais por provedor, deep links para as calculadoras oficiais, aviso do modelo de créditos do free tier AWS.</li>
+    <li><b>v13:</b> revisão de confiança: gráfico corrigido, teardown real (CloudFront, EKS), plano de recuperação, cópia de todos os arquivos, ARIA completa.</li>
+    <li><b>v12:</b> quiz na etapa Proteger e checklist de competências.</li>
+    <li><b>v11:</b> navegação por etapas e página Destruir.</li>
     <li><b>v10:</b> trilhas de infraestrutura como código para GCP e Azure.</li>
-    <li><b>v9:</b> trilha AWS em quatro passos com esqueleto padrão de arquivos.</li>
-    <li><b>v8:</b> arquiteturas, Terraform e Terragrunt dos projetos.</li>
-    <li><b>v7:</b> gráfico de custo acumulado, orçamento e tema claro/escuro.</li>
-    <li><b>v6:</b> catálogo único de preços, teardown seguro por tag e correções de segurança.</li></ul></details>
+    <li><b>v9:</b> trilha AWS em quatro passos.</li>
+    <li><b>v8:</b> arquiteturas, Terraform e Terragrunt.</li>
+    <li><b>v7:</b> gráfico de custo acumulado, orçamento e tema.</li>
+    <li><b>v6:</b> catálogo único de preços e teardown seguro por tag.</li></ul></details>
 </section>
 
 <!-- TRAVAS -->
-<section id="v-lock" role="tabpanel" hidden><div class="stagebar" data-s="1"></div>
-  <h2> Travas de orçamento</h2>
+<section id="v-lock" role="tabpanel" aria-labelledby="t-1" tabindex="-1" class="tabpanel" hidden><div class="stagebar" data-s="1"></div>
+  <h2>Travas de orçamento</h2>
   <p class="mute">Estimar ajuda; só alertas e travas evitam o susto. Faça isto antes de criar recursos.</p>
   <div class="grid g3">
     <div class="card"><h3>AWS</h3><ol class="mute"><li>Billing → Budgets: orçamento de $1 com alertas em 50/80/100%.</li><li>Ative Budget Actions para aplicar política IAM restritiva.</li><li>Ative Cost Anomaly Detection.</li><li>MFA no root; use IAM/SSO no dia a dia.</li></ol><p class="mute">Budgets avisa; não desliga recursos sozinho por padrão.</p></div>
@@ -270,8 +443,8 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
 </section>
 
 <!-- IA -->
-<section id="v-ai" role="tabpanel" hidden>
-  <h2> Sentinela FinOps</h2>
+<section id="v-ai" role="tabpanel" aria-labelledby="t-4" tabindex="-1" class="tabpanel" hidden>
+  <h2>Sentinela FinOps</h2>
   <p class="mute">Sem chave usa o motor local; com chave Gemini, IA generativa.</p>
   <div class="row" style="flex-wrap:nowrap"><input id="aq" type="text" aria-label="Pergunta" placeholder="Pergunte sobre serviços e armadilhas de faturamento..."><button class="btn pri" id="a-send">Enviar</button></div>
   <div class="card" id="a-box" hidden style="margin-top:14px"><span class="mute" id="a-badge"></span><div id="a-out" style="margin-top:8px"></div></div>
@@ -283,76 +456,217 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
 <div class="dock"><div><div class="mute" style="font-size:11px">Total do mês</div><b id="dock-t" style="font-size:20px">$0.00</b></div><button class="btn pri" id="b-td2">Teardown</button></div>
 
 <div class="modal" id="m-td" hidden role="dialog" aria-modal="true" aria-labelledby="mt1"><div>
-  <div class="row" style="justify-content:space-between"><h3 id="mt1"> Script de teardown</h3><button class="btn" data-x>✕</button></div>
+  <div class="row" style="justify-content:space-between"><h3 id="mt1">Script de teardown</h3><button class="btn" data-x aria-label="Fechar">✕</button></div>
   <p class="mute">Só atua em recursos com tag/label <b>Project=finops-lab</b>. Roda em <b>dry-run</b>; use <code>DRY_RUN=0 ./teardown.sh</code> para executar. Confira conta e região.</p>
   <pre id="td"></pre>
-  <div class="row" style="justify-content:flex-end"><button class="btn pri" id="td-c"> Copiar</button></div>
+  <div class="row" style="justify-content:flex-end"><button class="btn pri" id="td-c">Copiar</button></div>
 </div></div>
 <div class="modal" id="m-key" hidden role="dialog" aria-modal="true" aria-labelledby="mt2"><div>
-  <div class="row" style="justify-content:space-between"><h3 id="mt2"> Chave Gemini</h3><button class="btn" data-x>✕</button></div>
+  <div class="row" style="justify-content:space-between"><h3 id="mt2">Chave Gemini</h3><button class="btn" data-x aria-label="Fechar">✕</button></div>
   <p class="mute">Fica só neste navegador (localStorage). Não use em computador compartilhado.</p>
   <input id="k-in" type="password" autocomplete="off" placeholder="AIzaSy...">
-  <div id="k-fb" class="mute"></div>
-  <div class="row" style="justify-content:space-between"><button class="btn" id="k-rm">Remover</button><div class="row"><button class="btn" id="k-t"> Testar</button><button class="btn pri" id="k-s">Salvar</button></div></div>
+  <div id="k-fb" class="mute" role="status"></div>
+  <div class="row" style="justify-content:space-between"><button class="btn" id="k-rm">Remover</button><div class="row"><button class="btn" id="k-t">Testar</button><button class="btn pri" id="k-s">Salvar</button></div></div>
 </div></div>
 <div class="modal" id="m-fx" hidden role="dialog" aria-modal="true" aria-labelledby="mt3"><div>
-  <div class="row" style="justify-content:space-between"><h3 id="mt3"> Câmbio</h3><button class="btn" data-x>✕</button></div>
+  <div class="row" style="justify-content:space-between"><h3 id="mt3">Câmbio</h3><button class="btn" data-x aria-label="Fechar">✕</button></div>
   <label class="mute">Cotação base (R$)<input id="fx-in" type="number" step="0.01"></label>
   <label class="mute">Spread + IOF do cartão (%)<input id="fx-e" type="number" step="0.1" min="0"></label>
   <div class="row" style="justify-content:flex-end"><button class="btn pri" id="fx-ok">Aplicar</button></div>
 </div></div>
-<div id="toast" hidden role="status"></div>
+<div class="modal" id="m-import" hidden role="dialog" aria-modal="true" aria-labelledby="mt4"><div>
+  <div class="row" style="justify-content:space-between"><h3 id="mt4">Importar gasto real</h3><button class="btn" data-x aria-label="Fechar">✕</button></div>
+  <p class="mute">Cole o JSON exportado do console de custos. Nada é enviado para servidor nenhum. Formatos aceitos:</p>
+  <ul class="mute" style="margin:0;padding-left:18px;font-size:12.5px">
+    <li><b>AWS Cost Explorer:</b> <code>aws ce get-cost-and-usage --output json</code> (resultado completo)</li>
+    <li><b>Formato simples:</b> <code>{"provider":"aws","amount_usd":12.34,"period":"2026-10"}</code></li>
+    <li><b>Azure Cost Management:</b> exportação JSON padrão</li>
+  </ul>
+  <textarea id="imp-in" placeholder='{"provider":"aws","amount_usd":12.34,"period":"2026-10"}'></textarea>
+  <div id="imp-fb" class="mute" role="status"></div>
+  <div class="row" style="justify-content:space-between">
+    <button class="btn" id="imp-clr">Limpar</button>
+    <div class="row"><button class="btn" id="imp-ex">Exemplo</button><button class="btn pri" id="imp-ok">Importar</button></div>
+  </div>
+</div></div>
+<div id="toast" hidden role="status" aria-live="polite"></div>
 
 <script>
 'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
-const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const usd=n=>'$'+n.toFixed(2),BRL=new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'});
-const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)};
+
+let storeWarned=false;
+const store={
+  get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v)}catch{return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){if(!storeWarned){storeWarned=true;try{toast('⚠ Não consegui salvar neste navegador. O progresso não será mantido.')}catch{}}return false}},
+  del(k){try{localStorage.removeItem(k)}catch{}}
+};
+const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)};
 const DAYS=30;
+const VERIFIED='2026-10';
 const S={fx:5.65,extra:store.get('fx_e',0),off:DAYS,budget:store.get('budget',50),cloud:'all',sel:new Set(store.get('sel',[])),key:store.get('gk',''),model:store.get('gm',''),upto:DAYS};
 
-/* Catálogo único. hourly = USD/h. Valores aproximados (us-east): VERIFIQUE. */
-const VERIFIED='2026-10';
+function animateNumber(el,to,dur=650){
+  if(!el)return;
+  const from=parseFloat(el.dataset.v||'0');
+  if(Math.abs(from-to)<0.005){el.textContent=usd(to);el.dataset.v=to;return}
+  el.dataset.v=to;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){el.textContent=usd(to);return}
+  const start=performance.now();
+  const step=now=>{
+    const t=Math.min(1,(now-start)/dur);
+    const eased=1-Math.pow(1-t,3);
+    el.textContent=usd(from+(to-from)*eased);
+    if(t<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+const LIVE={azure:{},status:'idle',lastFetch:0,error:null};
+const LIVE_QUERIES=[
+  {id:'az_b1s', filter:"armRegionName eq 'eastus' and armSkuName eq 'Standard_B1s' and priceType eq 'Consumption'"},
+  {id:'ipv4', filter:"armRegionName eq 'eastus' and serviceName eq 'Virtual Network' and skuName eq 'Standard' and contains(meterName, 'Static Public IP')"},
+  {id:'az_bastion', filter:"armRegionName eq 'eastus' and serviceName eq 'Azure Bastion' and skuName eq 'Basic'"}
+];
+async function fetchLiveAzure(){
+  const out={};
+  for(const q of LIVE_QUERIES){
+    try{
+      const url='https://prices.azure.com/api/retail/prices?$filter='+encodeURIComponent(q.filter);
+      const r=await fetch(url);
+      if(!r.ok)continue;
+      const d=await r.json();
+      const item=(d.Items||[]).find(x=>x.retailPrice>0&&x.unitOfMeasure==='1 Hour')||(d.Items||[]).find(x=>x.retailPrice>0);
+      if(item&&item.retailPrice>0)out[q.id]=item.retailPrice;
+    }catch(e){}
+  }
+  return out;
+}
+async function loadLive(opts={}){
+  if(LIVE.status==='loading')return;
+  LIVE.status='loading';LIVE.error=null;
+  renderLive();
+  try{
+    const prices=await fetchLiveAzure();
+    LIVE.azure=prices;
+    LIVE.lastFetch=Date.now();
+    LIVE.status=Object.keys(prices).length?'ok':'error';
+    if(LIVE.status==='error')LIVE.error='Nenhum preço retornado.';
+    if(!opts.silent){
+      if(LIVE.status==='ok')toast('Preços ao vivo carregados ('+Object.keys(prices).length+' itens)');
+      else toast('Sem resposta da API do Azure. Usando catálogo de referência.');
+    }
+    catalog();calc();
+    if(typeof prjRender==='function')prjRender();
+  }catch(e){
+    LIVE.status='error';LIVE.error=e.message;
+    if(!opts.silent)toast('Falha ao buscar preços ao vivo: '+e.message);
+  }
+  renderLive();
+}
+function renderLive(){
+  const b=$('#live-l');
+  if(!b)return;
+  if(LIVE.status==='loading')b.textContent='Buscando...';
+  else if(LIVE.status==='ok')b.textContent='Ao vivo · '+Object.keys(LIVE.azure).length+' itens';
+  else if(LIVE.status==='error')b.textContent='Preços ao vivo (indisponível)';
+  else b.textContent='Preços ao vivo';
+  $('#b-live').classList.toggle('live',LIVE.status==='ok');
+}
+const rateOf=c=>(LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined)?LIVE.azure[c.id]:c.hourly;
+const isLive=c=>LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefined;
+
 const C=[
-{id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,desc:'Always Free só em us-central1, us-east1 e us-west1; 30 GB de disco padrão. IPv4 externo e egress extra podem cobrar.'},
-{id:'aws_ec2',cloud:'aws',paid:0,name:'AWS: EC2 t3.micro',hourly:0,desc:'Free tier de conta nova (hoje baseado em créditos/tempo limitado). Confira seu plano. IPv4 público é cobrado à parte.'},
-{id:'az_b1s',cloud:'azure',paid:0,name:'Azure: VM B1s',hourly:0,desc:'Free tier de 12 meses para contas elegíveis, com limite de horas. Confira a oferta atual.'},
-{id:'gcp_bq',cloud:'gcp',paid:0,name:'GCP: BigQuery Sandbox',hourly:0,desc:'Sandbox sem cartão, com limites de armazenamento e consulta; tabelas expiram.'},
-{id:'aws_s3cf',cloud:'aws',paid:0,name:'AWS: S3 + CloudFront',hourly:0,desc:'CloudFront tem franquia mensal recorrente; o S3 gratuito pode ser limitado no tempo. Defina budget.'},
-{id:'gcp_run',cloud:'gcp',paid:0,name:'GCP: Cloud Run',hourly:0,desc:'Franquia mensal de requisições; escala a zero. Evite "min instances" > 0.'},
-{id:'aws_nat',cloud:'aws',paid:1,name:'AWS: NAT Gateway',hourly:.045,desc:'~$0,045/h + ~$0,045/GB processado, mesmo sem uso.'},
-{id:'gcp_nat',cloud:'gcp',paid:1,name:'GCP: Cloud NAT',hourly:.0014,desc:'Cobrança por VM/hora (baixa) + dados processados. Verifique o preço atual.'},
-{id:'az_bastion',cloud:'azure',paid:1,name:'Azure: Bastion (Basic)',hourly:.19,desc:'~$0,19/h. Existe SKU Developer sem custo fixo, com limitações. Verifique.'},
-{id:'ipv4',cloud:'all',paid:1,name:'IPv4 público',hourly:.005,desc:'~$0,005/h por IPv4, em uso ou ocioso. Libere IPs ao destruir o lab.'},
-{id:'gcp_sql',cloud:'gcp',paid:1,name:'GCP: Cloud SQL (micro)',hourly:.015,desc:'Instância dedicada por hora, sem Always Free. Prefira Postgres via Docker na VM.'},
-{id:'aws_alb',cloud:'aws',paid:1,name:'AWS: Application Load Balancer',hourly:.0225,desc:'~$0,0225/h + LCUs.'},
-{id:'aws_eks',cloud:'aws',paid:1,name:'AWS: EKS (control plane)',hourly:.10,desc:'~$0,10/h só pelo cluster, antes de nós, NAT ou balanceadores.'}];
+{id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Always Free só em us-central1, us-east1 e us-west1; 30 GB de disco padrão. IPv4 externo e egress extra podem cobrar.'},
+{id:'aws_ec2',cloud:'aws',paid:0,name:'AWS: EC2 t3.micro',hourly:0,
+ link:'https://calculator.aws/#/createCalculator/ec2-enhancement',
+ desc:'Contas novas recebem créditos (modelo atual da AWS) válidos por tempo limitado, em vez do antigo "12 meses de t2.micro". Confira o que sobrou antes de deixar rodando. IPv4 público é cobrado à parte, mesmo com a VM parada.'},
+{id:'az_b1s',cloud:'azure',paid:0,name:'Azure: VM B1s',hourly:0,
+ link:'https://azure.microsoft.com/pt-br/pricing/calculator/',
+ desc:'Free tier de 12 meses para contas elegíveis, com limite de horas. Confira a oferta atual.'},
+{id:'gcp_bq',cloud:'gcp',paid:0,name:'GCP: BigQuery Sandbox',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Sandbox sem cartão, com limites de armazenamento e consulta; tabelas expiram.'},
+{id:'aws_s3cf',cloud:'aws',paid:0,name:'AWS: S3 + CloudFront',hourly:0,
+ link:'https://calculator.aws/#/createCalculator/CloudFront',
+ desc:'CloudFront tem franquia mensal recorrente; o S3 gratuito pode ser limitado no tempo. Defina budget.'},
+{id:'gcp_run',cloud:'gcp',paid:0,name:'GCP: Cloud Run',hourly:0,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Franquia mensal de requisições; escala a zero. Evite "min instances" > 0.'},
+{id:'aws_nat',cloud:'aws',paid:1,name:'AWS: NAT Gateway',hourly:.045,
+ link:'https://calculator.aws/#/createCalculator/NATGateway',
+ desc:'~$0,045/h (~$33/mês) + ~$0,045/GB processado, mesmo ocioso. É o item que mais aparece em faturas de estudante.'},
+{id:'gcp_nat',cloud:'gcp',paid:1,name:'GCP: Cloud NAT',hourly:.0014,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'~$0,0014/h por VM + ~$0,045/GB processado. O GB é o que dói, não a hora.'},
+{id:'az_bastion',cloud:'azure',paid:1,name:'Azure: Bastion (Basic)',hourly:.19,
+ link:'https://azure.microsoft.com/pt-br/pricing/calculator/',
+ desc:'~$0,19/h (~$139/mês). Existe SKU Developer sem custo fixo, com limitações. Evite em estudos.'},
+{id:'ipv4',cloud:'all',paid:1,name:'IPv4 público',hourly:.005,
+ link:'https://calculator.aws/#/createCalculator/VPC',
+ desc:'~$0,005/h (~$3,65/mês) por IPv4, em uso OU ocioso. Mesmo com a VM parada, o IP associado continua sendo cobrado. Libere ao destruir o lab.'},
+{id:'gcp_sql',cloud:'gcp',paid:1,name:'GCP: Cloud SQL (micro)',hourly:.015,
+ link:'https://cloud.google.com/products/calculator?hl=pt-BR',
+ desc:'Instância dedicada por hora, sem Always Free. Prefira Postgres via Docker na VM.'},
+{id:'aws_alb',cloud:'aws',paid:1,name:'AWS: Application Load Balancer',hourly:.0225,
+ link:'https://calculator.aws/#/createCalculator/ElasticLoadBalancing',
+ desc:'~$0,0225/h (~$16/mês) + LCUs. Para arquivos estáticos é desnecessário.'},
+{id:'aws_eks',cloud:'aws',paid:1,name:'AWS: EKS (control plane)',hourly:.10,
+ link:'https://calculator.aws/#/createCalculator/EKS',
+ desc:'~$0,10/h só pelo cluster, antes de nós, NAT ou balanceadores.'}];
 const byId=Object.fromEntries(C.map(c=>[c.id,c]));
 const items=()=>[...S.sel].map(i=>byId[i]).filter(Boolean);
 const fx=()=>S.fx*(1+S.extra/100);
-const dayRate=()=>items().reduce((s,c)=>s+c.hourly*24,0);
+const dayRate=()=>items().reduce((s,c)=>s+rateOf(c)*24,0);
 const cum=(d,off=S.off)=>dayRate()*Math.min(d,off);
 
-/* Navegação por etapas */
 const STAGES=[['Planejar','Quanto isso pode custar?','v-sim'],['Proteger','Como garanto que não passo do limite?','v-lock'],['Provisionar','Como crio isso de forma repetível?','v-prj'],['Destruir','Como removo tudo e confirmo?','v-down']];
 const NAV=[['1. Planejar',['v-sim','v-cmp']],['2. Proteger',['v-lock']],['3. Provisionar',['v-prj']],['4. Destruir',['v-down']],['Sentinela IA',['v-ai']],['Sobre',['v-about']]];
-function tabs(){$('#tabs').innerHTML=NAV.map(([l],i)=>`<button role="tab" id="t-${i}" data-i="${i}">${l}</button>`).join('');$$('#tabs button').forEach(b=>b.onclick=()=>show(NAV[+b.dataset.i][1][0]))}
+function tabs(){
+  $('#tabs').innerHTML=NAV.map(([l],i)=>`<button role="tab" id="t-${i}" data-i="${i}" aria-controls="${NAV[i][1][0]}" tabindex="-1">${l}</button>`).join('');
+  $$('#tabs button').forEach(b=>b.onclick=()=>show(NAV[+b.dataset.i][1][0]));
+  $('#tabs').addEventListener('keydown',e=>{
+    if(e.key!=='ArrowLeft'&&e.key!=='ArrowRight')return;
+    const btns=$$('#tabs button'),cur=btns.findIndex(b=>b.getAttribute('aria-selected')==='true');
+    const nx=(cur+(e.key==='ArrowRight'?1:-1)+btns.length)%btns.length;
+    btns[nx].focus();btns[nx].click();e.preventDefault();
+  });
+}
 function stagebars(cur){
   $$('.stagebar').forEach(el=>{
     const i=+el.dataset.s,[name,q]=STAGES[i],nx=STAGES[i+1];
-    el.innerHTML=`<div class="card"><ol class="sb-steps">${STAGES.map(([n,,p],k)=>`<li class="${k===i?'on':k<i?'past':''}"><button data-go="${p}">${k+1}. ${n}</button></li>`).join('')}</ol>
+    el.innerHTML=`<div class="card no-reveal"><ol class="sb-steps">${STAGES.map(([n,,p],k)=>`<li class="${k===i?'on':k<i?'past':''}"><button data-go="${p}"${k===i?' aria-current="step"':''}>${k+1}. ${n}</button></li>`).join('')}</ol>
     <div class="sb-row"><div><b>Etapa ${i+1} de 4: ${name}</b><div class="mute">${q}</div></div>
-    ${i===0?`<div class="seg"><button data-go="v-sim" aria-pressed="${cur==='v-sim'}">Simulador</button><button data-go="v-cmp" aria-pressed="${cur==='v-cmp'}">Comparador</button></div>`:''}
+    ${i===0?`<div class="seg" role="group" aria-label="Sub-página de Planejar"><button data-go="v-sim" aria-pressed="${cur==='v-sim'}">Simulador</button><button data-go="v-cmp" aria-pressed="${cur==='v-cmp'}">Comparador</button></div>`:''}
     ${nx?`<button class="btn pri" data-go="${nx[2]}">Próxima: ${nx[0]} ➜</button>`:''}</div></div>`;
     $$('[data-go]',el).forEach(b=>b.onclick=()=>show(b.dataset.go));
   });
 }
-function show(id){
-  NAV.forEach(([,ps],i)=>{ps.forEach(p=>$('#'+p).hidden=p!==id);$('#t-'+i).setAttribute('aria-selected',ps.includes(id))});
-  stagebars(id);if(id==='v-cmp')cmp();window.scrollTo(0,0);
+function _showInternal(id,opts){
+  NAV.forEach(([,ps],i)=>{
+    ps.forEach(p=>{const el=$('#'+p);el.hidden=p!==id});
+    const sel=ps.includes(id);
+    $('#t-'+i).setAttribute('aria-selected',sel);
+    $('#t-'+i).tabIndex=sel?0:-1;
+  });
+  stagebars(id);
+  if(id==='v-cmp')cmp();
+  if(!opts.keepScroll)window.scrollTo({top:0,behavior:opts.smooth?'smooth':'auto'});
+  if(!opts.silent){const p=$('#'+id);if(p)p.focus({preventScroll:true})}
 }
+function show(id,opts={}){
+  const noMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(document.startViewTransition&&!noMotion&&!opts.instant){
+    document.startViewTransition(()=>_showInternal(id,opts));
+  }else{
+    _showInternal(id,opts);
+  }
+}
+
 const DOWN=['Executei plan -destroy e revisei o que seria removido','Executei destroy (ou o teardown por tag)','Conferi o console: discos, IPs, snapshots, logs e buckets órfãos','Mantive ou revisei o alerta de orçamento','Conferi o painel de custos no dia seguinte','Removi credenciais e chaves temporárias'];
 function downInit(){
   const done=new Set(store.get('down_done',[]));
@@ -362,122 +676,404 @@ function downInit(){
   $('#ref-date').textContent=VERIFIED;$('#foot-date').textContent=VERIFIED;
   document.addEventListener('click',e=>{const a=e.target.closest('[data-about]');if(!a)return;show('v-about');const d=$('#'+a.dataset.about);if(d){d.open=true;d.scrollIntoView({block:'start'})}});
 }
-/* Gráfico SVG */
+function checkStaleness(){
+  const ref=new Date(VERIFIED+'-01T00:00:00Z');
+  const diffDays=Math.round((Date.now()-ref.getTime())/86400000);
+  const el=$('#stale-banner');if(!el)return;el.innerHTML='';
+  if(diffDays>90){
+    const cls=LIVE.status==='ok'?'callout info':'callout';
+    el.innerHTML=`<div class="${cls}" style="margin-bottom:16px"><b>⚠ Preços de referência verificados há ${diffDays} dias.</b> Os valores hardcoded podem estar desatualizados. ${LIVE.status==='ok'?'Os itens com selo "ao vivo" já estão corrigidos pelo Azure Retail Prices API.':'Clique em "Preços ao vivo" para buscar valores atuais, ou confira nas calculadoras oficiais.'}</div>`;
+  }else if(diffDays>60){
+    el.innerHTML=`<div class="callout info" style="margin-bottom:16px"><b>Preços verificados em ${VERIFIED}.</b> Revisão recomendada a cada 90 dias.</div>`;
+  }
+}
+
 function chart(){
-  const W=640,H=250,L=48,R=14,Tp=14,B=30,w=W-L-R,h=H-Tp-B;
+  const W=640,H=250,L=52,R=14,Tp=14,B=30,w=W-L-R,h=H-Tp-B;
   const rate=dayRate(),bud=S.budget/fx(),full=rate*DAYS;
   const max=Math.max(full,bud,.5)*1.12;
-  const X=d=>L+(d-1)/(DAYS-1)*w,Y=v=>Tp+h-(v/max)*h;
-  const up=S.upto,pts=[];for(let d=1;d<=Math.min(up,DAYS);d++)pts.push([X(d),Y(cum(d))]);
+  const X=d=>L+(d/DAYS)*w,Y=v=>Tp+h-(v/max)*h;
+  const up=S.upto,pts=[[X(0),Y(0)]];
+  for(let d=1;d<=Math.min(up,DAYS);d++)pts.push([X(d),Y(cum(d))]);
   const line=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('');
-  const area=pts.length?line+`L${pts[pts.length-1][0].toFixed(1)} ${Y(0)}L${X(1)} ${Y(0)}Z`:'';
+  const area=pts.length?line+`L${X(Math.min(up,DAYS)).toFixed(1)} ${Y(0)}L${X(0)} ${Y(0)}Z`:'';
   const ticks=[0,.25,.5,.75,1].map(f=>{const v=max*f;return `<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${usd(v)}</text>`}).join('');
-  const xs=[1,5,10,15,20,25,30].map(d=>`<text x="${X(d)}" y="${H-8}" text-anchor="middle">${d}</text>`).join('');
-  const ghost=S.off<DAYS&&rate>0?`<path d="M${X(1)} ${Y(rate*24/24)}${Array.from({length:DAYS},(_,i)=>`L${X(i+1)} ${Y(rate*(i+1))}`).join('')}" fill="none" stroke="var(--bad)" stroke-opacity=".35" stroke-dasharray="3 4" stroke-width="2"/>`:'';
-  const over=rate>0?(()=>{for(let d=1;d<=DAYS;d++)if(cum(d)*fx()>S.budget)return d;return 0})():0;
+  const xs=[0,5,10,15,20,25,30].map(d=>`<text x="${X(d)}" y="${H-8}" text-anchor="middle">${d}</text>`).join('');
+  const ghost=(S.off<DAYS&&rate>0)?`<path d="M${X(0)} ${Y(0)}${Array.from({length:DAYS},(_,i)=>`L${X(i+1)} ${Y(rate*(i+1))}`).join('')}" fill="none" stroke="var(--bad)" stroke-opacity=".35" stroke-dasharray="3 4" stroke-width="2"/>`:'';
+  const over=(()=>{if(rate<=0)return 0;for(let d=1;d<=DAYS;d++)if(cum(d)*fx()>S.budget)return d;return 0})();
   const last=pts[pts.length-1];
   $('#chart').innerHTML=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Gráfico de custo acumulado por dia no mês">
   <title>Custo acumulado ao longo de ${DAYS} dias</title>${ticks}${xs}
   ${S.budget>0?`<line x1="${L}" x2="${W-R}" y1="${Y(bud)}" y2="${Y(bud)}" stroke="var(--warn)" stroke-dasharray="6 5" stroke-width="2"/><text x="${W-R}" y="${Y(bud)-5}" text-anchor="end" style="fill:var(--warn);font-weight:700">Orçamento ${BRL.format(S.budget)}</text>`:''}
   ${ghost}<path d="${area}" fill="var(--acc)" fill-opacity=".14"/><path d="${line}" fill="none" stroke="var(--acc)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-  ${last?`<circle cx="${last[0]}" cy="${last[1]}" r="5" fill="var(--acc)"/>`:''}
+  ${last&&up>0?`<circle cx="${last[0]}" cy="${last[1]}" r="5" fill="var(--acc)"/>`:''}
   ${over&&S.upto>=over?`<circle cx="${X(over)}" cy="${Y(cum(over))}" r="6" fill="none" stroke="var(--bad)" stroke-width="3"/>`:''}</svg>`;
   const m=$('#chart-msg');
-  if(!rate)m.innerHTML='<span style="color:var(--ok)">Nenhum item cobrado por hora na cesta. </span>';
-  else if(over)m.innerHTML=`<span style="color:var(--bad)">Você estoura o orçamento no <b>dia ${over}</b>.</span> ${S.off<over?'':'Desligar antes evita isso.'}`;
+  if(!rate)m.innerHTML='<span style="color:var(--ok)">Nenhum item cobrado por hora na cesta.</span>';
+  else if(over&&S.upto>=over)m.innerHTML=`<span style="color:var(--bad)">Você estoura o orçamento no <b>dia ${over}</b>.</span> Desligue tudo até o dia <b>${Math.max(1,over-1)}</b> para não passar.`;
+  else if(over)m.innerHTML=`<span style="color:var(--warn)">Atenção: se ficar o mês todo, você estoura no dia ${over}.</span>`;
   else m.innerHTML=`<span style="color:var(--ok)">Dentro do orçamento: ${BRL.format(cum(DAYS)*fx())} no mês.</span>`;
   let rows='';for(let d=1;d<=DAYS;d+=Math.ceil(DAYS/10))rows+=`<tr><td>Dia ${d}</td><td>${usd(cum(d))}</td><td>${BRL.format(cum(d)*fx())}</td></tr>`;
   $('#tbl').innerHTML=`<table><tr><th>Dia</th><th>USD</th><th>BRL</th></tr>${rows}</table>`;
 }
 let rp=0;
-function replay(){cancelAnimationFrame(rp);if(matchMedia('(prefers-reduced-motion:reduce)').matches){S.upto=DAYS;chart();return}
-  let d=0,t0=0;const step=ts=>{if(!t0)t0=ts;const n=Math.floor((ts-t0)/90)+1;if(n!==d){d=n;S.upto=Math.min(d,DAYS);chart()}if(d<DAYS)rp=requestAnimationFrame(step)};S.upto=1;rp=requestAnimationFrame(step)}
+function replay(){
+  cancelAnimationFrame(rp);
+  if(matchMedia('(prefers-reduced-motion:reduce)').matches){S.upto=DAYS;chart();return}
+  let d=0,t0=0;const step=ts=>{if(!t0)t0=ts;const n=Math.floor((ts-t0)/90);if(n!==d){d=n;S.upto=Math.min(d,DAYS);chart()}if(d<DAYS)rp=requestAnimationFrame(step)};
+  S.upto=0;rp=requestAnimationFrame(step);
+}
 
-/* Cálculos e UI */
 function calc(){
   S.upto=DAYS;const it=items(),tot=cum(DAYS),brl=tot*fx();
-  $('#tot').textContent=usd(tot);$('#dock-t').textContent=usd(tot);
+  animateNumber($('#tot'),tot);
+  animateNumber($('#dock-t'),tot);
   $('#tot-brl').textContent='≈ '+BRL.format(brl)+(S.extra?' (c/ spread e IOF)':'');
   $('#tot-day').textContent=dayRate()>0?`Esquecido ligado: ~${usd(dayRate())}/dia (${BRL.format(dayRate()*fx())}).`:'Sem custo por hora na cesta.';
   const rk=$('#risk'),lv=brl>S.budget&&S.budget>0?2:brl>S.budget*.5&&brl>5?1:0;
   rk.className='pill '+['p-ok','p-warn','p-bad'][lv];rk.textContent=['Risco baixo','Atenção','Alto risco'][lv];
-  const paid=it.filter(c=>c.hourly>0).map(c=>[c,c.hourly*24*Math.min(DAYS,S.off)]).sort((a,b)=>b[1]-a[1]),mx=paid[0]?paid[0][1]:1;
+  const paid=it.filter(c=>rateOf(c)>0).map(c=>[c,rateOf(c)*24*Math.min(DAYS,S.off)]).sort((a,b)=>b[1]-a[1]),mx=paid[0]?paid[0][1]:1;
   $('#bars').innerHTML=paid.length?paid.map(([c,v])=>`<div class="bar-r"><span>${esc(c.name)}</span><span><i style="width:${Math.max(4,v/mx*100)}%"></i></span><b>${usd(v)}</b></div>`).join(''):'<span class="mute">Marque itens da zona de risco para ver o peso de cada um.</span>';
   const hid=it.filter(c=>S.cloud!=='all'&&c.cloud!=='all'&&c.cloud!==S.cloud),h=$('#hid');
-  h.style.display=hid.length?'block':'none';h.textContent=` ${hid.length} item(ns) de outra nuvem estão esmaecidos, mas continuam no total.`;
+  h.style.display=hid.length?'block':'none';h.textContent=`⚠ ${hid.length} item(ns) de outra nuvem estão esmaecidos, mas continuam no total.`;
   chart();
 }
-function card(c){const p=c.hourly>0;return `<label class="svc ${p?'paid':''}" data-cloud="${c.cloud}"><input type="checkbox" data-id="${c.id}"><span><span class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(c.name)}</b><span class="tag" style="${p?'color:var(--bad)':'color:var(--ok)'}">${p?usd(c.hourly*24*DAYS)+'/mês':'$0.00'}</span></span><p>${esc(c.desc)}</p></span></label>`}
+function card(c){
+  const r=rateOf(c),live=isLive(c),p=r>0;
+  const link=c.link?`<a class="svc-link" href="${esc(c.link)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">Abrir na calculadora oficial ↗</a>`:'';
+  const liveTag=live?' <span class="tag live" title="Preço atualizado pela Azure Retail Prices API">ao vivo</span>':'';
+  return `<label class="svc ${p?'paid':''}" data-cloud="${c.cloud}">
+    <input type="checkbox" data-id="${c.id}" aria-label="${esc(c.name)}">
+    <span style="flex:1">
+      <span class="row" style="justify-content:space-between;flex-wrap:nowrap"><b>${esc(c.name)}</b><span class="tag ${p?'paid':'free'}">${p?usd(r*24*DAYS)+'/mês':'$0.00'}${liveTag}</span></span>
+      <p>${esc(c.desc)}</p>${link}
+    </span></label>`;
+}
 function catalog(){
-  $('#l-free').innerHTML=C.filter(c=>!c.paid).map(card).join('');$('#l-paid').innerHTML=C.filter(c=>c.paid).map(card).join('');
+  $('#l-free').innerHTML=C.filter(c=>!c.paid).map(card).join('');
+  $('#l-paid').innerHTML=C.filter(c=>c.paid).map(card).join('');
   $$('.svc input').forEach(i=>{i.checked=S.sel.has(i.dataset.id);i.onchange=()=>{i.checked?S.sel.add(i.dataset.id):S.sel.delete(i.dataset.id);store.set('sel',[...S.sel]);calc()}});
-  $('#cf').innerHTML=[['all','Todas'],['gcp','GCP'],['aws','AWS'],['azure','Azure']].map(([k,l])=>`<button data-c="${k}">${l}</button>`).join('');
+  $('#cf').innerHTML=[['all','Todas'],['gcp','GCP'],['aws','AWS'],['azure','Azure']].map(([k,l])=>`<button data-c="${k}" aria-pressed="false">${l}</button>`).join('');
   $$('#cf button').forEach(b=>b.onclick=()=>cloud(b.dataset.c));cloud('all');
 }
-function cloud(c){S.cloud=c;$$('#cf button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));$$('.svc').forEach(e=>e.style.opacity=(c==='all'||e.dataset.cloud==='all'||e.dataset.cloud===c)?1:.35);calc()}
+function cloud(c){
+  S.cloud=c;$$('#cf button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));
+  $$('.svc').forEach(e=>e.style.opacity=(c==='all'||e.dataset.cloud==='all'||e.dataset.cloud===c)?1:.35);
+  calc();
+}
 function setOff(d){S.off=d;$('#off').value=d;$('#off-v').textContent=d;$$('#scen button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.d===d));calc()}
 
-/* Teardown seguro (tag + dry-run) */
 const TD={
-aws_ec2:`IDS=$(aws ec2 describe-instances --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" "Name=instance-state-name,Values=running,stopped" --query 'Reservations[].Instances[].InstanceId' --output text)\n[ -n "$IDS" ] && run aws ec2 terminate-instances --region "$REGION" --instance-ids $IDS || echo "EC2: nada encontrado"`,
-aws_nat:`for id in $(aws ec2 describe-nat-gateways --region "$REGION" --filter "Name=tag:$TAG_KEY,Values=$TAG_VAL" "Name=state,Values=available" --query 'NatGateways[].NatGatewayId' --output text); do\n  run aws ec2 delete-nat-gateway --region "$REGION" --nat-gateway-id "$id"\ndone`,
-aws_alb:`for arn in $(aws resourcegroupstaggingapi get-resources --region "$REGION" --tag-filters "Key=$TAG_KEY,Values=$TAG_VAL" --resource-type-filters elasticloadbalancing:loadbalancer --query 'ResourceTagMappingList[].ResourceARN' --output text); do\n  run aws elbv2 delete-load-balancer --region "$REGION" --load-balancer-arn "$arn"\ndone`,
-ipv4:`for a in $(aws ec2 describe-addresses --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" --query 'Addresses[?AssociationId==null].AllocationId' --output text); do\n  run aws ec2 release-address --region "$REGION" --allocation-id "$a"\ndone`,
-aws_eks:`CLUSTER="meu-cluster-lab"   # ajuste\nfor ng in $(aws eks list-nodegroups --region "$REGION" --cluster-name "$CLUSTER" --query nodegroups --output text); do\n  run aws eks delete-nodegroup --region "$REGION" --cluster-name "$CLUSTER" --nodegroup-name "$ng"\ndone\necho "Depois que os node groups sumirem: aws eks delete-cluster --name $CLUSTER"`,
-aws_s3cf:`BUCKET="meu-bucket-lab"   # ajuste\necho "CloudFront: desabilite (Enabled=false), aguarde 'Deployed' e delete-distribution --if-match <ETag>"\nrun aws s3 rb "s3://$BUCKET" --force`,
-gcp_e2:`gcloud compute instances list --filter="labels.project=finops-lab" --format="value(name,zone)" | while read n z; do\n  run gcloud compute instances delete "$n" --zone "$z" --quiet\ndone`,
-gcp_sql:`for n in $(gcloud sql instances list --filter="settings.userLabels.project=finops-lab" --format='value(name)'); do\n  run gcloud sql instances delete "$n" --quiet\ndone`,
-gcp_nat:`run gcloud compute routers nats delete nat-config --router=nat-router --region=us-central1 --quiet   # ajuste nomes`,
-gcp_run:`for s in $(gcloud run services list --filter="metadata.labels.project=finops-lab" --format='value(metadata.name)'); do\n  run gcloud run services delete "$s" --region us-central1 --quiet\ndone`,
-gcp_bq:`run bq rm -r -f -d meu_dataset_lab   # ajuste`,
-az_b1s:`run az group delete --name rg-finops-lab --yes --no-wait`,
+aws_ec2:`IDS=$(aws ec2 describe-instances --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" "Name=instance-state-name,Values=running,stopped" --query 'Reservations[].Instances[].InstanceId' --output text)
+[ -n "$IDS" ] && run aws ec2 terminate-instances --region "$REGION" --instance-ids $IDS || echo "EC2: nada encontrado"`,
+aws_nat:`for id in $(aws ec2 describe-nat-gateways --region "$REGION" --filter "Name=tag:$TAG_KEY,Values=$TAG_VAL" "Name=state,Values=available" --query 'NatGateways[].NatGatewayId' --output text); do
+  run aws ec2 delete-nat-gateway --region "$REGION" --nat-gateway-id "$id"
+done`,
+aws_alb:`for arn in $(aws resourcegroupstaggingapi get-resources --region "$REGION" --tag-filters "Key=$TAG_KEY,Values=$TAG_VAL" --resource-type-filters elasticloadbalancing:loadbalancer --query 'ResourceTagMappingList[].ResourceARN' --output text); do
+  run aws elbv2 delete-load-balancer --region "$REGION" --load-balancer-arn "$arn"
+done`,
+ipv4:`for a in $(aws ec2 describe-addresses --region "$REGION" --filters "Name=tag:$TAG_KEY,Values=$TAG_VAL" --query 'Addresses[].AllocationId' --output text); do
+  run aws ec2 release-address --region "$REGION" --allocation-id "$a"
+done`,
+aws_eks:`CLUSTER="\${CLUSTER:-meu-cluster-lab}"
+if aws eks describe-cluster --region "$REGION" --name "$CLUSTER" >/dev/null 2>&1; then
+  for ng in $(aws eks list-nodegroups --region "$REGION" --cluster-name "$CLUSTER" --query nodegroups --output text 2>/dev/null); do
+    run aws eks delete-nodegroup --region "$REGION" --cluster-name "$CLUSTER" --nodegroup-name "$ng"
+    echo "Aguardando nodegroup $ng sumir..."
+    aws eks wait nodegroup-deleted --region "$REGION" --cluster-name "$CLUSTER" --nodegroup-name "$ng" || true
+  done
+  run aws eks delete-cluster --region "$REGION" --name "$CLUSTER"
+else
+  echo "EKS: cluster $CLUSTER não encontrado"
+fi`,
+aws_s3cf:`BUCKET="\${BUCKET:-meu-bucket-lab}"
+if command -v jq >/dev/null 2>&1; then
+  for ID in $(aws cloudfront list-distributions --query "DistributionList.Items[?Origins.Items[?contains(DomainName,'$BUCKET')]].Id" --output text 2>/dev/null); do
+    ETAG=$(aws cloudfront get-distribution-config --id "$ID" --query 'ETag' --output text)
+    aws cloudfront get-distribution-config --id "$ID" --query 'DistributionConfig' --output json \\
+      | jq '.Enabled=false' > /tmp/cf-\$ID.json
+    run aws cloudfront update-distribution --id "$ID" --if-match "$ETAG" --distribution-config file:///tmp/cf-\$ID.json
+    echo "Aguardando distribuição \$ID ficar 'Deployed' (pode levar 15+ min)..."
+    while [ "$(aws cloudfront get-distribution --id "$ID" --query 'Distribution.Status' --output text)" != "Deployed" ]; do sleep 30; done
+    NEW_ETAG=$(aws cloudfront get-distribution-config --id "$ID" --query 'ETag' --output text)
+    run aws cloudfront delete-distribution --id "$ID" --if-match "$NEW_ETAG"
+  done
+else
+  echo "CloudFront: instale 'jq' para automatizar, ou desabilite e delete manualmente no console."
+fi
+run aws s3 rb "s3://$BUCKET" --force`,
+gcp_e2:`gcloud compute instances list --filter="labels.project=finops-lab" --format="value(name,zone)" | while read n z; do
+  run gcloud compute instances delete "$n" --zone "$z" --quiet
+done`,
+gcp_sql:`for n in $(gcloud sql instances list --filter="settings.userLabels.project=finops-lab" --format='value(name)'); do
+  run gcloud sql instances delete "$n" --quiet
+done`,
+gcp_nat:`run gcloud compute routers nats delete nat-config --router=nat-router --region=us-central1 --quiet`,
+gcp_run:`for s in $(gcloud run services list --filter="metadata.labels.project=finops-lab" --format='value(metadata.name)'); do
+  run gcloud run services delete "$s" --region us-central1 --quiet
+done`,
+gcp_bq:`run bq rm -r -f -d meu_dataset_lab`,
+az_b1s:`run az group delete --name rg-finops-lab-vm --yes --no-wait`,
 az_bastion:`run az group delete --name rg-finops-lab --yes --no-wait`};
+
 function teardown(){
-  let s=`#!/usr/bin/env bash\nset -euo pipefail\nREGION="\${AWS_REGION:-us-east-1}"\nTAG_KEY="Project"; TAG_VAL="finops-lab"\nDRY_RUN="\${DRY_RUN:-1}"   # 1 = só mostra; DRY_RUN=0 executa\nrun() { if [ "$DRY_RUN" = 1 ]; then echo "[dry-run] $*"; else "$@"; fi; }\necho "Modo: $([ "$DRY_RUN" = 1 ] && echo DRY-RUN || echo EXECUCAO REAL)"\necho "AWS conta: $(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo n/a) | região: $REGION"\n`;
-  const seen=new Set();items().forEach(c=>{if(TD[c.id]&&!seen.has(TD[c.id])){seen.add(TD[c.id]);s+=`\n# --- ${c.name} ---\n${TD[c.id]}\n`}});
+  let s=`#!/usr/bin/env bash
+set -euo pipefail
+REGION="\${AWS_REGION:-us-east-1}"
+TAG_KEY="Project"; TAG_VAL="finops-lab"
+DRY_RUN="\${DRY_RUN:-1}"
+run() { if [ "$DRY_RUN" = 1 ]; then echo "[dry-run] $*"; else "$@"; fi; }
+echo "Modo: $([ "$DRY_RUN" = 1 ] && echo DRY-RUN || echo EXECUCAO REAL)"
+echo "AWS conta: $(aws sts get-caller-identity --query Account --output text 2>/dev/null || echo n/a) | região: $REGION"
+`;
+  const seen=new Set();
+  items().forEach(c=>{if(TD[c.id]&&!seen.has(TD[c.id])){seen.add(TD[c.id]);s+=`\n# --- ${c.name} ---\n${TD[c.id]}\n`}});
   if(!S.sel.size)s+=`\n# Cesta vazia. Auditoria: aws ec2 describe-instances; gcloud compute instances list; az resource list -o table\n`;
-  s+=`\necho "Fim. Revise o console: só removi o que tem a tag/label do lab (EBS, snapshots e logs podem sobrar)."\n# Terraform: terraform plan -destroy (revise) e depois terraform destroy\n`;
+  s+=`\necho "Fim. Revise o console: só removi o que tem a tag/label do lab (EBS, snapshots e logs podem sobrar)."
+# Terraform: terraform plan -destroy (revise) e depois terraform destroy
+`;
   $('#td').textContent=s;open('#m-td');
 }
 
-/* Comparador */
 const SL=[['vcpu','vCPU',1,16,1,2],['ram','RAM (GB)',1,64,1,4],['disk','Disco SSD (GB)',20,1000,10,50],['egr','Egress (GB)',10,2000,50,100]];
-function cmpBuild(){$('#sl').innerHTML=SL.map(([k,l,a,b,s,d])=>`<label class="card mute">${l}: <b id="o-${k}" style="color:var(--ink)">${d}</b><input id="s-${k}" type="range" min="${a}" max="${b}" step="${s}" value="${d}"></label>`).join('');$$('#sl input').forEach(i=>i.oninput=cmp)}
+const DISCOUNTS={
+  aws:   {onDemand:0, ri1:30, ri3:66, note:'AWS: Compute Savings Plans chegam a ~66% com compromisso de 1 ou 3 anos em computação.'},
+  gcp:   {onDemand:0, ri1:37, ri3:57, note:'GCP: CUDs (Committed Use Discounts) chegam a ~37% em 1 ano e ~57% em 3 anos em Compute Engine.'},
+  azure: {onDemand:0, ri1:40, ri3:72, note:'Azure: Reservations chegam a ~40% em 1 ano e até ~72% em 3 anos em máquinas virtuais.'}
+};
+const INDIRECT={support:0.10, snapshots:0.05, iops:0.005};
+let cmpModel='onDemand';
+let cmpScope='direct';
+
+function cmpBuild(){
+  $('#sl').innerHTML=SL.map(([k,l,a,b,s,d])=>`<label class="card mute no-reveal">${l}: <b id="o-${k}" style="color:var(--ink)">${d}</b><input id="s-${k}" type="range" min="${a}" max="${b}" step="${s}" value="${d}" aria-label="${l}"></label>`).join('');
+  $$('#sl input').forEach(i=>i.oninput=cmp);
+  $$('#cmp-disc button').forEach(b=>b.onclick=()=>{
+    cmpModel=b.dataset.m;
+    $$('#cmp-disc button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    cmp();
+  });
+  $$('#cmp-tco button').forEach(b=>b.onclick=()=>{
+    cmpScope=b.dataset.t;
+    $$('#cmp-tco button').forEach(x=>x.setAttribute('aria-pressed',x===b));
+    cmp();
+  });
+  cmp();
+}
 function cmp(){
-  const g=k=>+$('#s-'+k).value,v=g('vcpu'),r=g('ram'),d=g('disk'),e=g('egr'),H=DAYS*24;SL.forEach(([k])=>$('#o-'+k).textContent=g(k));
-  const P=[['AWS',(v*.0125+r*.0035)*H,d*.08,Math.max(0,e-100)*.09],['Google Cloud',(v*.0142+r*.0038)*H,d*.10,e*.11],['Azure',(v*.0135+r*.0036)*H,d*.09,Math.max(0,e-100)*.087]].map(([n,c,k,x])=>({n,c,k,x,t:c+k+x+.005*H}));
-  const mn=Math.min(...P.map(p=>p.t)),mx=Math.max(...P.map(p=>p.t));
-  $('#cc').innerHTML=P.map(p=>`<div class="card" style="${p.t===mn?'border-color:var(--ok)':''}"><h3>${p.n} ${p.t===mn?'':''}</h3><table>${[['Computação',p.c],['Disco',p.k],['Egress',p.x],['IPv4',.005*H]].map(([l,x])=>`<tr><td>${l}</td><td>${usd(x)}</td></tr>`).join('')}</table><div class="big" style="font-size:28px;margin-top:8px">${usd(p.t)}</div><div class="mute">≈ ${BRL.format(p.t*fx())}/mês</div></div>`).join('');
-  const w=P.find(p=>p.t===mn);$('#cv').innerHTML=`Na estimativa, <b>${w.n}</b> é a mais barata, cerca de <b>${Math.round((mx-mn)/mx*100)}%</b> abaixo da mais cara. Com egress alto a rede pesa mais que a máquina; free tier, região e suporte também mudam a conta real.`;
+  const g=k=>+$('#s-'+k).value,v=g('vcpu'),r=g('ram'),d=g('disk'),e=g('egr'),H=DAYS*24;
+  SL.forEach(([k])=>$('#o-'+k).textContent=g(k));
+  const D=DISCOUNTS;
+  const fa=1-(D.aws[cmpModel]||0)/100;
+  const fg=1-(D.gcp[cmpModel]||0)/100;
+  const fz=1-(D.azure[cmpModel]||0)/100;
+  const build=(n,c,k,x,discPct)=>{
+    const sup=c*INDIRECT.support;
+    const snap=k*INDIRECT.snapshots;
+    const iops=k*INDIRECT.iops;
+    const ipv4=.005*H;
+    const total=c+k+x+ipv4+sup+snap+iops;
+    return {n,c,k,x,ipv4,sup,snap,iops,discPct,total};
+  };
+  const P=[
+    build('AWS',(v*.0125+r*.0035)*H*fa,d*.08,Math.max(0,e-100)*.09,D.aws[cmpModel]),
+    build('Google Cloud',(v*.0142+r*.0038)*H*fg,d*.10,e*.11,D.gcp[cmpModel]),
+    build('Azure',(v*.0135+r*.0036)*H*fz,d*.09,Math.max(0,e-100)*.087,D.azure[cmpModel])
+  ];
+  const key=p=>cmpScope==='total'?p.total:p.c+p.k+p.x+p.ipv4;
+  const mn=Math.min(...P.map(key)),mx=Math.max(...P.map(key));
+  const label=cmpModel==='onDemand'?'sob demanda':cmpModel==='ri1'?'com reserva de 1 ano':'com reserva de 3 anos';
+  const scopeLabel=cmpScope==='total'?'TCO completo':'custo direto';
+  $('#cc').innerHTML=P.map(p=>{
+    const disc=p.discPct?`<span class="cmp-badge">${p.discPct}% off</span>`:'';
+    const isBest=key(p)===mn;
+    const indRows=cmpScope==='total'?`
+      <tr class="tco-row on"><td>Snapshots</td><td>${usd(p.snap)}</td></tr>
+      <tr class="tco-row on"><td>IOPS provisionadas</td><td>${usd(p.iops)}</td></tr>
+      <tr class="tco-row on"><td>Suporte Business</td><td>${usd(p.sup)}</td></tr>
+    `:'';
+    const totalShown=cmpScope==='total'?p.total:(p.c+p.k+p.x+p.ipv4);
+    return `<div class="card no-reveal" style="${isBest?'border-color:var(--ok)':''}">
+      <h3>${p.n} ${isBest?'★':''}${disc}</h3>
+      <table>
+        <tr><td>Computação</td><td>${usd(p.c)}</td></tr>
+        <tr><td>Disco</td><td>${usd(p.k)}</td></tr>
+        <tr><td>Egress</td><td>${usd(p.x)}</td></tr>
+        <tr><td>IPv4</td><td>${usd(p.ipv4)}</td></tr>
+        ${indRows}
+      </table>
+      <div class="big" style="font-size:28px;margin-top:8px">${usd(totalShown)}</div>
+      <div class="mute">≈ ${BRL.format(totalShown*fx())}/mês (${label}, ${scopeLabel})</div>
+    </div>`;
+  }).join('');
+  const w=P.reduce((a,b)=>key(b)<key(a)?b:a);
+  $('#cv').innerHTML=`Na estimativa ${label}, com escopo de <b>${scopeLabel}</b>, <b>${w.n}</b> é a mais barata, cerca de <b>${Math.round((mx-mn)/mx*100)}%</b> abaixo da mais cara. Com egress alto a rede pesa mais que a máquina; free tier, região e suporte também mudam a conta real. Comparação didática, não é cotação.`;
+  $('#cmp-note').innerHTML=`<b>Como interpretar:</b> ${D.aws.note} ${D.gcp.note} ${D.azure.note} A estimativa aplica o desconto só na linha de <i>Computação</i> — é onde a maior parte dos compromissos realmente incide. No modo <b>TCO completo</b>, somamos snapshots (5% do disco), IOPS provisionadas e suporte Business (10% da computação). São faixas médias, não valores exatos.`;
 }
 
-/* IA */
-const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep/,'### GPU para TCC\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro.'],[/rds|sql|banco/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/ipv4|ip p/,'### IPv4\n* AWS e GCP cobram ~$0,005/h por IPv4 público. Libere IPs ao destruir o lab.']];
-const local=q=>{q=q.toLowerCase();const m=LOCAL.find(([r])=>r.test(q));return m?m[1]:'### Sentinela FinOps\n* Marque tudo com **Project=finops-lab** e destrua ao terminar.\n* Crie budget alerts de $1, $5 e $10 no primeiro dia.\n* Para respostas livres, conecte sua chave do Google AI Studio.'};
+function exportReport(){
+  const it=items(),day=dayRate(),month=cum(DAYS);
+  const downDone=store.get('down_done',[]);
+  const tcoDirect=(()=>{try{const g=k=>+$('#s-'+k).value;const v=g('vcpu'),r=g('ram'),d=g('disk'),e=g('egr'),H=DAYS*24;return [
+    ['AWS',(v*.0125+r*.0035)*H+d*.08+Math.max(0,e-100)*.09],
+    ['Google Cloud',(v*.0142+r*.0038)*H+d*.10+e*.11],
+    ['Azure',(v*.0135+r*.0036)*H+d*.09+Math.max(0,e-100)*.087]
+  ]}catch{return []}})();
+  const md=`# Relatório FinOps — Laboratório na Nuvem
+
+**Gerado em:** ${new Date().toLocaleString('pt-BR')}
+**Ferramenta:** Calculadora de Sobrevivência na Nuvem (referência de preços: ${VERIFIED})
+**Modo de preços:** ${LIVE.status==='ok'?`ao vivo (Azure Retail Prices API · ${Object.keys(LIVE.azure).length} itens)${LIVE.lastFetch?' · '+new Date(LIVE.lastFetch).toLocaleString('pt-BR'):''}`:'catálogo de referência'}
+
+## 1. Cesta selecionada
+${it.length ? it.map(c=>`- **${c.name}** — ${rateOf(c)>0?usd(rateOf(c)*24*DAYS)+'/mês'+(isLive(c)?' _ao vivo_':''):'$0 (free tier / sob condições)'}${c.link?' · [calculadora oficial]('+c.link+')':''}`).join('\n') : '_Nenhum item selecionado._'}
+
+## 2. Custo estimado
+| Métrica | Valor |
+|---|---|
+| Custo por dia | ${usd(day)} |
+| Custo mensal (30 dias) | ${usd(month)} |
+| Em reais (c/ spread e IOF) | ${BRL.format(month*fx())} |
+| Orçamento definido | ${BRL.format(S.budget)} |
+| Nível de risco | ${$('#risk').textContent} |
+
+## 3. Teardown seguro
+\`\`\`bash
+${$('#td').textContent || '# Gere o script primeiro no simulador'}
+\`\`\`
+
+## 4. Checklist de encerramento
+${DOWN.map((t,i)=>`- [${downDone.includes(i)?'x':' '}] ${t}`).join('\n')}
+
+## 5. Comparador multi-cloud (referência rápida)
+${tcoDirect.length ? tcoDirect.map(([n,v])=>`- ${n}: ${usd(v)}/mês`).join('\n') : '_Ajuste os sliders do comparador para incluir esta seção._'}
+
+---
+_Estimativas didáticas. Confirme sempre nas calculadoras oficiais:
+[AWS](https://calculator.aws) · [GCP](https://cloud.google.com/products/calculator) · [Azure](https://azure.microsoft.com/pricing/calculator/)_
+`;
+  const blob=new Blob([md],{type:'text/markdown;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='finops-lab-'+new Date().toISOString().slice(0,10)+'.md';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Relatório exportado');
+}
+
+const BILLING={provider:null,amount_usd:null,period:null,importedAt:null};
+function parseBilling(raw){
+  let d;try{d=JSON.parse(raw)}catch{throw new Error('JSON inválido. Confira a sintaxe.')}
+  if(d.amount_usd!==undefined||d.amount!==undefined){
+    return {provider:d.provider||'desconhecido',amount_usd:+(d.amount_usd??d.amount),period:d.period||null};
+  }
+  if(Array.isArray(d.ResultsByTime)){
+    let total=0;
+    for(const r of d.ResultsByTime){
+      if(r.Total?.UnblendedCost?.Amount){total+=parseFloat(r.Total.UnblendedCost.Amount)}
+      else if(Array.isArray(r.Groups)){for(const g of r.Groups){if(g.Metrics?.UnblendedCost?.Amount)total+=parseFloat(g.Metrics.UnblendedCost.Amount)}}
+    }
+    return {provider:'aws',amount_usd:total,period:d.ResultsByTime[0]?.TimePeriod?.Start||null};
+  }
+  if(d.properties?.rows&&Array.isArray(d.properties.rows)){
+    const cols=d.properties.columns.map(c=>c.name);
+    const idxCost=cols.indexOf('Cost')>=0?cols.indexOf('Cost'):cols.length-1;
+    let total=0;
+    for(const row of d.properties.rows){const v=row[idxCost];if(typeof v==='number')total+=v}
+    return {provider:'azure',amount_usd:total,period:null};
+  }
+  if(Array.isArray(d.costs)){let t=0;for(const c of d.costs)t+=+(c.cost||c.amount||0);return {provider:'gcp',amount_usd:t,period:null}}
+  throw new Error('Formato não reconhecido. Aceita AWS Cost Explorer, Azure Cost Management, GCP export ou {"amount_usd":...}.');
+}
+function renderBillingReal(){
+  const box=$('#billing-real');
+  if(!BILLING.amount_usd){box.hidden=true;box.innerHTML='';return}
+  const brl=BILLING.amount_usd*fx();
+  const pct=S.budget>0?brl/S.budget*100:0;
+  const cls=pct>=100?'bad':pct>=80?'warn':'';
+  const diff=BILLING.amount_usd-cum(DAYS);
+  const verb=diff>0?'acima':'abaixo';
+  box.hidden=false;
+  box.innerHTML=`<div class="callout ${cls==='bad'?'':cls==='warn'?'':'info'}" style="${cls==='bad'?'border-color:var(--bad);background:color-mix(in srgb,var(--bad) 8%,var(--card))':''}">
+    <div class="row" style="justify-content:space-between"><b>Gasto real importado ${BILLING.provider?'('+BILLING.provider.toUpperCase()+')':''}</b>
+      <button class="btn" id="billing-clear" style="padding:2px 10px;font-size:11px">Remover</button></div>
+    <div style="font-size:20px;font-weight:800;margin-top:6px">${BRL.format(brl)}</div>
+    <div class="mute">${usd(BILLING.amount_usd)} · ${pct.toFixed(0)}% do orçamento · ${Math.abs(diff).toFixed(2)} USD ${verb} da estimativa · importado em ${new Date(BILLING.importedAt).toLocaleString('pt-BR')}</div>
+    <div class="usage-bar ${cls}"><div style="width:${Math.min(100,pct)}%"></div></div>
+  </div>`;
+  $('#billing-clear').onclick=()=>{Object.assign(BILLING,{provider:null,amount_usd:null,period:null,importedAt:null});store.del('billing');renderBillingReal();toast('Importação removida')};
+}
+function openImport(){$('#imp-fb').textContent='';$('#imp-in').value='';open('#m-import')}
+function doImport(){
+  const raw=$('#imp-in').value.trim();if(!raw){$('#imp-fb').textContent='Cole um JSON primeiro.';return}
+  try{
+    const r=parseBilling(raw);
+    if(!isFinite(r.amount_usd)||r.amount_usd<0)throw new Error('Valor inválido.');
+    Object.assign(BILLING,r);BILLING.importedAt=Date.now();
+    store.set('billing',BILLING);
+    renderBillingReal();close();toast('Gasto real importado: '+usd(r.amount_usd));
+  }catch(e){$('#imp-fb').textContent='✗ '+e.message}
+}
+
+const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).'],[/reserva|savings plan|cud|compromisso/,'### Reservas e descontos\n* AWS **Savings Plans** e **Reservations**, GCP **CUDs**, Azure **Reservations**.\n* Chegam a 66-72% em 3 anos. Só faz sentido para carga estável.\n* Para laboratório, **não** faz sentido: você não quer compromisso.'],[/free tier|grátis|gratis/,'### Free tier hoje\n* AWS mudou: contas novas recebem **créditos** com validade limitada, não mais 12 meses fixos de t2.micro.\n* GCP Always Free permanece para e2-micro em regiões específicas.\n* Azure tem 12 meses para contas elegíveis + créditos de estudante.\n* Confira sempre o que ainda está de pé antes de confiar.']];
+function localLookup(q){
+  const ql=q.toLowerCase();
+  const hit=C.find(c=>ql.includes(c.id.replace(/_/g,' '))||c.name.toLowerCase().split(' ').some(w=>w.length>3&&ql.includes(w)));
+  if(hit){
+    const r=rateOf(hit);
+    return `### ${hit.name}\n${hit.desc}\n\nPreço de referência: ${r>0?usd(r*24*DAYS)+'/mês se ficar 30 dias ligado':'dentro da camada gratuita (com condições)'}${isLive(hit)?' _(ao vivo pelo Azure Retail Prices API)_':''}\n\nVerifique sempre a página oficial antes de decidir.`;
+  }
+  return null;
+}
+const local=q=>{q=q.toLowerCase();const m=LOCAL.find(([r])=>r.test(q));return m?m[1]:(localLookup(q)||'### Sentinela FinOps\n* Marque tudo com **Project=finops-lab** e destrua ao terminar.\n* Crie budget alerts de $1, $5 e $10 no primeiro dia.\n* Para respostas livres, conecte sua chave do Google AI Studio.')};
 function md(t,el){el.innerHTML=esc(t).replace(/^### (.*$)/gm,'<h3>$1</h3>').replace(/^## (.*$)/gm,'<h3>$1</h3>').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/^[*-] (.*$)/gm,'<div>• $1</div>').replace(/\n\n/g,'<br>')}
-async function models(k){const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100',{headers:{'x-goog-api-key':k}}),d=await r.json();if(!r.ok)throw new Error(d?.error?.message||'HTTP '+r.status);const ok=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));const f=ok.filter(n=>/flash/.test(n)&&!/(image|tts|live|preview-)/.test(n));return(f.length?f:ok).sort().reverse()}
+
+const PREFER=['gemini-2.5-flash','gemini-2.5-pro','gemini-2.0-flash','gemini-2.0-flash-lite','gemini-1.5-flash','gemini-1.5-pro'];
+async function models(k){
+  const r=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=100',{headers:{'x-goog-api-key':k}});
+  const d=await r.json();if(!r.ok)throw new Error(d?.error?.message||'HTTP '+r.status);
+  const ok=(d.models||[]).filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent')).map(m=>m.name.replace('models/',''));
+  const usable=ok.filter(n=>!/(image|tts|live|embedding|aqa|preview-)/.test(n));
+  usable.sort((a,b)=>{
+    const ia=PREFER.findIndex(p=>a.startsWith(p)),ib=PREFER.findIndex(p=>b.startsWith(p));
+    if(ia>=0&&ib>=0)return ia-ib;
+    if(ia>=0)return -1;if(ib>=0)return 1;
+    return b.localeCompare(a);
+  });
+  return usable.length?usable:ok;
+}
 async function gem(k,p){
   const sys='Você é o Sentinela FinOps, especialista em AWS, GCP e Azure para estudantes. Responda em português, em Markdown. Se não tiver certeza de um preço, mande verificar na página oficial.';
   const ms=S.model?[S.model]:(await models(k)).slice(0,4);let last='';
-  for(const m of ms){const ct=new AbortController(),to=setTimeout(()=>ct.abort(),25000);
-    try{const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,{method:'POST',signal:ct.signal,headers:{'Content-Type':'application/json','x-goog-api-key':k},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:p}]}],generationConfig:{temperature:.5,maxOutputTokens:1200}})});
+  for(const m of ms){
+    const ct=new AbortController(),to=setTimeout(()=>ct.abort(),25000);
+    try{
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent`,{method:'POST',signal:ct.signal,headers:{'Content-Type':'application/json','x-goog-api-key':k},body:JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:[{role:'user',parts:[{text:p}]}],generationConfig:{temperature:.5,maxOutputTokens:1200}})});
       let d={};try{d=await r.json()}catch{}
       if(!r.ok){last=d?.error?.message||'HTTP '+r.status;if([404,429,503].includes(r.status)){S.model='';store.del('gm');continue}throw new Error(last)}
       const t=(d?.candidates?.[0]?.content?.parts||[]).map(x=>x.text||'').join('');if(!t){last='Resposta vazia.';continue}
-      S.model=m;store.set('gm',m);return{t,m}}catch(e){last=e.name==='AbortError'?'Tempo esgotado.':e.message}finally{clearTimeout(to)}}
-  throw new Error(last||'Falha na API.')}
-async function ask(p){show('v-ai');$('#a-box').hidden=false;const o=$('#a-out'),b=$('#a-badge');o.textContent='Consultando...';
-  if(S.key){try{const r=await gem(S.key,p);b.textContent='Gemini · '+r.m;md(r.t,o);return}catch(e){b.textContent='Falha na API: motor local assumiu';md(' '+e.message+'\n\n'+local(p),o);return}}
-  b.textContent='Motor FinOps local';md(local(p),o)}
+      S.model=m;store.set('gm',m);return{t,m};
+    }catch(e){last=e.name==='AbortError'?'Tempo esgotado.':e.message}finally{clearTimeout(to)}
+  }
+  throw new Error(last||'Falha na API.');
+}
+async function ask(p){
+  show('v-ai',{silent:true});$('#a-box').hidden=false;
+  const o=$('#a-out'),b=$('#a-badge');o.textContent='Consultando...';
+  if(S.key){
+    try{const r=await gem(S.key,p);b.textContent='Gemini · '+r.m;md(r.t,o);return}
+    catch(e){b.textContent='Falha na API — motor local assumiu';md('⚠ '+e.message+'\n\n'+local(p),o);return}
+  }
+  b.textContent='Motor FinOps local';md(local(p),o);
+}
 
-/* ===== Projetos + IaC (Terraform / Terragrunt) ===== */
 const TG_ROOT=`# root.hcl (raiz do repositório)
 locals {
   project_tag = "finops-lab"
 }
 
 remote_state {
-  backend = "local" # em equipe use s3 ou gcs
+  backend = "local"
   config = {
     path = format("%s/.state/%s/terraform.tfstate", get_parent_terragrunt_dir(), path_relative_to_include())
   }
@@ -493,7 +1089,7 @@ inputs = {
 const tgFor=(mod,inp)=>`# Estrutura
 # repo/
 # ├── root.hcl
-# ├── modules/${mod}/main.tf   <- código da aba Terraform
+# ├── modules/${mod}/main.tf
 # └── live/lab/terragrunt.hcl
 
 ${TG_ROOT}
@@ -510,21 +1106,17 @@ terraform {
 
 inputs = {
 ${inp}
-}
-
-# ---------------------------------------------
-# Uso (dentro de live/lab):
-#   terragrunt plan
-#   terragrunt apply
-#   terragrunt plan -destroy   # revise antes
-#   terragrunt destroy
-# Versões novas também aceitam "terragrunt run -- <comando>": confira com --help.`;
+}`;
 
 const OLD=[
 {id:'gcp_bot',cloud:'GCP',lvl:'Júnior',title:'Bot 24/7 com Docker',cost:'~$0 a ~$4/mês',sim:['gcp_e2'],mod:'gcp-bot',
  never:'Não ative Cloud NAT nem Cloud SQL. Rode Postgres via Docker na própria VM.',
  note:'Always Free vale só para e2-micro em us-central1/us-east1/us-west1 e disco pd-standard. O IPv4 externo (necessário para o bot sair para a internet sem NAT) pode custar ~$0,005/h: confira a página de preços.',
- nodes:[{id:'u',x:10,y:20,l:'Telegram / Discord',s:'webhook ou polling',k:'ext'},{id:'vm',x:200,y:20,l:'VM e2-micro',s:'Docker: bot + Postgres',k:'ok'},{id:'dk',x:390,y:20,l:'Disco 30 GB',s:'pd-standard',k:'ok'},{id:'ip',x:200,y:110,l:'IPv4 externo',s:'~$3,65/mês (confira)',k:'paid'},{id:'bad',x:390,y:110,l:'Cloud NAT / SQL',s:'evitar: cobra por hora',k:'bad'}],
+ nodes:[{id:'u',x:10,y:20,l:'Telegram / Discord',s:'webhook ou polling',k:'ext'},
+        {id:'vm',x:200,y:20,l:'VM e2-micro',s:'Docker: bot + Postgres',k:'ok',costId:'gcp_e2'},
+        {id:'dk',x:390,y:20,l:'Disco 30 GB',s:'pd-standard',k:'ok'},
+        {id:'ip',x:200,y:110,l:'IPv4 externo',s:'~$3,65/mês (confira)',k:'paid',costId:'ipv4'},
+        {id:'bad',x:390,y:110,l:'Cloud NAT / SQL',s:'evitar: cobra por hora',k:'bad',costId:'gcp_nat'}],
  edges:[['u','vm','HTTPS'],['vm','dk','volume'],['ip','vm','saída']],
  tf:`terraform {
   required_providers {
@@ -542,7 +1134,7 @@ variable "project_tag" {
 }
 variable "zone" {
   type    = string
-  default = "us-central1-a" # região elegível ao Always Free
+  default = "us-central1-a"
 }
 
 provider "google" {
@@ -566,7 +1158,7 @@ resource "google_compute_instance" "bot" {
 
   network_interface {
     network = "default"
-    access_config {} # IPv4 efêmero: permite saída sem NAT (pode ter custo)
+    access_config {}
   }
 
   metadata_startup_script = <<-EOT
@@ -582,7 +1174,10 @@ output "vm_name" { value = google_compute_instance.bot.name }`,
 {id:'aws_jamstack',cloud:'AWS',lvl:'Júnior',title:'Portfólio Jamstack com CDN',cost:'~$0 (dentro da franquia)',sim:['aws_s3cf'],mod:'jamstack',
  never:'Nunca coloque ALB ou NAT na frente de arquivos estáticos.',
  note:'Bucket 100% privado, acessado só pelo CloudFront via OAC. Certificado padrão *.cloudfront.net; domínio próprio exige ACM em us-east-1. Franquias e free tier da AWS mudam: confirme.',
- nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS global',k:'ext'},{id:'cf',x:200,y:20,l:'CloudFront',s:'CDN + SSL',k:'ok'},{id:'s3',x:390,y:20,l:'S3 privado',s:'acesso só via OAC',k:'ok'},{id:'bad',x:200,y:110,l:'ALB / NAT Gateway',s:'desnecessário: evitar',k:'bad'}],
+ nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS global',k:'ext'},
+        {id:'cf',x:200,y:20,l:'CloudFront',s:'CDN + SSL',k:'ok',costId:'aws_s3cf'},
+        {id:'s3',x:390,y:20,l:'S3 privado',s:'acesso só via OAC',k:'ok'},
+        {id:'bad',x:200,y:110,l:'ALB / NAT Gateway',s:'desnecessário: evitar',k:'bad',costId:'aws_nat'}],
  edges:[['u','cf','HTTPS'],['cf','s3','OAC']],
  tf:`terraform {
   required_providers {
@@ -608,7 +1203,7 @@ provider "aws" {
 
 resource "aws_s3_bucket" "site" {
   bucket        = var.bucket_name
-  force_destroy = true # facilita o teardown do lab
+  force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "site" {
@@ -642,7 +1237,7 @@ resource "aws_cloudfront_distribution" "cdn" {
     viewer_protocol_policy = "redirect-to-https"
     allowed_methods        = ["GET", "HEAD"]
     cached_methods         = ["GET", "HEAD"]
-    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    cache_policy_id        = "658327ea-f89d-4fab-a63d-7e88639e58f6"
   }
 
   restrictions {
@@ -674,12 +1269,15 @@ resource "aws_s3_bucket_policy" "site" {
 }
 
 output "url" { value = format("https://%s", aws_cloudfront_distribution.cdn.domain_name) }`,
- inp:'  bucket_name = "meu-portfolio-lab-12345" # nome global único'},
+ inp:'  bucket_name = "meu-portfolio-lab-12345"'},
 
 {id:'gcp_bq',cloud:'GCP',lvl:'Júnior',title:'Pipeline de dados com BigQuery',cost:'~$0 (dentro da cota)',sim:['gcp_bq'],mod:'bigquery',
  never:'Particione tabelas e evite SELECT * para não estourar a cota mensal de consultas.',
  note:'O Sandbox sem cartão é ativado no console; o Terraform gerencia o dataset em um projeto já criado. Tabelas expiram em 60 dias para não acumular armazenamento.',
- nodes:[{id:'f',x:10,y:20,l:'CSV / JSON',s:'carga manual ou script',k:'ext'},{id:'bq',x:200,y:20,l:'BigQuery dataset',s:'expira em 60 dias',k:'ok'},{id:'v',x:390,y:20,l:'Views SQL',s:'particionadas',k:'ok'},{id:'lk',x:390,y:110,l:'Looker Studio',s:'dashboard sem custo',k:'ext'}],
+ nodes:[{id:'f',x:10,y:20,l:'CSV / JSON',s:'carga manual ou script',k:'ext'},
+        {id:'bq',x:200,y:20,l:'BigQuery dataset',s:'expira em 60 dias',k:'ok',costId:'gcp_bq'},
+        {id:'v',x:390,y:20,l:'Views SQL',s:'particionadas',k:'ok'},
+        {id:'lk',x:390,y:110,l:'Looker Studio',s:'dashboard sem custo',k:'ext'}],
  edges:[['f','bq','carga'],['bq','v','consulta'],['v','lk','conector']],
  tf:`terraform {
   required_providers {
@@ -707,7 +1305,7 @@ provider "google" {
 resource "google_bigquery_dataset" "lab" {
   dataset_id                  = "finops_lab"
   location                    = var.location
-  default_table_expiration_ms = 5184000000 # 60 dias
+  default_table_expiration_ms = 5184000000
   delete_contents_on_destroy  = true
   labels                      = { project = var.project_tag }
 }
@@ -718,7 +1316,10 @@ output "dataset" { value = google_bigquery_dataset.lab.dataset_id }`,
 {id:'aws_budget',cloud:'AWS',lvl:'Júnior',title:'Guarda de orçamento (faça primeiro)',cost:'$0 (os dois primeiros budgets)',sim:[],mod:'budget',
  never:'Não confie só no e-mail: o Budgets avisa, não desliga nada sozinho (use Budget Actions para agir).',
  note:'Cria um alerta mensal em 50%, 80% e 100% do limite. Confirme a política de preço dos budgets e o e-mail de assinatura.',
- nodes:[{id:'a',x:10,y:20,l:'Conta AWS',s:'recursos do lab',k:'ext'},{id:'b',x:200,y:20,l:'AWS Budgets',s:'limite mensal',k:'ok'},{id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},{id:'x',x:200,y:110,l:'Budget Action',s:'IAM deny (opcional)',k:'ok'}],
+ nodes:[{id:'a',x:10,y:20,l:'Conta AWS',s:'recursos do lab',k:'ext'},
+        {id:'b',x:200,y:20,l:'AWS Budgets',s:'limite mensal',k:'ok'},
+        {id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},
+        {id:'x',x:200,y:110,l:'Budget Action',s:'IAM deny (opcional)',k:'ok'}],
  edges:[['a','b','custo'],['b','m','alerta'],['b','x','dispara']],
  tf:`terraform {
   required_providers {
@@ -766,7 +1367,7 @@ resource "aws_budgets_budget" "lab" {
 }`,
  inp:'  email     = "voce@exemplo.com"\n  limit_usd = "5"'}
 ];
-/* ===== Trilha AWS (esqueleto padrão: versions / variables / main / outputs) ===== */
+
 const cut=(tf,a,b)=>{const i=tf.indexOf(a),j=b?tf.indexOf(b):-1;return tf.slice(i,j<0?undefined:j).trim()};
 const oldBp=id=>OLD.find(b=>b.id===id);
 const VERS=`terraform {
@@ -782,7 +1383,7 @@ const VERS=`terraform {
 provider "aws" {
   region = var.region
   default_tags {
-    tags = { Project = var.project_tag } # base do teardown seguro
+    tags = { Project = var.project_tag }
   }
 }`;
 const VCOMMON=`variable "region" {
@@ -819,15 +1420,19 @@ variable "limit_usd" {
  nodes:oldBp('aws_jamstack').nodes,edges:oldBp('aws_jamstack').edges,
  vars:'variable "bucket_name" { type = string }',
  main:cut(jam,'resource "aws_s3_bucket" "site"','output "url"'),out:cut(jam,'output "url"'),
- inp:'  bucket_name = "meu-portfolio-lab-12345" # nome global único',
+ inp:'  bucket_name = "meu-portfolio-lab-12345"',
  destroy:'# Console: S3 (bucket removido?) e CloudFront (distribuição deletada; leva minutos)'},
-{n:3,id:'vm',title:'VM com Docker (sem porta aberta)',cost:'~$5/mês (IPv4 + disco) após o free tier',sim:['aws_ec2'],mod:'ec2-docker',
+{n:3,id:'vm',title:'VM com Docker (sem porta aberta)',cost:'~$5/mês (IPv4 + disco) após o free tier',sim:['aws_ec2','ipv4'],mod:'ec2-docker',
  goal:'Rodar containers numa EC2 acessada por SSM, sem abrir SSH.',
  learn:['Computação: AMI via data source, IAM role e instance profile','Security Group sem entrada','Custos escondidos: IPv4 público e disco EBS'],
  delta:'Mesmo esqueleto. Entram IAM e rede; o aprendizado é pagar só o que usa.',
  never:'Não ligue NAT Gateway para "dar internet" à VM: use IP público ou endpoints. NAT custa ~$33/mês.',
- note:'No VPC padrão a instância recebe IPv4 público (cobrado por hora). Free tier de contas novas mudou: confira seu plano. IMDSv2 exigido.',
- nodes:[{id:'u',x:10,y:20,l:'Você',s:'SSM Session Manager',k:'ext'},{id:'vm',x:200,y:20,l:'EC2 t3.micro',s:'Docker, sem porta aberta',k:'ok'},{id:'eb',x:390,y:20,l:'EBS gp3 20 GB',s:'~$1,60/mês',k:'paid'},{id:'ip',x:200,y:110,l:'IPv4 público',s:'~$3,65/mês',k:'paid'},{id:'bad',x:390,y:110,l:'NAT Gateway',s:'evitar: ~$33/mês',k:'bad'}],
+ note:'No VPC padrão a instância recebe IPv4 público (cobrado por hora, mesmo com a VM parada). Free tier de contas novas mudou para créditos com prazo: confira seu plano. IMDSv2 exigido.',
+ nodes:[{id:'u',x:10,y:20,l:'Você',s:'SSM Session Manager',k:'ext'},
+        {id:'vm',x:200,y:20,l:'EC2 t3.micro',s:'Docker, sem porta aberta',k:'ok',costId:'aws_ec2'},
+        {id:'eb',x:390,y:20,l:'EBS gp3 20 GB',s:'~$1,60/mês',k:'paid'},
+        {id:'ip',x:200,y:110,l:'IPv4 público',s:'~$3,65/mês (mesmo parado)',k:'paid',costId:'ipv4'},
+        {id:'bad',x:390,y:110,l:'NAT Gateway',s:'evitar: ~$33/mês',k:'bad',costId:'aws_nat'}],
  edges:[['u','vm','SSM'],['vm','eb','disco'],['ip','vm','saída']],
  vars:`variable "instance_type" {
   type    = string
@@ -880,7 +1485,7 @@ resource "aws_instance" "vm" {
   vpc_security_group_ids = [aws_security_group.vm.id]
 
   metadata_options {
-    http_tokens = "required" # IMDSv2
+    http_tokens = "required"
   }
   root_block_device {
     volume_size = 20
@@ -903,7 +1508,11 @@ output "connect" { value = format("aws ssm start-session --target %s", aws_insta
  delta:'Mesmo esqueleto. Aqui a trava de custo vive no código (workgroup com limite por consulta).',
  never:'Evite SELECT * em tabelas grandes e sem partição: o custo cresce com o volume lido.',
  note:'Athena cobra por dado escaneado (confira o preço atual). O limite de 10 GB por consulta limita o custo de cada query.',
- nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},{id:'s3',x:200,y:20,l:'S3 dados',s:'expira em 30 dias',k:'ok'},{id:'at',x:390,y:20,l:'Athena',s:'limite 10 GB/consulta',k:'ok'},{id:'g',x:200,y:110,l:'Glue Catalog',s:'schema das tabelas',k:'ok'},{id:'r',x:390,y:110,l:'S3 resultados',s:'saída das consultas',k:'ok'}],
+ nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},
+        {id:'s3',x:200,y:20,l:'S3 dados',s:'expira em 30 dias',k:'ok'},
+        {id:'at',x:390,y:20,l:'Athena',s:'limite 10 GB/consulta',k:'ok'},
+        {id:'g',x:200,y:110,l:'Glue Catalog',s:'schema das tabelas',k:'ok'},
+        {id:'r',x:390,y:110,l:'S3 resultados',s:'saída das consultas',k:'ok'}],
  edges:[['f','s3','carga'],['s3','at','consulta'],['g','at','schema'],['at','r','resultado']],
  vars:'variable "bucket_name" { type = string }',
  main:`resource "aws_s3_bucket" "data" {
@@ -945,7 +1554,7 @@ resource "aws_athena_workgroup" "lab" {
   force_destroy = true
   configuration {
     enforce_workgroup_configuration = true
-    bytes_scanned_cutoff_per_query  = 10737418240 # 10 GB
+    bytes_scanned_cutoff_per_query  = 10737418240
     result_configuration {
       output_location = format("s3://%s/", aws_s3_bucket.results.bucket)
     }
@@ -953,10 +1562,10 @@ resource "aws_athena_workgroup" "lab" {
 }`,
  out:`output "workgroup" { value = aws_athena_workgroup.lab.name }
 output "database" { value = aws_glue_catalog_database.lab.name }`,
- inp:'  bucket_name = "meu-dados-lab-12345" # nome global único',
+ inp:'  bucket_name = "meu-dados-lab-12345"',
  destroy:'# Console: Athena (workgroup), Glue (database) e os dois buckets S3 removidos'}
 ];
-/* ===== Trilha GCP ===== */
+
 const GVERS=`terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -970,12 +1579,12 @@ const GVERS=`terraform {
 provider "google" {
   project               = var.project_id
   region                = var.region
-  user_project_override = true # necessário para a API de budgets
+  user_project_override = true
   billing_project       = var.project_id
 }
 
 locals {
-  labels = { project = var.project_tag } # base do teardown seguro
+  labels = { project = var.project_tag }
 }`;
 const GVC=`variable "project_id" { type = string }
 variable "region" {
@@ -994,7 +1603,10 @@ const GCP=[
  delta:'Primeiro passo: define o esqueleto de 4 arquivos usado em toda a trilha.',
  never:'Não confie só no e-mail: ele vai para os administradores de billing, não necessariamente para você.',
  note:'Exige a API Cloud Billing Budget e permissão na conta de faturamento. Confirme regras atuais. Mantenha o budget durante toda a trilha.',
- nodes:[{id:'a',x:10,y:20,l:'Projeto GCP',s:'recursos do lab',k:'ext'},{id:'b',x:200,y:20,l:'Billing Budget',s:'limite mensal',k:'ok'},{id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},{id:'x',x:200,y:110,l:'Pub/Sub + função',s:'desvincula billing (opc.)',k:'ok'}],
+ nodes:[{id:'a',x:10,y:20,l:'Projeto GCP',s:'recursos do lab',k:'ext'},
+        {id:'b',x:200,y:20,l:'Billing Budget',s:'limite mensal',k:'ok'},
+        {id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},
+        {id:'x',x:200,y:110,l:'Pub/Sub + função',s:'desvincula billing (opc.)',k:'ok'}],
  edges:[['a','b','custo'],['b','m','alerta'],['b','x','dispara']],
  vars:`variable "billing_account" { type = string }
 variable "limit_usd" {
@@ -1027,7 +1639,9 @@ variable "limit_usd" {
  delta:'Mesmo esqueleto. Muda variables.tf (bucket_name) e main.tf (bucket + permissão pública).',
  never:'Evite Load Balancer + Cloud CDN para um site de estudo: há custo fixo mensal. Para HTTPS e CDN grátis, considere Firebase Hosting.',
  note:'Always Free de Cloud Storage vale em regiões dos EUA e com limite de 5 GB. Políticas da organização podem bloquear allUsers. O egress acima da franquia é cobrado.',
- nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS',k:'ext'},{id:'gs',x:200,y:20,l:'Cloud Storage',s:'bucket us-central1',k:'ok'},{id:'bad',x:200,y:110,l:'LB + Cloud CDN',s:'evitar: custo fixo',k:'bad'}],
+ nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS',k:'ext'},
+        {id:'gs',x:200,y:20,l:'Cloud Storage',s:'bucket us-central1',k:'ok'},
+        {id:'bad',x:200,y:110,l:'LB + Cloud CDN',s:'evitar: custo fixo',k:'bad'}],
  edges:[['u','gs','GET']],
  vars:'variable "bucket_name" { type = string }',
  main:`resource "google_storage_bucket" "site" {
@@ -1046,21 +1660,21 @@ variable "limit_usd" {
 resource "google_storage_bucket_iam_member" "public" {
   bucket = google_storage_bucket.site.name
   role   = "roles/storage.objectViewer"
-  member = "allUsers" # público de propósito: é um site
+  member = "allUsers"
 }`,
  out:'output "url" { value = format("https://storage.googleapis.com/%s/index.html", google_storage_bucket.site.name) }',
  inp:'  project_id  = "meu-projeto-gcp"\n  bucket_name = "meu-site-lab-12345"',
  destroy:'# Console: Cloud Storage (bucket removido?)'},
-{n:3,title:'VM e2-micro com Docker',cost:'~$0 a ~$4/mês (IPv4)',sim:['gcp_e2'],mod:'vm-docker',
+{n:3,title:'VM e2-micro com Docker',cost:'~$0 a ~$4/mês (IPv4)',sim:['gcp_e2','ipv4'],mod:'vm-docker',
  goal:'Rodar containers numa VM Always Free.',
- learn:['Computação: imagem, disco e startup script','Always Free depende de região e tipo de disco','Custo escondido: IPv4 externo'],
+ learn:['Computação: imagem, disco e startup script','Always Free depende de região e tipo de disco','Custo escondido: IPv4 externo (cobra mesmo com a VM parada)'],
  delta:'Mesmo esqueleto. Entra computação; o aprendizado é pagar só o que usa.',
  never:'Não ative Cloud NAT nem Cloud SQL. Rode Postgres via Docker na própria VM.',
- note:'Always Free vale só para e2-micro em us-central1/us-east1/us-west1 e pd-standard. O IPv4 externo pode custar ~$0,005/h: confira.',
+ note:'Always Free vale só para e2-micro em us-central1/us-east1/us-west1 e pd-standard. O IPv4 externo pode custar ~$0,005/h, mesmo com a VM parada.',
  nodes:oldBp('gcp_bot').nodes,edges:oldBp('gcp_bot').edges,
  vars:`variable "zone" {
   type    = string
-  default = "us-central1-a" # região elegível ao Always Free
+  default = "us-central1-a"
 }`,
  main:cut(bot,'resource "google_compute_instance" "bot"','output "vm_name"'),out:cut(bot,'output "vm_name"'),
  inp:'  project_id = "meu-projeto-gcp"',
@@ -1071,7 +1685,10 @@ resource "google_storage_bucket_iam_member" "public" {
  delta:'Mesmo esqueleto. A trava de custo vive no código: require_partition_filter.',
  never:'Evite SELECT * e consultas sem filtro de partição: o custo cresce com o volume lido.',
  note:'O Sandbox sem cartão é ativado no console. No console, defina também "Maximum bytes billed" nas consultas.',
- nodes:[{id:'f',x:10,y:20,l:'CSV / JSON',s:'carga de dados',k:'ext'},{id:'bq',x:200,y:20,l:'Dataset',s:'expira em 60 dias',k:'ok'},{id:'t',x:390,y:20,l:'Tabela particionada',s:'filtro obrigatório',k:'ok'},{id:'lk',x:390,y:110,l:'Looker Studio',s:'dashboard sem custo',k:'ext'}],
+ nodes:[{id:'f',x:10,y:20,l:'CSV / JSON',s:'carga de dados',k:'ext'},
+        {id:'bq',x:200,y:20,l:'Dataset',s:'expira em 60 dias',k:'ok',costId:'gcp_bq'},
+        {id:'t',x:390,y:20,l:'Tabela particionada',s:'filtro obrigatório',k:'ok'},
+        {id:'lk',x:390,y:110,l:'Looker Studio',s:'dashboard sem custo',k:'ext'}],
  edges:[['f','bq','carga'],['bq','t','tabela'],['t','lk','conector']],
  vars:`variable "location" {
   type    = string
@@ -1080,7 +1697,7 @@ resource "google_storage_bucket_iam_member" "public" {
  main:`resource "google_bigquery_dataset" "lab" {
   dataset_id                  = "finops_lab"
   location                    = var.location
-  default_table_expiration_ms = 5184000000 # 60 dias
+  default_table_expiration_ms = 5184000000
   delete_contents_on_destroy  = true
   labels                      = local.labels
 }
@@ -1089,7 +1706,7 @@ resource "google_bigquery_table" "events" {
   dataset_id               = google_bigquery_dataset.lab.dataset_id
   table_id                 = "events"
   deletion_protection      = false
-  require_partition_filter = true # consulta sem filtro de data é recusada
+  require_partition_filter = true
   labels                   = local.labels
 
   time_partitioning {
@@ -1107,7 +1724,7 @@ resource "google_bigquery_table" "events" {
  inp:'  project_id = "meu-projeto-gcp"',
  destroy:'# Console: BigQuery (dataset removido?)'}
 ];
-/* ===== Trilha Azure ===== */
+
 const ZVERS=`terraform {
   required_version = ">= 1.6"
   required_providers {
@@ -1134,7 +1751,7 @@ variable "project_tag" {
 const rg=n=>`resource "azurerm_resource_group" "rg" {
   name     = "${n}"
   location = var.location
-  tags     = { Project = var.project_tag } # base do teardown seguro
+  tags     = { Project = var.project_tag }
 }
 `;
 const AZURE=[
@@ -1144,7 +1761,10 @@ const AZURE=[
  delta:'Primeiro passo: define o esqueleto de 4 arquivos usado em toda a trilha.',
  never:'Não confie só no e-mail. Em contas Azure for Students, verifique o limite de gasto nativo.',
  note:'Alguns tipos de assinatura (ex.: Students) podem não suportar budgets: confirme. start_date deve ser o 1º dia do mês.',
- nodes:[{id:'a',x:10,y:20,l:'Assinatura',s:'recursos do lab',k:'ext'},{id:'b',x:200,y:20,l:'Consumption Budget',s:'limite mensal',k:'ok'},{id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},{id:'x',x:200,y:110,l:'Action Group',s:'ação ao estourar (opc.)',k:'ok'}],
+ nodes:[{id:'a',x:10,y:20,l:'Assinatura',s:'recursos do lab',k:'ext'},
+        {id:'b',x:200,y:20,l:'Consumption Budget',s:'limite mensal',k:'ok'},
+        {id:'m',x:390,y:20,l:'E-mail',s:'alertas 50/80/100%',k:'ok'},
+        {id:'x',x:200,y:110,l:'Action Group',s:'ação ao estourar (opc.)',k:'ok'}],
  edges:[['a','b','custo'],['b','m','alerta'],['b','x','dispara']],
  vars:`variable "email" { type = string }
 variable "limit_usd" {
@@ -1153,7 +1773,7 @@ variable "limit_usd" {
 }
 variable "start_date" {
   type    = string
-  default = "2026-10-01T00:00:00Z" # 1º dia do mês atual
+  default = "2026-10-01T00:00:00Z"
 }`,
  main:`resource "azurerm_consumption_budget_subscription" "lab" {
   name            = "finops-lab-mensal"
@@ -1184,7 +1804,9 @@ variable "start_date" {
  delta:'Mesmo esqueleto. Entra o Resource Group, a "pasta" que você apaga de uma vez.',
  never:'Evite Front Door e Application Gateway em estudos: têm custo fixo mensal.',
  note:'O bloco static_website funciona no provider 4.x e está em transição: confira a versão. Sem CDN neste passo. O nome da storage deve ser global, 3 a 24 letras minúsculas/números.',
- nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS',k:'ext'},{id:'st',x:200,y:20,l:'Storage Account',s:'static website (LRS)',k:'ok'},{id:'bad',x:200,y:110,l:'Front Door / AppGw',s:'evitar: custo fixo',k:'bad'}],
+ nodes:[{id:'u',x:10,y:20,l:'Usuários',s:'HTTPS',k:'ext'},
+        {id:'st',x:200,y:20,l:'Storage Account',s:'static website (LRS)',k:'ok'},
+        {id:'bad',x:200,y:110,l:'Front Door / AppGw',s:'evitar: custo fixo',k:'bad'}],
  edges:[['u','st','GET']],
  vars:'variable "storage_name" { type = string }',
  main:rg('rg-finops-lab-site')+`
@@ -1204,14 +1826,18 @@ resource "azurerm_storage_account" "site" {
 }`,
  out:'output "url" { value = azurerm_storage_account.site.primary_web_endpoint }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  storage_name    = "meusitelab12345"',
- destroy:'az group delete --name rg-finops-lab-site --yes --no-wait   # alternativa manual'},
-{n:3,title:'VM B1s com Docker',cost:'~$4/mês (IP) + disco após o free tier',sim:['az_b1s'],mod:'vm-docker',
+ destroy:'az group delete --name rg-finops-lab-site --yes --no-wait'},
+{n:3,title:'VM B1s com Docker',cost:'~$4/mês (IP) + disco após o free tier',sim:['az_b1s','ipv4'],mod:'vm-docker',
  goal:'Rodar containers numa VM com SSH restrito ao seu IP.',
  learn:['Rede: VNet, sub-rede, NIC e NSG','SSH só do seu IP, sem senha','Custos escondidos: IP público Standard e disco'],
  delta:'Mesmo esqueleto. Entra rede: vários recursos ligados, todos dentro do mesmo Resource Group.',
  never:'Não use o Azure Bastion em estudos (~$139/mês). Restrinja o SSH ao seu IP.',
  note:'O free tier da B1s vale para contas elegíveis por tempo limitado: confira. Descubra seu IP e informe em CIDR (ex.: 203.0.113.4/32).',
- nodes:[{id:'u',x:10,y:20,l:'Você',s:'SSH só do seu IP',k:'ext'},{id:'vm',x:200,y:20,l:'VM B1s',s:'Docker via cloud-init',k:'ok'},{id:'dk',x:390,y:20,l:'Disco 30 GB',s:'StandardSSD',k:'paid'},{id:'ip',x:200,y:110,l:'IP público',s:'~$3,65/mês (confira)',k:'paid'},{id:'bad',x:390,y:110,l:'Azure Bastion',s:'evitar: ~$139/mês',k:'bad'}],
+ nodes:[{id:'u',x:10,y:20,l:'Você',s:'SSH só do seu IP',k:'ext'},
+        {id:'vm',x:200,y:20,l:'VM B1s',s:'Docker via cloud-init',k:'ok',costId:'az_b1s'},
+        {id:'dk',x:390,y:20,l:'Disco 30 GB',s:'StandardSSD',k:'paid'},
+        {id:'ip',x:200,y:110,l:'IP público',s:'~$3,65/mês (confira)',k:'paid',costId:'ipv4'},
+        {id:'bad',x:390,y:110,l:'Azure Bastion',s:'evitar: ~$139/mês',k:'bad',costId:'az_bastion'}],
  edges:[['u','vm','SSH'],['vm','dk','disco'],['ip','vm','acesso']],
  vars:`variable "vm_size" {
   type    = string
@@ -1321,14 +1947,17 @@ resource "azurerm_linux_virtual_machine" "vm" {
 }`,
  out:'output "public_ip" { value = azurerm_public_ip.ip.ip_address }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  my_ip           = "203.0.113.4/32"\n  ssh_public_key  = file("~/.ssh/id_ed25519.pub")',
- destroy:'az group delete --name rg-finops-lab-vm --yes --no-wait   # alternativa manual'},
+ destroy:'az group delete --name rg-finops-lab-vm --yes --no-wait'},
 {n:4,title:'Data lake com expiração',cost:'~$0 (centavos)',sim:[],mod:'datalake',
  goal:'Guardar dados em um data lake que se limpa sozinho.',
  learn:['Storage Gen2 (namespace hierárquico) para dados','Lifecycle policy: apagar dados após 30 dias','Resource Group: destruir tudo de uma vez'],
  delta:'Mesmo esqueleto. A trava de custo vive no código: a política de expiração.',
  never:'Não deixe dados crescerem sem expiração, e cuidado com serviços de consulta cobrados por TB lido.',
- note:'Para consultar, use DuckDB localmente ou Synapse serverless (cobra por TB lido): defina limites antes. Azure Data Explorer free não é provisionado por este código.',
- nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},{id:'lk',x:200,y:20,l:'Storage Gen2',s:'container raw',k:'ok'},{id:'lc',x:390,y:20,l:'Lifecycle policy',s:'apaga após 30 dias',k:'ok'},{id:'q',x:200,y:110,l:'Consulta (DuckDB)',s:'local, sem custo',k:'ext'}],
+ note:'Para consultar, use DuckDB localmente ou Synapse serverless (cobra por TB lido): defina limites antes.',
+ nodes:[{id:'f',x:10,y:20,l:'CSV / Parquet',s:'carga de dados',k:'ext'},
+        {id:'lk',x:200,y:20,l:'Storage Gen2',s:'container raw',k:'ok'},
+        {id:'lc',x:390,y:20,l:'Lifecycle policy',s:'apaga após 30 dias',k:'ok'},
+        {id:'q',x:200,y:110,l:'Consulta (DuckDB)',s:'local, sem custo',k:'ext'}],
  edges:[['f','lk','carga'],['lk','lc','regra'],['lk','q','leitura']],
  vars:'variable "storage_name" { type = string }',
  main:rg('rg-finops-lab-lake')+`
@@ -1367,7 +1996,7 @@ resource "azurerm_storage_management_policy" "expire" {
 }`,
  out:'output "storage" { value = azurerm_storage_account.lake.name }',
  inp:'  subscription_id = "00000000-0000-0000-0000-000000000000"\n  storage_name    = "meulakelab12345"',
- destroy:'az group delete --name rg-finops-lab-lake --yes --no-wait   # alternativa manual'}
+ destroy:'az group delete --name rg-finops-lab-lake --yes --no-wait'}
 ];
 const CLOUDS={
   aws:{label:'AWS',vers:VERS,vc:VCOMMON,trail:TRAIL,title:'Do orçamento ao dado',key:'trail_done'},
@@ -1378,18 +2007,128 @@ const P={cloud:store.get('trail_cloud','aws'),step:1,file:'main',done:new Set()}
 if(!CLOUDS[P.cloud])P.cloud='aws';
 P.done=new Set(store.get(CLOUDS[P.cloud].key,[]));
 
-
 function diagram(bp){
-  const W=700,H=190,nw=140,nh=56,N=Object.fromEntries(bp.nodes.map(n=>[n.id,n]));
-  const col={ok:'var(--ok)',ext:'var(--acc)',paid:'var(--warn)',bad:'var(--bad)'};
-  const nodes=bp.nodes.map(n=>`<g><rect x="${n.x}" y="${n.y}" width="${nw}" height="${nh}" rx="12" fill="var(--card)" stroke="${col[n.k]}" stroke-width="2"${n.k==='bad'?' stroke-dasharray="5 4"':''}/><text x="${n.x+nw/2}" y="${n.y+24}" text-anchor="middle" style="fill:var(--ink);font-weight:700;font-size:12px">${esc(n.l)}</text><text x="${n.x+nw/2}" y="${n.y+41}" text-anchor="middle" style="font-size:10.5px">${esc(n.s)}</text></g>`).join('');
-  const edges=bp.edges.map(([a,b,l])=>{const f=N[a],t=N[b];let x1,y1,x2,y2;
-    if(Math.abs(f.y-t.y)<10){x1=f.x+nw;y1=f.y+nh/2;x2=t.x;y2=t.y+nh/2}
-    else{x1=f.x+nw/2;x2=t.x+nw/2;y1=f.y<t.y?f.y+nh:f.y;y2=f.y<t.y?t.y:t.y+nh}
-    return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--mute)" stroke-width="2" marker-end="url(#ar)"/><text x="${(x1+x2)/2+(y1===y2?0:6)}" y="${(y1+y2)/2-(y1===y2?6:0)}" text-anchor="${y1===y2?'middle':'start'}">${esc(l)}</text>`}).join('');
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Arquitetura: ${esc(bp.title)}"><title>Arquitetura: ${esc(bp.title)}</title><defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--mute)"/></marker></defs>${edges}${nodes}</svg>
-  <div class="row mute" style="gap:14px;font-size:12px"><span style="color:var(--ok)">■ custo zero/baixo</span><span style="color:var(--acc)">■ externo</span><span style="color:var(--warn)">■ custo previsto</span><span style="color:var(--bad)">▢ evitar</span></div>`;
+  const nw=148,nh=68,pad=22;
+  const W=720,H=228;
+  const colors={ok:'var(--ok)',ext:'var(--acc)',paid:'var(--warn)',bad:'var(--bad)'};
+  const mid='dgm-'+Math.random().toString(36).slice(2,8);
+
+  const inner=bp.nodes.filter(n=>n.k!=='ext');
+  let zone=null;
+  if(inner.length>0){
+    const zx=Math.max(4,Math.min(...inner.map(n=>n.x))-pad);
+    const zy=Math.max(4,Math.min(...inner.map(n=>n.y))-pad);
+    const zx2=Math.min(W-4,Math.max(...inner.map(n=>n.x+nw))+pad);
+    const zy2=Math.min(H-4,Math.max(...inner.map(n=>n.y+nh))+pad);
+    zone={x:zx,y:zy,w:zx2-zx,h:zy2-zy};
+  }
+
+  const N=Object.fromEntries(bp.nodes.map(n=>[n.id,n]));
+
+  function costOf(n){
+    if(!n.costId)return null;
+    const item=byId[n.costId];
+    if(!item)return null;
+    const r=rateOf(item);
+    const live=isLive(item);
+    if(r<=0)return {text:'grátis com condições',cls:'free',live};
+    return {text:'~'+usd(r*24*DAYS)+'/mês',cls:'paid',live};
+  }
+
+  const edges=bp.edges.map(([a,b,label])=>{
+    const f=N[a],t=N[b];
+    const fcx=f.x+nw/2,fcy=f.y+nh/2;
+    const tcx=t.x+nw/2,tcy=t.y+nh/2;
+    const dx=tcx-fcx,dy=tcy-fcy;
+    let x1,y1,x2,y2,path;
+    if(Math.abs(dx)>Math.abs(dy)*1.2){
+      x1=dx>0?f.x+nw:f.x; y1=fcy;
+      x2=dx>0?t.x:t.x+nw; y2=tcy;
+      const cx=(x1+x2)/2;
+      path=`M${x1} ${y1} C${cx} ${y1} ${cx} ${y2} ${x2} ${y2}`;
+    }else{
+      x1=fcx; y1=dy>0?f.y+nh:f.y;
+      x2=tcx; y2=dy>0?t.y:t.y+nh;
+      const cy=(y1+y2)/2;
+      path=`M${x1} ${y1} C${x1} ${cy} ${x2} ${cy} ${x2} ${y2}`;
+    }
+    const mx=(x1+x2)/2,my=(y1+y2)/2;
+    const labelW=label.length*6.4+14;
+    return `<g class="edge">
+      <path d="${path}" fill="none" stroke="var(--mute)" stroke-width="1.6"
+            stroke-opacity=".5" marker-end="url(#ar-${mid})"/>
+      ${label?`<rect x="${mx-labelW/2}" y="${my-9}" width="${labelW}" height="18"
+              rx="9" fill="var(--bg)" stroke="var(--line)" stroke-width="1"/>
+        <text x="${mx}" y="${my+3.5}" text-anchor="middle"
+              style="fill:var(--mute);font-size:10px;font-weight:600">${esc(label)}</text>`:''}
+    </g>`;
+  }).join('');
+
+  const nodes=bp.nodes.map(n=>{
+    const c=colors[n.k];
+    const isBad=n.k==='bad';
+    const isPaid=n.k==='paid';
+    const cost=costOf(n);
+
+    let badge='';
+    if(isBad){
+      badge=`<g transform="translate(${nw-14} 14)">
+        <circle r="9" fill="var(--bad)"/>
+        <text x="0" y="4" text-anchor="middle" style="fill:#fff;font-size:12px;font-weight:800">!</text>
+      </g>`;
+    }else if(isPaid){
+      badge=`<g transform="translate(${nw-14} 14)">
+        <circle r="9" fill="var(--warn)"/>
+        <text x="0" y="4" text-anchor="middle" style="fill:#2a1700;font-size:12px;font-weight:800">$</text>
+      </g>`;
+    }
+
+    let costEl='';
+    if(cost){
+      const color=cost.cls==='free'?'var(--ok)':(isBad?'var(--bad)':'var(--warn)');
+      const prefix=isBad?'evitar · ':'';
+      const dot=cost.live?' <tspan style="fill:var(--live)">●</tspan>':'';
+      costEl=`<text x="16" y="59" style="fill:${color};font-size:10.5px;font-weight:700">${prefix}${esc(cost.text)}${dot}</text>`;
+    }
+
+    return `<g class="node" transform="translate(${n.x} ${n.y})">
+      <title>${esc(n.l)} — ${esc(n.s)}${cost?' · '+cost.text:''}</title>
+      <rect width="${nw}" height="${nh}" rx="11" fill="var(--card)" stroke="${c}"
+            stroke-width="2" ${isBad?'stroke-dasharray="7 5"':''} filter="url(#ns-${mid})"/>
+      <rect x="0" y="0" width="4" height="${nh}" rx="2" fill="${c}"/>
+      <text x="16" y="25" style="fill:var(--ink);font-size:12.5px;font-weight:700">${esc(n.l)}</text>
+      <text x="16" y="42" style="fill:var(--mute);font-size:10.5px">${esc(n.s)}</text>
+      ${costEl}
+      ${badge}
+    </g>`;
+  }).join('');
+
+  const zoneEl=zone?`<rect x="${zone.x}" y="${zone.y}" width="${zone.w}" height="${zone.h}"
+        rx="16" fill="color-mix(in srgb,var(--acc) 4%,transparent)"
+        stroke="var(--line)" stroke-width="1.2" stroke-dasharray="7 5"/>`:'';
+
+  return `<div class="diagram">
+    <svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Arquitetura: ${esc(bp.title)}">
+      <title>Arquitetura: ${esc(bp.title)}</title>
+      <defs>
+        <marker id="ar-${mid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0 0L8 5L0 10z" fill="var(--mute)" fill-opacity=".55"/>
+        </marker>
+        <filter id="ns-${mid}" x="-20%" y="-30%" width="140%" height="160%">
+          <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#000" flood-opacity=".07"/>
+        </filter>
+      </defs>
+      ${zoneEl}${edges}${nodes}
+    </svg>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i> grátis / baixo custo</span>
+      <span><i style="background:var(--acc)"></i> externo à sua conta</span>
+      <span><i style="background:var(--warn)"></i> pago por hora</span>
+      <span><i style="background:var(--bad)"></i> evitar em estudos</span>
+    </div>
+  </div>`;
 }
+
 const FILES=[['versions','versions.tf'],['variables','variables.tf'],['main','main.tf'],['outputs','outputs.tf'],['tg','Terragrunt']];
 const CL=()=>CLOUDS[P.cloud],TR=()=>CL().trail;
 function fileText(st,f){
@@ -1399,13 +2138,23 @@ function fileText(st,f){
   if(f==='outputs')return '# outputs.tf\n'+st.out;
   return tgFor(st.mod,st.inp);
 }
+function allFilesText(st){
+  const parts=[];
+  parts.push('### versions.tf\n\n'+CL().vers);
+  parts.push('### variables.tf\n\n'+CL().vc+'\n\n'+st.vars);
+  parts.push('### main.tf\n\n'+st.main);
+  parts.push('### outputs.tf\n\n'+st.out);
+  parts.push('### terragrunt.hcl (raiz)\n\n'+TG_ROOT);
+  parts.push('### live/lab/terragrunt.hcl\n\ninclude "root" {\n  path = find_in_parent_folders("root.hcl")\n}\n\nterraform {\n  source = "../../modules/'+st.mod+'"\n}\n\ninputs = {\n'+st.inp+'\n}');
+  return parts.join('\n\n---\n\n');
+}
 function setCloud(c){
   P.cloud=c;P.step=1;P.file='main';store.set('trail_cloud',c);
   P.done=new Set(store.get(CL().key,[]));prjRender();
 }
 function prjRender(){
   const T=TR(),st=T[P.step-1],cl=CL();
-  $('#prj-title').textContent=` Trilha ${cl.label}: ${cl.title}`;
+  $('#prj-title').textContent=`Trilha ${cl.label}: ${cl.title}`;
   $$('#prj-cloud button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===P.cloud));
   $('#prj-prog').textContent=`${P.done.size} de ${T.length} passos concluídos`;
   $('#prj-bar').style.width=(P.done.size/T.length*100)+'%';
@@ -1415,24 +2164,53 @@ function prjRender(){
   <p style="margin:8px 0 0">${esc(st.goal)}</p>
   <div class="grid g2" style="margin-top:12px"><div><h3>Você vai aprender</h3><ul class="mute" style="margin:0;padding-left:18px">${st.learn.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
   <div><h3>O que muda em relação ao passo anterior</h3><p class="mute" style="margin:0">${esc(st.delta)}</p></div></div>
-  <p class="mute" style="margin:12px 0 0"><b style="color:var(--bad)"> O que nunca fazer:</b> ${esc(st.never)}</p><p class="mute" style="margin:6px 0 0">${esc(st.note)}</p>`;
+  <p class="mute" style="margin:12px 0 0"><b style="color:var(--bad)">O que nunca fazer:</b> ${esc(st.never)}</p><p class="mute" style="margin:6px 0 0">${esc(st.note)}</p>`;
   $('#prj-diag').innerHTML=diagram(st);
   $('#prj-ftabs').innerHTML=FILES.map(([k,l])=>`<button data-f="${k}" aria-pressed="${k===P.file}">${l}</button>`).join('');
   $$('#prj-ftabs button').forEach(b=>b.onclick=()=>{P.file=b.dataset.f;prjRender()});
   $('#prj-code').textContent=fileText(st,P.file);
   $('#prj-destroy').textContent='terragrunt plan -destroy   # revise o que será removido\nterragrunt destroy\n'+st.destroy;
   const dn=$('#prj-done');dn.textContent=P.done.has(st.n)?'↩ Desmarcar conclusão':'✓ Marcar como concluído';
-  dn.onclick=()=>{P.done.has(st.n)?P.done.delete(st.n):P.done.add(st.n);store.set(cl.key,[...P.done]);prjRender()};
-  const sm=$('#prj-sim');sm.hidden=!st.sim.length;sm.onclick=()=>{S.sel=new Set(st.sim);store.set('sel',st.sim);$$('.svc input').forEach(i=>i.checked=S.sel.has(i.dataset.id));calc();show('v-sim')};
-  const nx=$('#prj-next');nx.hidden=P.step>=T.length;nx.onclick=()=>{P.step++;prjRender();$('#prj-head').scrollIntoView({behavior:'smooth',block:'start'})};
+  dn.onclick=()=>{P.done.has(st.n)?P.done.delete(st.n):P.done.add(st.n);store.set(cl.key,[...P.done]);prjRender();renderFinOpsLevel()};
+  const sm=$('#prj-sim');sm.hidden=!st.sim.length;
+  sm.onclick=()=>{S.sel=new Set(st.sim);store.set('sel',st.sim);$$('.svc input').forEach(i=>i.checked=S.sel.has(i.dataset.id));calc();show('v-sim')};
+  const nx=$('#prj-next');nx.hidden=P.step>=T.length;
+  nx.onclick=()=>{P.step++;prjRender();$('#prj-head').scrollIntoView({behavior:'smooth',block:'start'})};
 }
 function prjInit(){
   $$('#prj-cloud button').forEach(b=>b.onclick=()=>setCloud(b.dataset.c));
-  $('#prj-copy').onclick=()=>navigator.clipboard.writeText($('#prj-code').textContent).then(()=>toast(' Código copiado'),()=>toast('Copie manualmente'));
+  $('#prj-copy').onclick=()=>navigator.clipboard.writeText($('#prj-code').textContent).then(()=>toast('Código copiado'),()=>toast('Copie manualmente'));
+  $('#prj-copy-all').onclick=()=>{const st=TR()[P.step-1];navigator.clipboard.writeText(allFilesText(st)).then(()=>toast('Todos os arquivos copiados com cabeçalhos'),()=>toast('Copie manualmente'))};
   prjRender();
 }
 
-/* Quiz e checklist de competências */
+function renderFinOpsLevel(){
+  const el=$('#finops-level');if(!el)return;
+  const done=store.get('skills_done',[]);
+  const trails=['trail_done','trail_done_gcp','trail_done_azure'];
+  let trailComplete=0;
+  for(const k of trails){if((store.get(k,[])||[]).length>=4)trailComplete++}
+  const skillPct=done.length/SK.length;
+  const quiz=store.get('quiz',{});
+  const quizOk=QZ.filter((x,i)=>quiz[i]===x[2]).length;
+  const total=(trailComplete>=1?1:0)+(skillPct>=0.6?1:0)+(quizOk>=4?1:0);
+  let level,desc;
+  if(total>=3){level='FinOps Professional (fundamentos)';desc='Você completou uma trilha inteira, domina o checklist e acertou o quiz. Próximos passos: alocação por tag, forense de anomalias, otimização de compromissos.'}
+  else if(total>=2){level='FinOps Practitioner';desc='Você já completou ao menos uma trilha e demonstrou domínio dos fundamentos. Continue praticando as outras nuvens para consolidar.'}
+  else if(total>=1){level='FinOps Iniciante';desc='Você começou a praticar. Foque em completar uma trilha, marcar o checklist de competências e acertar o quiz.'}
+  else{level='Ainda não avaliado';desc='Complete uma trilha e marque as competências para desbloquear seu nível.'}
+  const badgeClass=total>=3?'professional':total>=1?'practitioner':'';
+  el.innerHTML=`<div class="callout info">
+    <div class="row" style="justify-content:space-between"><b>Seu nível FinOps</b><span class="badge-lvl ${badgeClass}">${level}</span></div>
+    <p class="mute" style="margin:8px 0 0">${desc}</p>
+    <div class="mute" style="margin-top:8px;font-size:12px">
+      Trilhas completas: <b>${trailComplete}/3</b> ·
+      Competências: <b>${done.length}/${SK.length}</b> ·
+      Quiz: <b>${quizOk}/${QZ.length}</b>
+    </div>
+  </div>`;
+}
+
 const QZ=[
 ['Você parou a VM, mas esqueceu um IPv4 público reservado. O que acontece?',['Fica gratuito, pois a VM está parada.','O provedor continua cobrando pelo IPv4.','O IP é liberado automaticamente em 1 hora.'],1,'IPv4 público é cobrado por hora enquanto existir, associado ou não. Libere-o ao destruir o lab.'],
 ['Qual destes costuma gerar cobrança contínua, sem cota gratuita permanente?',['Cloud Run dentro da franquia','Banco gerenciado (RDS / Cloud SQL)','BigQuery Sandbox'],1,'Bancos gerenciados reservam uma instância dedicada, cobrada por hora mesmo sem consultas.'],
@@ -1442,50 +2220,150 @@ const QZ=[
 const qs=store.get('quiz',{});
 function quizInit(){
   const draw=()=>{
-    $('#quiz').innerHTML=QZ.map(([q,o,c,why],i)=>{const a=qs[i];return `<div class="card"><b>${i+1}. ${esc(q)}</b>${o.map((t,j)=>`<button class="btn" data-q="${i}" data-o="${j}" ${a!==undefined?'disabled':''} style="display:block;width:100%;text-align:left;margin-top:8px;${a!==undefined&&j===c?'border-color:var(--ok)':''}${a===j&&j!==c?'border-color:var(--bad)':''}">${'ABC'[j]}) ${esc(t)}</button>`).join('')}${a!==undefined?`<p class="mute" style="margin:10px 0 0"><b style="color:var(--${a===c?'ok':'bad'})">${a===c?'Correto.':'Não foi dessa vez.'}</b> ${esc(why)}</p>`:''}</div>`}).join('');
-    const n=QZ.filter((x,i)=>qs[i]===x[2]).length,all=Object.keys(qs).length===QZ.length;
+    $('#quiz').innerHTML=QZ.map(([q,o,c,why],i)=>{
+      const a=qs[i];
+      return `<div class="card no-reveal"><b>${i+1}. ${esc(q)}</b>${o.map((t,j)=>{
+        let style='display:block;width:100%;text-align:left;margin-top:8px;';
+        if(a!==undefined){if(j===c)style+='border-color:var(--ok);';if(a===j&&j!==c)style+='border-color:var(--bad);'}
+        return `<button class="btn" data-q="${i}" data-o="${j}" ${a!==undefined?'disabled':''} style="${style}">${'ABC'[j]}) ${esc(t)}</button>`}).join('')}
+        ${a!==undefined?`<p class="mute" style="margin:10px 0 0"><b style="color:var(--${a===c?'ok':'bad'})">${a===c?'Correto.':'Não foi dessa vez.'}</b> ${esc(why)}</p>`:''}</div>`}).join('');
+    const n=QZ.filter((x,i)=>qs[i]===x[2]).length,resp=Object.keys(qs).length,all=resp===QZ.length;
     $('#quiz-score').textContent=`${n} / ${QZ.length}`;
-    const e=$('#quiz-end');e.hidden=!all;if(all)e.textContent=n===QZ.length?'Você acertou todas. Siga para a etapa Provisionar.':`Você acertou ${n} de ${QZ.length}. Releia as explicações e tente novamente.`;
-    $$('#quiz button').forEach(b=>b.onclick=()=>{qs[+b.dataset.q]=+b.dataset.o;store.set('quiz',qs);draw()});
+    const e=$('#quiz-end');e.hidden=false;
+    if(!all)e.textContent=`Você respondeu ${resp} de ${QZ.length}. Faltam ${QZ.length-resp}.`;
+    else e.textContent=n===QZ.length?'Você acertou todas. Siga para a etapa Provisionar.':`Você acertou ${n} de ${QZ.length}. Releia as explicações em vermelho e tente novamente.`;
+    $$('#quiz button').forEach(b=>b.onclick=()=>{qs[+b.dataset.q]=+b.dataset.o;store.set('quiz',qs);draw();renderFinOpsLevel()});
   };
-  $('#quiz-reset').onclick=()=>{Object.keys(qs).forEach(k=>delete qs[k]);store.set('quiz',qs);draw()};
+  $('#quiz-reset').onclick=()=>{Object.keys(qs).forEach(k=>delete qs[k]);store.set('quiz',qs);draw();renderFinOpsLevel()};
   draw();
 }
 const SK=['Diferenciar região e zona de disponibilidade','Configurar um alerta de orçamento','Criar uma VM e conectar com segurança (SSM ou chave SSH)','Subir um container Docker e expor a porta necessária','Hospedar um site estático em bucket','Aplicar o menor privilégio no IAM','Documentar o laboratório e o teardown em um repositório (README)'];
 function skillsInit(){
   const done=new Set(store.get('skills_done',[]));
-  const upd=()=>{const p=Math.round(done.size/SK.length*100);$('#skills-pct').textContent=p+'%';$('#skills-bar').style.width=p+'%'};
+  const upd=()=>{const p=Math.round(done.size/SK.length*100);$('#skills-pct').textContent=p+'%';$('#skills-bar').style.width=p+'%';renderFinOpsLevel()};
   $('#skills-list').innerHTML=SK.map((t,i)=>`<label class="chk"><input type="checkbox" data-i="${i}" ${done.has(i)?'checked':''}><span>${esc(t)}</span></label>`).join('');
   $$('#skills-list input').forEach(c=>c.onchange=()=>{c.checked?done.add(+c.dataset.i):done.delete(+c.dataset.i);store.set('skills_done',[...done]);upd()});
   upd();
 }
 
-/* Modais, tema, câmbio, link */
-let lf=null;const open=id=>{lf=document.activeElement;const m=$(id);m.hidden=false;(m.querySelector('input,button')||m).focus()},close=()=>{$$('.modal').forEach(m=>m.hidden=true);lf&&lf.focus&&lf.focus()};
-document.addEventListener('keydown',e=>{if(e.key==='Escape')close();if(e.key==='Tab'){const m=$$('.modal').find(x=>!x.hidden);if(!m)return;const f=$$('button,input',m);if(!f.length)return;const a=f[0],z=f[f.length-1];if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}}});
+let lf=null;
+const open=id=>{lf=document.activeElement;const m=$(id);m.hidden=false;(m.querySelector('input,button,textarea')||m).focus()};
+const close=()=>{$$('.modal').forEach(m=>m.hidden=true);lf&&lf.focus&&lf.focus()};
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape')close();
+  if(e.key==='Tab'){
+    const m=$$('.modal').find(x=>!x.hidden);if(!m)return;
+    const f=$$('button,input,textarea',m);if(!f.length)return;
+    const a=f[0],z=f[f.length-1];
+    if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()}
+    else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()}
+  }
+});
 const theme=t=>{document.documentElement.dataset.theme=t;store.set('theme',t)};
-const fxUI=()=>{$('#fx-l').textContent=BRL.format(fx());$('#fx-in').value=S.fx.toFixed(2);$('#fx-e').value=S.extra;calc();cmp()};
-function share(){const p=new URLSearchParams();if(S.sel.size)p.set('s',[...S.sel].join(','));p.set('o',S.off);p.set('b',S.budget);const u=location.origin+location.pathname+'#'+p;(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast(' Link copiado'),()=>prompt('Copie o link:',u))}
-function fromHash(){const p=new URLSearchParams(location.hash.slice(1));if(p.get('s'))S.sel=new Set(p.get('s').split(',').filter(i=>byId[i]));if(p.get('o'))S.off=Math.min(DAYS,Math.max(1,parseInt(p.get('o'))||DAYS));if(p.get('b'))S.budget=Math.max(0,parseFloat(p.get('b'))||0)}
+const fxUI=()=>{$('#fx-l').textContent=BRL.format(fx());$('#fx-in').value=S.fx.toFixed(2);$('#fx-e').value=S.extra;calc();cmp();renderBillingReal()};
+function share(){
+  const p=new URLSearchParams();
+  if(S.sel.size)p.set('s',[...S.sel].join(','));
+  p.set('o',S.off);p.set('b',S.budget);
+  const u=location.origin+location.pathname+'#'+p;
+  (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));
+}
+function fromHash(){
+  const p=new URLSearchParams(location.hash.slice(1));
+  if(p.get('s'))S.sel=new Set(p.get('s').split(',').filter(i=>byId[i]));
+  if(p.get('o'))S.off=Math.min(DAYS,Math.max(1,parseInt(p.get('o'))||DAYS));
+  if(p.get('b'))S.budget=Math.max(0,parseFloat(p.get('b'))||0);
+}
+function classroomMode(){
+  const p=new URLSearchParams(location.search);
+  const t=p.get('trilha');if(t&&CLOUDS[t])setCloud(t);
+  const s=parseInt(p.get('step'));if(s>=1&&s<=TR().length)P.step=s;
+  const a=p.get('aba');
+  const allPaineis=NAV.flatMap(([,ps])=>ps);
+  if(a&&allPaineis.includes(a))_showInternal(a,{silent:true});
+  return !!a||!!s||!!t;
+}
+
+function initRipple(){
+  document.addEventListener('pointerdown',e=>{
+    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const btn=e.target.closest('.btn');
+    if(!btn||btn.disabled)return;
+    const r=btn.getBoundingClientRect();
+    const span=document.createElement('span');
+    span.className='ripple';
+    span.style.left=(e.clientX-r.left)+'px';
+    span.style.top=(e.clientY-r.top)+'px';
+    btn.appendChild(span);
+    setTimeout(()=>span.remove(),640);
+  },{passive:true});
+}
+function initCursorGlow(){
+  if(matchMedia('(hover: none)').matches||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  const glow=document.createElement('div');
+  glow.className='cursor-glow';
+  glow.setAttribute('aria-hidden','true');
+  document.body.appendChild(glow);
+  let gx=0,gy=0,tx=0,ty=0,active=false;
+  document.addEventListener('pointermove',e=>{
+    tx=e.clientX;ty=e.clientY;
+    if(!active){gx=tx;gy=ty;active=true}
+  },{passive:true});
+  (function loop(){
+    gx+=(tx-gx)*0.12;
+    gy+=(ty-gy)*0.12;
+    glow.style.transform=`translate3d(${gx}px,${gy}px,0)`;
+    requestAnimationFrame(loop);
+  })();
+}
 
 window.addEventListener('DOMContentLoaded',()=>{
   const th=store.get('theme',null);if(th)document.documentElement.dataset.theme=th;
   fromHash();tabs();catalog();cmpBuild();
-  $('#budget').value=S.budget;$('#budget').oninput=e=>{S.budget=Math.max(0,+e.target.value||0);store.set('budget',S.budget);calc()};
-  $('#off').oninput=e=>setOff(+e.target.value);$$('#scen button').forEach(b=>b.onclick=()=>setOff(+b.dataset.d));
-  $('#b-replay').onclick=replay;$('#b-theme').onclick=()=>theme((document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))==='dark'?'light':'dark');
-  $('#b-td').onclick=teardown;$('#b-td2').onclick=teardown;$('#td-c').onclick=()=>navigator.clipboard.writeText($('#td').textContent).then(()=>toast(' Copiado'),()=>toast('Copie manualmente'));
-  $('#b-share').onclick=share;$('#b-clear').onclick=()=>{S.sel.clear();$$('.svc input').forEach(i=>i.checked=false);store.set('sel',[]);calc();toast(' Cesta limpa')};
+  const bl=store.get('billing',null);if(bl&&bl.amount_usd){Object.assign(BILLING,bl)}
+  $('#budget').value=S.budget;$('#budget').oninput=e=>{S.budget=Math.max(0,+e.target.value||0);store.set('budget',S.budget);calc();renderBillingReal()};
+  $('#off').oninput=e=>setOff(+e.target.value);
+  $$('#scen button').forEach(b=>b.onclick=()=>setOff(+b.dataset.d));
+  $('#b-replay').onclick=replay;
+  $('#b-theme').onclick=()=>theme((document.documentElement.dataset.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'))==='dark'?'light':'dark');
+  $('#b-live').onclick=()=>loadLive();
+  $('#b-td').onclick=teardown;$('#b-td2').onclick=teardown;
+  $('#td-c').onclick=()=>navigator.clipboard.writeText($('#td').textContent).then(()=>toast('Copiado'),()=>toast('Copie manualmente'));
+  $('#b-share').onclick=share;
+  $('#b-export').onclick=exportReport;
+  $('#b-import').onclick=openImport;
+  $('#imp-ok').onclick=doImport;
+  $('#imp-clr').onclick=()=>{$('#imp-in').value='';$('#imp-fb').textContent=''};
+  $('#imp-ex').onclick=()=>{$('#imp-in').value=JSON.stringify({provider:'aws',amount_usd:12.34,period:new Date().toISOString().slice(0,7)},null,2);$('#imp-fb').textContent='Exemplo preenchido. Edite antes de importar.'};
+  $('#b-clear').onclick=()=>{
+    if(S.sel.size&&!confirm(`Limpar ${S.sel.size} itens da cesta?`))return;
+    S.sel.clear();$$('.svc input').forEach(i=>i.checked=false);store.set('sel',[]);calc();toast('Cesta limpa');
+  };
   $('#b-ai').onclick=()=>ask(`Audite esta cesta de um estudante: [${items().map(c=>c.name).join(', ')||'vazia'}]. Desliga no dia ${S.off} de ${DAYS}. Custo estimado: ${$('#tot').textContent}. Orçamento: R$ ${S.budget}. Dê nível de risco, armadilhas e plano de teardown por tags.`);
-  $('#a-send').onclick=()=>{const q=$('#aq').value.trim();if(q)ask(q)};$('#aq').onkeydown=e=>{if(e.key==='Enter')$('#a-send').click()};
-  $('#b-fx').onclick=()=>open('#m-fx');$('#fx-ok').onclick=()=>{const v=parseFloat($('#fx-in').value),x=parseFloat($('#fx-e').value);if(v>0)S.fx=v;S.extra=x>=0?x:0;store.set('fx_e',S.extra);fxUI();close()};
+  $('#a-send').onclick=()=>{const q=$('#aq').value.trim();if(q)ask(q)};
+  $('#aq').onkeydown=e=>{if(e.key==='Enter')$('#a-send').click()};
+  $('#b-fx').onclick=()=>open('#m-fx');
+  $('#fx-ok').onclick=()=>{const v=parseFloat($('#fx-in').value),x=parseFloat($('#fx-e').value);if(v>0)S.fx=v;S.extra=x>=0?x:0;store.set('fx_e',S.extra);fxUI();close()};
   $('#b-key').onclick=()=>{$('#k-in').value=S.key;$('#k-fb').textContent='';open('#m-key')};
   $('#k-s').onclick=()=>{S.key=$('#k-in').value.trim();S.key?store.set('gk',S.key):store.del('gk');S.model='';store.del('gm');$('#key-l').textContent=S.key?'Conectado':'Chave Gemini';close()};
-  $('#k-rm').onclick=()=>{S.key='';store.del('gk');store.del('gm');$('#k-in').value='';$('#key-l').textContent='Gemini'};
-  $('#k-t').onclick=async()=>{const k=$('#k-in').value.trim(),f=$('#k-fb');if(!k){f.textContent=' Cole a chave.';return}f.textContent='⏳ Testando...';try{f.textContent='✓ Válida. Modelos: '+(await models(k)).slice(0,3).join(', ')}catch(e){f.textContent=' '+e.message}};
-  $$('[data-x]').forEach(b=>b.onclick=close);$$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)close()}));
+  $('#k-rm').onclick=()=>{S.key='';store.del('gk');store.del('gm');$('#k-in').value='';$('#key-l').textContent='Chave Gemini';toast('Chave removida deste navegador');close()};
+  $('#k-t').onclick=async()=>{
+    const k=$('#k-in').value.trim(),f=$('#k-fb');if(!k){f.textContent='Cole a chave.';return}
+    f.textContent='⏳ Testando...';
+    try{f.textContent='✓ Válida. Modelos sugeridos: '+(await models(k)).slice(0,3).join(', ')}
+    catch(e){f.textContent='✗ '+e.message}
+  };
+  $$('[data-x]').forEach(b=>b.onclick=close);
+  $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)close()}));
   $('#key-l').textContent=S.key?'Conectado':'Chave Gemini';
-  prjInit();downInit();quizInit();skillsInit();show('v-sim');setOff(S.off);fxUI();
+  prjInit();downInit();quizInit();skillsInit();
+  initRipple();
+  initCursorGlow();
+  const opened=classroomMode();
+  if(!opened)_showInternal('v-sim',{silent:true});
+  setOff(S.off);fxUI();
+  checkStaleness();
+  setTimeout(()=>loadLive({silent:true}),1200);
   fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r=>r.ok?r.json():null).then(d=>{const v=parseFloat(d&&d.USDBRL&&d.USDBRL.bid);if(v>0){S.fx=v;fxUI()}}).catch(()=>{});
   window.addEventListener('hashchange',()=>{fromHash();catalog();$('#budget').value=S.budget;setOff(S.off)});
 });
