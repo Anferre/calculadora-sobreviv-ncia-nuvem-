@@ -196,6 +196,33 @@ body:hover .cursor-glow{opacity:1}
 .diagram .legend span{display:inline-flex;align-items:center}
 .diagram .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px}
 @media (prefers-reduced-motion:reduce){.diagram svg .node{transition:none}}
+
+/* GCP Free Trial */
+#gcp-trial{border-color:color-mix(in srgb,var(--acc) 35%,var(--line));background:color-mix(in srgb,var(--acc) 4%,var(--card))}
+#gcp-trial .credit-bar{height:10px;background:var(--chip);border-radius:5px;overflow:hidden;margin-top:8px}
+#gcp-trial .credit-bar>div{height:100%;background:var(--ok);transition:width .5s}
+#gcp-trial .credit-bar.warn>div{background:var(--warn)}
+#gcp-trial .credit-bar.bad>div{background:var(--bad)}
+#gcp-trial .item-pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;margin-right:6px;margin-bottom:5px;line-height:1.5}
+#gcp-trial .item-pill.free{background:color-mix(in srgb,var(--ok) 20%,transparent);color:var(--ok)}
+#gcp-trial .item-pill.paid{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+#gcp-trial .item-pill.bad{background:color-mix(in srgb,var(--bad) 20%,transparent);color:var(--bad)}
+
+/* Contador regressivo do Free Trial */
+#gcp-countdown{padding-top:14px;margin-top:14px;border-top:1px solid var(--line)}
+#gcp-countdown .countdown-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+#gcp-countdown .countdown-msg{font-size:13px;font-weight:600}
+#gcp-countdown .countdown-msg b{color:var(--ink)}
+#gcp-countdown .day-badge{display:inline-flex;align-items:center;justify-content:center;min-width:54px;height:54px;border-radius:12px;background:var(--chip);font-weight:800;font-size:20px;line-height:1;flex-direction:column;padding:6px}
+#gcp-countdown .day-badge small{font-size:9px;font-weight:700;color:var(--mute);letter-spacing:.05em;margin-top:2px}
+#gcp-countdown .day-badge.ok{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok)}
+#gcp-countdown .day-badge.warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+#gcp-countdown .day-badge.bad{background:color-mix(in srgb,var(--bad) 15%,transparent);color:var(--bad)}
+#gcp-countdown .trial-bar{height:10px;background:var(--chip);border-radius:5px;overflow:hidden;margin-top:10px}
+#gcp-countdown .trial-bar>div{height:100%;background:var(--ok);transition:width .5s}
+#gcp-countdown .trial-bar.warn>div{background:var(--warn)}
+#gcp-countdown .trial-bar.bad>div{background:var(--bad)}
+#gcp-countdown input[type=date]{width:auto;padding:4px 8px;font-size:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px}
 </style>
 </head>
 <body>
@@ -255,6 +282,21 @@ body:hover .cursor-glow{opacity:1}
         <button class="btn" id="b-clear">Limpar</button>
       </div>
     </div>
+  </div>
+
+  <div id="gcp-trial" class="card" hidden style="margin-top:16px">
+    <div class="row" style="justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <h3 style="margin:0">🎁 Free Trial do Google Cloud</h3>
+        <div class="mute" id="gcp-trial-sub"></div>
+      </div>
+      <div class="seg" id="gcp-phase" role="group" aria-label="Fase do laboratório GCP">
+        <button data-p="credit" aria-pressed="true">Crédito · $300 / 90 dias</button>
+        <button data-p="always" aria-pressed="false">Always Free · pós-crédito</button>
+      </div>
+    </div>
+    <div id="gcp-countdown" hidden></div>
+    <div id="gcp-trial-body" style="margin-top:14px"></div>
   </div>
 
   <div class="row" style="justify-content:space-between;margin:28px 0 12px">
@@ -387,6 +429,7 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
     <ul><li>Custo mensal = preço por hora x 24 horas x dias ligados, em um mês de 30 dias.</li>
     <li>Os valores são aproximados (região US East), compilados manualmente e não incluem impostos nem todos os itens de rede, como tráfego e processamento de dados.</li>
     <li>Itens de free tier aparecem como zero, mas têm condições de região, tempo e uso que mudam com frequência. O free tier da AWS para contas novas mudou para um modelo de créditos: confirme sempre o que ainda está valendo no seu caso.</li>
+    <li>No Google Cloud, o Free Trial de $300 (90 dias) e o Always Free (cotas mensais permanentes) são coisas diferentes. O simulador separa as duas fases, tem contador regressivo do trial e alerta quais itens passam a cobrar depois do crédito.</li>
     <li>O comparador usa fórmulas lineares didáticas, com um multiplicador médio de desconto de reserva por provedor. Não é cotação: cada serviço tem seus próprios números de Savings Plans, CUDs e Reservations.</li>
     <li>Quando o botão "Preços ao vivo" está ativo, alguns itens do Azure são atualizados em tempo real pela <a href="https://learn.microsoft.com/rest/api/cost-management/retail-prices/azure-retail-prices" target="_blank" rel="noopener">Azure Retail Prices API</a>. Os demais continuam vindo do catálogo hardcoded.</li>
     <li>Os diagramas de arquitetura mostram o custo por nó quando o item tem correspondente no catálogo. O valor é o mesmo do simulador, então muda quando "Preços ao vivo" está ativo.</li>
@@ -400,7 +443,7 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
     <a href="https://azure.microsoft.com/free/students" target="_blank" rel="noopener">Azure for Students</a>.</p></details>
   <details class="card" id="d-priv"><summary>Privacidade</summary>
     <ul><li>Não há contas, cookies de rastreamento nem ferramentas de análise nesta página.</li>
-    <li>Ficam salvos apenas no seu navegador (localStorage): cesta, orçamento, ajuste de câmbio, tema, progresso das trilhas e, se você informar, a chave da API Gemini.</li>
+    <li>Ficam salvos apenas no seu navegador (localStorage): cesta, orçamento, ajuste de câmbio, tema, progresso das trilhas, data de início do Free Trial e, se você informar, a chave da API Gemini.</li>
     <li>A cotação do dólar é consultada em <code>economia.awesomeapi.com.br</code>.</li>
     <li>Preços ao vivo do Azure são consultados em <code>prices.azure.com</code>. Nenhum dado seu é enviado, é uma requisição anônima de leitura.</li>
     <li>Se você usar a IA com chave própria, o texto da pergunta ou da cesta é enviado à API do Google Gemini. Sem chave, tudo é respondido localmente.</li>
@@ -409,7 +452,9 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
   <details class="card" id="d-aviso"><summary>Aviso importante</summary>
     <p>As informações são educacionais e podem estar desatualizadas. Este projeto não tem vínculo com AWS, Google ou Microsoft, e os nomes pertencem aos respectivos donos. Scripts e códigos de infraestrutura podem criar ou apagar recursos: leia, rode <code>plan</code> ou dry-run primeiro e use uma conta de laboratório. Você é responsável pelos custos da sua conta.</p></details>
   <details class="card" id="d-log"><summary>Histórico de versões</summary>
-    <ul><li><b>v17:</b> diagramas de arquitetura redesenhados com zona do provedor, curvas bezier, badges de custo e alerta, e custo por nó calculado em tempo real pelo catálogo (respeita "Preços ao vivo").</li>
+    <ul><li><b>v19:</b> contador regressivo do Free Trial GCP com data de início editável, alerta progressivo em 30 e 10 dias, persistência do início na URL compartilhada e re-render periódico.</li>
+    <li><b>v18:</b> modo Free Trial do Google Cloud no simulador — distingue fase de crédito ($300 / 90 dias) de fase Always Free, mostra projeção de uso e alerta quais itens passam a cobrar após o trial.</li>
+    <li><b>v17:</b> diagramas de arquitetura redesenhados com zona do provedor, curvas bezier, badges de custo e alerta, e custo por nó calculado em tempo real pelo catálogo.</li>
     <li><b>v16:</b> efeitos visuais (scroll reveal, glassmorphism, gradiente animado, ripple, contador animado, view transitions e cursor glow) com progressive enhancement e respeito a prefers-reduced-motion.</li>
     <li><b>v15:</b> preços ao vivo do Azure via Retail Prices API, aviso de desatualização, TCO completo no comparador, exportação em markdown, mapa do framework FinOps e importação de fatura real.</li>
     <li><b>v14:</b> comparador com descontos reais por provedor, deep links para as calculadoras oficiais, aviso do modelo de créditos do free tier AWS.</li>
@@ -429,7 +474,7 @@ gcloud compute addresses list</pre><p class="mute">Depois confira Billing &gt; R
   <p class="mute">Estimar ajuda; só alertas e travas evitam o susto. Faça isto antes de criar recursos.</p>
   <div class="grid g3">
     <div class="card"><h3>AWS</h3><ol class="mute"><li>Billing → Budgets: orçamento de $1 com alertas em 50/80/100%.</li><li>Ative Budget Actions para aplicar política IAM restritiva.</li><li>Ative Cost Anomaly Detection.</li><li>MFA no root; use IAM/SSO no dia a dia.</li></ol><p class="mute">Budgets avisa; não desliga recursos sozinho por padrão.</p></div>
-    <div class="card"><h3>Google Cloud</h3><ol class="mute"><li>Billing → Budgets &amp; alerts com e-mails.</li><li>Conecte o budget a um tópico Pub/Sub.</li><li>Cloud Function desvincula o billing do projeto ao estourar.</li><li>Um projeto por lab; delete o projeto ao final.</li></ol><p class="mute">Desvincular derruba os serviços: use só em lab.</p></div>
+    <div class="card"><h3>Google Cloud</h3><ol class="mute"><li>Billing → Budgets &amp; alerts com e-mails.</li><li>Conecte o budget a um tópico Pub/Sub.</li><li>Cloud Function desvincula o billing do projeto ao estourar.</li><li>Um projeto por lab; delete o projeto ao final.</li><li>Anote o dia em que o Free Trial de $300 expira — depois dele, o que estiver fora do Always Free começa a cobrar.</li></ol><p class="mute">Desvincular derruba os serviços: use só em lab.</p></div>
     <div class="card"><h3>Azure</h3><ol class="mute"><li>Azure for Students: confira as regras de limite de gasto.</li><li>Cost Management → Budgets com alertas.</li><li>Tudo em <code>rg-finops-lab</code>.</li><li>Fim: <code>az group delete -n rg-finops-lab</code>.</li></ol></div>
   </div>
 
@@ -506,7 +551,7 @@ const store={
 const toast=m=>{const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,3200)};
 const DAYS=30;
 const VERIFIED='2026-10';
-const S={fx:5.65,extra:store.get('fx_e',0),off:DAYS,budget:store.get('budget',50),cloud:'all',sel:new Set(store.get('sel',[])),key:store.get('gk',''),model:store.get('gm',''),upto:DAYS};
+const S={fx:5.65,extra:store.get('fx_e',0),off:DAYS,budget:store.get('budget',50),cloud:'all',sel:new Set(store.get('sel',[])),key:store.get('gk',''),model:store.get('gm',''),upto:DAYS,phase:store.get('gcp_phase','credit'),trialStart:store.get('gcp_trial_start',new Date().toISOString().slice(0,10))};
 
 function animateNumber(el,to,dur=650){
   if(!el)return;
@@ -581,7 +626,7 @@ const isLive=c=>LIVE.status==='ok'&&c.cloud==='azure'&&LIVE.azure[c.id]!==undefi
 const C=[
 {id:'gcp_e2',cloud:'gcp',paid:0,name:'GCP: VM e2-micro',hourly:0,
  link:'https://cloud.google.com/products/calculator?hl=pt-BR',
- desc:'Always Free só em us-central1, us-east1 e us-west1; 30 GB de disco padrão. IPv4 externo e egress extra podem cobrar.'},
+ desc:'Always Free permanece para sempre: 1 instância e2-micro em us-central1/us-east1/us-west1 + 30 GB pd-standard. Durante o Free Trial, você tem $300 de crédito para testar instâncias maiores.'},
 {id:'aws_ec2',cloud:'aws',paid:0,name:'AWS: EC2 t3.micro',hourly:0,
  link:'https://calculator.aws/#/createCalculator/ec2-enhancement',
  desc:'Contas novas recebem créditos (modelo atual da AWS) válidos por tempo limitado, em vez do antigo "12 meses de t2.micro". Confira o que sobrou antes de deixar rodando. IPv4 público é cobrado à parte, mesmo com a VM parada.'},
@@ -590,7 +635,7 @@ const C=[
  desc:'Free tier de 12 meses para contas elegíveis, com limite de horas. Confira a oferta atual.'},
 {id:'gcp_bq',cloud:'gcp',paid:0,name:'GCP: BigQuery Sandbox',hourly:0,
  link:'https://cloud.google.com/products/calculator?hl=pt-BR',
- desc:'Sandbox sem cartão, com limites de armazenamento e consulta; tabelas expiram.'},
+ desc:'Sandbox sem cartão: 1 TB de consulta e 10 GB de armazenamento por mês. Continua gratuito após o Free Trial, dentro dessas cotas.'},
 {id:'aws_s3cf',cloud:'aws',paid:0,name:'AWS: S3 + CloudFront',hourly:0,
  link:'https://calculator.aws/#/createCalculator/CloudFront',
  desc:'CloudFront tem franquia mensal recorrente; o S3 gratuito pode ser limitado no tempo. Defina budget.'},
@@ -602,7 +647,7 @@ const C=[
  desc:'~$0,045/h (~$33/mês) + ~$0,045/GB processado, mesmo ocioso. É o item que mais aparece em faturas de estudante.'},
 {id:'gcp_nat',cloud:'gcp',paid:1,name:'GCP: Cloud NAT',hourly:.0014,
  link:'https://cloud.google.com/products/calculator?hl=pt-BR',
- desc:'~$0,0014/h por VM + ~$0,045/GB processado. O GB é o que dói, não a hora.'},
+ desc:'~$0,0014/h por VM + ~$0,045/GB processado. Não é coberto pelo Always Free. Após o Free Trial, cada VM que usar o NAT cobra imediatamente.'},
 {id:'az_bastion',cloud:'azure',paid:1,name:'Azure: Bastion (Basic)',hourly:.19,
  link:'https://azure.microsoft.com/pt-br/pricing/calculator/',
  desc:'~$0,19/h (~$139/mês). Existe SKU Developer sem custo fixo, com limitações. Evite em estudos.'},
@@ -611,7 +656,7 @@ const C=[
  desc:'~$0,005/h (~$3,65/mês) por IPv4, em uso OU ocioso. Mesmo com a VM parada, o IP associado continua sendo cobrado. Libere ao destruir o lab.'},
 {id:'gcp_sql',cloud:'gcp',paid:1,name:'GCP: Cloud SQL (micro)',hourly:.015,
  link:'https://cloud.google.com/products/calculator?hl=pt-BR',
- desc:'Instância dedicada por hora, sem Always Free. Prefira Postgres via Docker na VM.'},
+ desc:'Instância dedicada cobrada por hora, sem Always Free. Durante o Free Trial o crédito cobre, mas no dia 91 a cobrança começa automaticamente se a instância continuar rodando.'},
 {id:'aws_alb',cloud:'aws',paid:1,name:'AWS: Application Load Balancer',hourly:.0225,
  link:'https://calculator.aws/#/createCalculator/ElasticLoadBalancing',
  desc:'~$0,0225/h (~$16/mês) + LCUs. Para arquivos estáticos é desnecessário.'},
@@ -623,6 +668,149 @@ const items=()=>[...S.sel].map(i=>byId[i]).filter(Boolean);
 const fx=()=>S.fx*(1+S.extra/100);
 const dayRate=()=>items().reduce((s,c)=>s+rateOf(c)*24,0);
 const cum=(d,off=S.off)=>dayRate()*Math.min(d,off);
+
+/* GCP Free Trial: itens cobertos pelo Always Free */
+const GCP_ALWAYS_FREE = new Set(['gcp_e2','gcp_bq','gcp_run']);
+const isGcpRelated = c => c.cloud === 'gcp' || c.id === 'ipv4';
+
+function renderTrialCountdown(){
+  const el=$('#gcp-countdown');
+  if(!el)return;
+  if(S.phase!=='credit'){el.hidden=true;return}
+  el.hidden=false;
+
+  const start=new Date(S.trialStart+'T00:00:00');
+  const now=new Date();
+  const daysElapsed=Math.max(0,Math.floor((now-start)/86400000));
+  const daysLeft=90-daysElapsed;
+  const dayNum=Math.min(90,daysElapsed+1);
+  const pct=Math.min(100,(daysElapsed/90)*100);
+
+  let cls='ok',msg=`Aproveite: ainda faltam <b>${daysLeft} dia(s)</b> de crédito gratuito.`;
+  if(daysLeft<=0){
+    cls='bad';
+    msg=`<b style="color:var(--bad)">Free Trial encerrado há ${Math.abs(daysLeft)} dia(s).</b> O que estiver fora do Always Free já começou a cobrar.`;
+  }else if(daysLeft<=10){
+    cls='bad';
+    msg=`Faltam apenas <b>${daysLeft} dia(s)</b>. Prepare o teardown do que está fora do Always Free.`;
+  }else if(daysLeft<=30){
+    cls='warn';
+    msg=`Faltam <b>${daysLeft} dia(s)</b>. Bom momento para revisar o que você deixou rodando.`;
+  }
+
+  el.innerHTML=`
+    <div class="countdown-row">
+      <div class="row" style="gap:14px;flex-wrap:nowrap;align-items:center">
+        <div class="day-badge ${cls}" title="${daysLeft<=0?'Free Trial encerrado':'Dias restantes'}">
+          <span>${daysLeft<=0?'0':daysLeft}</span>
+          <small>${daysLeft<=0?'DIAS':(daysLeft===1?'DIA':'DIAS')}</small>
+        </div>
+        <div>
+          <div class="countdown-msg">${msg}</div>
+          <div class="mute" style="font-size:11.5px;margin-top:2px">Dia ${dayNum} de 90</div>
+        </div>
+      </div>
+      <label class="mute" style="font-size:11.5px;display:flex;align-items:center;gap:6px">
+        Início do trial:
+        <input type="date" id="trial-start" value="${esc(S.trialStart)}" max="${new Date().toISOString().slice(0,10)}">
+      </label>
+    </div>
+    <div class="trial-bar ${cls==='ok'?'':cls}"><div style="width:${pct}%"></div></div>
+  `;
+
+  const inp=$('#trial-start');
+  if(inp){
+    inp.onchange=e=>{
+      const v=e.target.value;
+      if(!v)return;
+      S.trialStart=v;
+      store.set('gcp_trial_start',v);
+      renderTrialCountdown();
+    };
+  }
+}
+
+function renderGcpTrial(){
+  const card = $('#gcp-trial'); if(!card) return;
+  const gcpBasket = items().filter(isGcpRelated);
+  const showCard = gcpBasket.length > 0 || S.cloud === 'gcp';
+  if(!showCard){ card.hidden = true; return; }
+  card.hidden = false;
+  renderTrialCountdown();
+
+  $$('#gcp-phase button').forEach(b => b.setAttribute('aria-pressed', b.dataset.p === S.phase));
+
+  const monthly = gcpBasket.reduce((s,c) => s + rateOf(c) * 24 * DAYS, 0);
+  const threeMonth = monthly * 3;
+  const credit = 300;
+  const pct = threeMonth / credit * 100;
+  const remaining = credit - threeMonth;
+
+  const freeItems = gcpBasket.filter(c => GCP_ALWAYS_FREE.has(c.id));
+  const paidItems = gcpBasket.filter(c => !GCP_ALWAYS_FREE.has(c.id));
+  const postTrial = paidItems.reduce((s,c) => s + rateOf(c) * 24 * DAYS, 0);
+
+  const sub = $('#gcp-trial-sub');
+  const body = $('#gcp-trial-body');
+
+  if(S.phase === 'credit'){
+    sub.textContent = 'Você tem $300 para gastar em até 90 dias, sem cobranças automáticas.';
+    let barClass = pct >= 100 ? 'bad' : pct >= 60 ? 'warn' : '';
+    const pills = gcpBasket.map(c => {
+      const r = rateOf(c);
+      const free = GCP_ALWAYS_FREE.has(c.id);
+      return `<span class="item-pill ${r > 0 ? 'paid' : 'free'}">${esc(c.name)}${free ? ' · Always Free' : ''}</span>`;
+    }).join('');
+    body.innerHTML = `
+      <div class="grid g2" style="gap:16px">
+        <div>
+          <div class="mute" style="font-size:12px">Projeção de uso do crédito (3 meses de lab ligado)</div>
+          <div style="font-size:28px;font-weight:800;margin:4px 0">${usd(threeMonth)} <span class="mute" style="font-size:14px;font-weight:500">de $300</span></div>
+          <div class="credit-bar ${barClass}"><div style="width:${Math.min(100,pct)}%"></div></div>
+          <div class="mute" style="font-size:12px;margin-top:6px">
+            ${pct < 100
+              ? `Usa ${pct.toFixed(1)}% do crédito. Restam <b style="color:var(--ok)">${usd(remaining)}</b> ao final dos 90 dias.`
+              : `<b style="color:var(--bad)">Ultrapassa o crédito em ${usd(threeMonth - credit)}.</b> Reduza a cesta ou desligue antes do dia 90.`}
+          </div>
+        </div>
+        <div>
+          <div class="mute" style="font-size:12px">Sua cesta GCP</div>
+          <div style="margin-top:8px">${pills || '<span class="mute" style="font-size:12px">Nenhum item GCP na cesta.</span>'}</div>
+          ${gcpBasket.length ? `<div class="mute" style="font-size:12px;margin-top:8px">${gcpBasket.length} item(ns) · ${usd(monthly)}/mês durante o trial</div>` : ''}
+        </div>
+      </div>
+      ${pct >= 100 ? `<div class="callout" style="margin-top:14px"><b>⚠ Atenção:</b> no ritmo atual, você queima o crédito antes do dia 90. O que estiver fora do Always Free continuaria cobrando depois.</div>` : ''}
+    `;
+  } else {
+    sub.textContent = 'Após o Free Trial, apenas o que está dentro das cotas Always Free continua gratuito.';
+    const freeHtml = freeItems.length
+      ? freeItems.map(c => `<span class="item-pill free">✓ ${esc(c.name)}</span>`).join('')
+      : '<span class="mute" style="font-size:12px">Nenhum item Always Free na cesta.</span>';
+    const paidHtml = paidItems.length
+      ? paidItems.map(c => {
+          const r = rateOf(c);
+          return `<span class="item-pill ${r > 0 ? 'paid' : 'bad'}">${esc(c.name)}${r > 0 ? ' · ' + usd(r * 24 * DAYS) + '/mês' : ''}</span>`;
+        }).join('')
+      : '<span class="mute" style="font-size:12px">Nada fora do Always Free.</span>';
+    body.innerHTML = `
+      <div class="grid g2" style="gap:16px">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--ok);letter-spacing:.03em">♾️ CONTINUA GRATUITO</div>
+          <div style="margin-top:8px">${freeHtml}</div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--warn);letter-spacing:.03em">⚠ VAI COMEÇAR A COBRAR</div>
+          <div style="margin-top:8px">${paidHtml}</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--line)">
+        <div class="mute" style="font-size:12px">Custo mensal a partir do dia 91</div>
+        <div style="font-size:24px;font-weight:800;color:${postTrial > 0 ? 'var(--warn)' : 'var(--ok)'}">${postTrial > 0 ? usd(postTrial) + '/mês' : 'Nada · tudo dentro do Always Free'}</div>
+        ${postTrial > 0 ? `<div class="mute" style="font-size:12px;margin-top:4px">Se você não destruir essa cesta após o trial, ela começa a gerar ${BRL.format(postTrial * fx())} por mês.</div>` : ''}
+      </div>
+    `;
+  }
+}
 
 const STAGES=[['Planejar','Quanto isso pode custar?','v-sim'],['Proteger','Como garanto que não passo do limite?','v-lock'],['Provisionar','Como crio isso de forma repetível?','v-prj'],['Destruir','Como removo tudo e confirmo?','v-down']];
 const NAV=[['1. Planejar',['v-sim','v-cmp']],['2. Proteger',['v-lock']],['3. Provisionar',['v-prj']],['4. Destruir',['v-down']],['Sentinela IA',['v-ai']],['Sobre',['v-about']]];
@@ -737,6 +925,7 @@ function calc(){
   const hid=it.filter(c=>S.cloud!=='all'&&c.cloud!=='all'&&c.cloud!==S.cloud),h=$('#hid');
   h.style.display=hid.length?'block':'none';h.textContent=`⚠ ${hid.length} item(ns) de outra nuvem estão esmaecidos, mas continuam no total.`;
   chart();
+  renderGcpTrial();
 }
 function card(c){
   const r=rateOf(c),live=isLive(c),p=r>0;
@@ -760,6 +949,7 @@ function cloud(c){
   S.cloud=c;$$('#cf button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.c===c));
   $$('.svc').forEach(e=>e.style.opacity=(c==='all'||e.dataset.cloud==='all'||e.dataset.cloud===c)?1:.35);
   calc();
+  renderGcpTrial();
 }
 function setOff(d){S.off=d;$('#off').value=d;$('#off-v').textContent=d;$$('#scen button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.d===d));calc()}
 
@@ -919,6 +1109,27 @@ function exportReport(){
     ['Google Cloud',(v*.0142+r*.0038)*H+d*.10+e*.11],
     ['Azure',(v*.0135+r*.0036)*H+d*.09+Math.max(0,e-100)*.087]
   ]}catch{return []}})();
+
+  const gcpTrialMd = (()=>{
+    const gcp = items().filter(c=>c.cloud==='gcp'||c.id==='ipv4');
+    if(!gcp.length) return '_Nenhum item GCP na cesta._';
+    const monthly = gcp.reduce((s,c)=>s+rateOf(c)*24*DAYS,0);
+    const post = gcp.filter(c=>!GCP_ALWAYS_FREE.has(c.id)).reduce((s,c)=>s+rateOf(c)*24*DAYS,0);
+    const pct = (monthly*3/300*100).toFixed(1);
+    const start = new Date(S.trialStart+'T00:00:00');
+    const daysElapsed = Math.max(0, Math.floor((Date.now()-start.getTime())/86400000));
+    const daysLeft = 90 - daysElapsed;
+    const dateLine = daysLeft > 0
+      ? `- Início do trial: **${S.trialStart}** · dia **${Math.min(90,daysElapsed+1)} de 90** · faltam **${daysLeft} dia(s)**`
+      : `- Início do trial: **${S.trialStart}** · **expirado há ${Math.abs(daysLeft)} dia(s)**`;
+    return `${dateLine}
+- Projeção de uso do crédito em 90 dias: **${pct}%** de $300
+- Custo mensal durante o trial: **${usd(monthly)}**
+- Custo mensal após o dia 91: **${usd(post)}** ${post>0?'⚠':'✓'}
+- Itens que continuam gratuitos: ${gcp.filter(c=>GCP_ALWAYS_FREE.has(c.id)).map(c=>c.name).join(', ')||'_nenhum_'}
+- Itens que passam a cobrar: ${gcp.filter(c=>!GCP_ALWAYS_FREE.has(c.id)).map(c=>c.name).join(', ')||'_nenhum_'}`;
+  })();
+
   const md=`# Relatório FinOps — Laboratório na Nuvem
 
 **Gerado em:** ${new Date().toLocaleString('pt-BR')}
@@ -942,10 +1153,15 @@ ${it.length ? it.map(c=>`- **${c.name}** — ${rateOf(c)>0?usd(rateOf(c)*24*DAYS
 ${$('#td').textContent || '# Gere o script primeiro no simulador'}
 \`\`\`
 
-## 4. Checklist de encerramento
+## 4. Free Trial do Google Cloud
+
+**Fase atual:** ${S.phase==='credit'?'crédito de $300 (dias 1–90)':'Always Free (pós-crédito)'}
+${gcpTrialMd}
+
+## 5. Checklist de encerramento
 ${DOWN.map((t,i)=>`- [${downDone.includes(i)?'x':' '}] ${t}`).join('\n')}
 
-## 5. Comparador multi-cloud (referência rápida)
+## 6. Comparador multi-cloud (referência rápida)
 ${tcoDirect.length ? tcoDirect.map(([n,v])=>`- ${n}: ${usd(v)}/mês`).join('\n') : '_Ajuste os sliders do comparador para incluir esta seção._'}
 
 ---
@@ -1015,7 +1231,7 @@ function doImport(){
   }catch(e){$('#imp-fb').textContent='✗ '+e.message}
 }
 
-const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).'],[/reserva|savings plan|cud|compromisso/,'### Reservas e descontos\n* AWS **Savings Plans** e **Reservations**, GCP **CUDs**, Azure **Reservations**.\n* Chegam a 66-72% em 3 anos. Só faz sentido para carga estável.\n* Para laboratório, **não** faz sentido: você não quer compromisso.'],[/free tier|grátis|gratis/,'### Free tier hoje\n* AWS mudou: contas novas recebem **créditos** com validade limitada, não mais 12 meses fixos de t2.micro.\n* GCP Always Free permanece para e2-micro em regiões específicas.\n* Azure tem 12 meses para contas elegíveis + créditos de estudante.\n* Confira sempre o que ainda está de pé antes de confiar.']];
+const LOCAL=[[/docker|container/,'### Docker sem custo\n* **GCP e2-micro** (Always Free nas regiões elegíveis) com Docker Compose.\n* **Cloud Run** dentro da franquia mensal.\n* **Evite** EKS/AKS em testes: o control plane já custa dezenas de dólares por mês.'],[/gpu|tcc|deep|treinar modelo/,'### GPU para estudo\n* **Colab** e **Kaggle** oferecem GPU gratuita com limites.\n* **Evite** GPU na nuvem com cartão pessoal: esquecer ligada custa caro em horas.'],[/rds|sql|banco|postgres|mysql/,'### Bancos gerenciados\n* RDS e Cloud SQL cobram por hora de instância dedicada, mesmo sem consultas.\n* Alternativa: Postgres em Docker na VM gratuita.'],[/nat/,'### NAT Gateway\n* AWS: ~$33/mês mesmo sem uso, mais por GB.\n* GCP Cloud NAT: a hora é barata, o GB é o que dói.\n* Nunca deixe ligado "para depois".'],[/ipv4|ip público|ip elastico|eip/,'### IPv4 público\n* AWS e GCP cobram ~$0,005/h por IPv4. **Continua cobrando mesmo com a VM parada.**\n* Libere os IPs ao destruir o lab.'],[/kubernetes|k8s|eks|aks|gke/,'### Kubernetes gerenciado\n* EKS e AKS cobram o control plane por hora (~$0,10/h na AWS), antes de nós.\n* Para estudar K8s, use **kind** ou **minikube** na sua máquina.'],[/cloud run|lambda|serverless/,'### Serverless\n* Cloud Run e Lambda escalam a zero: só paga quando executa.\n* Cuidado com "min instances" > 0 (Cloud Run) e com provisioned concurrency (Lambda).'],[/reserva|savings plan|cud|compromisso/,'### Reservas e descontos\n* AWS **Savings Plans** e **Reservations**, GCP **CUDs**, Azure **Reservations**.\n* Chegam a 66-72% em 3 anos. Só faz sentido para carga estável.\n* Para laboratório, **não** faz sentido: você não quer compromisso.'],[/free tier|grátis|gratis|trial|crédito|credito/,'### Free tier e Free Trial hoje\n* **AWS:** contas novas recebem **créditos** com validade limitada, não mais 12 meses fixos de t2.micro.\n* **GCP:** Free Trial de **$300 por 90 dias** + **Always Free** permanente em e2-micro, BigQuery (1 TB/mês) e Cloud Run. Depois do trial, só o Always Free continua.\n* **Azure:** 12 meses para contas elegíveis + créditos de estudante.\n* Confira sempre o que ainda está de pé antes de confiar.']];
 function localLookup(q){
   const ql=q.toLowerCase();
   const hit=C.find(c=>ql.includes(c.id.replace(/_/g,' '))||c.name.toLowerCase().split(' ').some(w=>w.length>3&&ql.includes(w)));
@@ -2216,7 +2432,7 @@ const QZ=[
 ['Qual destes costuma gerar cobrança contínua, sem cota gratuita permanente?',['Cloud Run dentro da franquia','Banco gerenciado (RDS / Cloud SQL)','BigQuery Sandbox'],1,'Bancos gerenciados reservam uma instância dedicada, cobrada por hora mesmo sem consultas.'],
 ['Por que o NAT Gateway é um vilão para estudantes?',['Cobra por hora e por GB, mesmo ocioso.','Bloqueia o acesso ao GitHub.','Exige cartão corporativo.'],0,'A taxa horária corre o mês todo, e o tráfego processado soma por GB.'],
 ['O que um budget alert faz por padrão?',['Desliga os recursos ao atingir o limite.','Avisa que o limite foi atingido.','Impede novas criações.'],1,'Budgets avisam. Para agir automaticamente é preciso configurar ações (Budget Actions, Pub/Sub, Action Groups).'],
-['Por que o script de teardown deve filtrar por tag ou label?',['Para rodar mais rápido.','Para não apagar recursos de outras pessoas na mesma conta.','Porque a CLI exige.'],1,'Sem filtro, o comando atinge tudo da conta, inclusive trabalho de terceiros.']];
+['No Google Cloud, o que acontece depois que os $300 do Free Trial acabam?',['Todos os recursos continuam grátis.','A conta é cancelada automaticamente.','Só o que está dentro do Always Free continua grátis; o resto começa a cobrar.'],2,'O Free Trial e o Always Free são coisas diferentes. O crédito tem prazo; as cotas do Always Free renovam todo mês — mas só cobrem produtos específicos (e2-micro, BigQuery 1 TB, Cloud Run).']];
 const qs=store.get('quiz',{});
 function quizInit(){
   const draw=()=>{
@@ -2265,6 +2481,8 @@ function share(){
   const p=new URLSearchParams();
   if(S.sel.size)p.set('s',[...S.sel].join(','));
   p.set('o',S.off);p.set('b',S.budget);
+  p.set('phase',S.phase);
+  p.set('trial',S.trialStart);
   const u=location.origin+location.pathname+'#'+p;
   (navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast('Link copiado'),()=>prompt('Copie o link:',u));
 }
@@ -2273,6 +2491,8 @@ function fromHash(){
   if(p.get('s'))S.sel=new Set(p.get('s').split(',').filter(i=>byId[i]));
   if(p.get('o'))S.off=Math.min(DAYS,Math.max(1,parseInt(p.get('o'))||DAYS));
   if(p.get('b'))S.budget=Math.max(0,parseFloat(p.get('b'))||0);
+  if(p.get('phase')&&['credit','always'].includes(p.get('phase')))S.phase=p.get('phase');
+  if(p.get('trial')&&/^\d{4}-\d{2}-\d{2}$/.test(p.get('trial')))S.trialStart=p.get('trial');
 }
 function classroomMode(){
   const p=new URLSearchParams(location.search);
@@ -2357,6 +2577,10 @@ window.addEventListener('DOMContentLoaded',()=>{
   $$('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)close()}));
   $('#key-l').textContent=S.key?'Conectado':'Chave Gemini';
   prjInit();downInit();quizInit();skillsInit();
+  $$('#gcp-phase button').forEach(b=>b.onclick=()=>{
+    S.phase=b.dataset.p;store.set('gcp_phase',S.phase);
+    renderGcpTrial();
+  });
   initRipple();
   initCursorGlow();
   const opened=classroomMode();
@@ -2366,6 +2590,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   setTimeout(()=>loadLive({silent:true}),1200);
   fetch('https://economia.awesomeapi.com.br/last/USD-BRL').then(r=>r.ok?r.json():null).then(d=>{const v=parseFloat(d&&d.USDBRL&&d.USDBRL.bid);if(v>0){S.fx=v;fxUI()}}).catch(()=>{});
   window.addEventListener('hashchange',()=>{fromHash();catalog();$('#budget').value=S.budget;setOff(S.off)});
+  setInterval(()=>{if(S.phase==='credit')renderTrialCountdown()},1800000);
 });
 </script>
 </body>
